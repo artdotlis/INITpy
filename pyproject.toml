@@ -1,0 +1,64 @@
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core"]
+
+[tool.bandit]
+exclude_dirs = []
+skips = []
+
+[tool.codespell]
+count = ''
+quiet-level = 3
+skip = '.mypy,.mypy_cache,.vscore,.tox,*~,*.cache,*.lock,venv'
+
+[tool.poetry]
+authors = [
+  "Artur Lissin <artdotlis@pm.me>"
+]
+description = """Initial bare-bone Python project."""
+include = [
+  {path = "configs/src_ex/*"}
+]
+keywords = ["python", "skeleton"]
+license = "The Unlicense"
+name = "initpy"
+packages = [
+  {include = "src"}
+]
+readme = "README.md"
+repository = "https://github.com/artdotlis/INITpy"
+version = "0.1.0"
+
+[tool.poetry.dependencies]
+python = ">=3.11,<4"
+
+[tool.poetry.group.dev]
+optional = true
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = ">=3.1,<4"
+
+[tool.poetry.group.docs]
+optional = true
+
+[tool.poetry.group.docs.dependencies]
+mkdocs = ">=1.4,<2"
+mkdocs-material = ">=9.1,<10"
+mkdocstrings = ">=0.20,<1"
+mkdocstrings-python = ">=0.9,<1"
+
+[tool.poetry.group.test]
+optional = true
+
+[tool.poetry.group.test.dependencies]
+tox = ">=4.5,<5"
+
+[tool.vulture]
+exclude = []
+ignore_decorators = []
+ignore_names = []
+make_whitelist = true
+min_confidence = 90
+paths = ["src"]
+sort_by_size = true
+verbose = true
