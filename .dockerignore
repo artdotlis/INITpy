@@ -3,11 +3,11 @@
 !/bin
 !/src
 !/configs
-!/public
 
 !Makefile
 !poetry.lock
 !pyproject.toml
+
 !README.md
 !LICENSE
 

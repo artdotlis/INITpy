@@ -9,6 +9,9 @@ dev: setup
 devC: dev
 	bash bin/deploy/post.sh
 
+tests: setup
+	$(POETRY) install --without docs,dev
+
 build: setup
 	$(POETRY) install --without test,docs,dev
 
@@ -16,6 +19,7 @@ docs: setup
 	$(POETRY) install --with docs --without test,dev
 
 setup:
+	git lfs install
 	curl -sSL https://install.python-poetry.org | python3 -
 	$(POETRY) env remove --all
 	$(POETRY) config virtualenvs.in-project true
@@ -46,12 +50,10 @@ runUpdate:
 	--repo https://github.com/python-poetry/poetry \
 	--repo https://github.com/pre-commit/pre-commit-hooks \
 	--repo https://github.com/psf/black \
-	--repo https://github.com/asottile/reorder_python_imports \
-	--repo https://github.com/asottile/pyupgrade \
+	--repo https://github.com/charliermarsh/ruff-pre-commit \
 	--repo https://github.com/pre-commit/mirrors-mypy \
-	--repo https://github.com/PyCQA/flake8 \
-	--repo https://github.com/PyCQA/bandit \
 	--repo https://github.com/jendrikseipp/vulture \
 	--repo https://github.com/macisamuele/language-formatters-pre-commit-hooks \
 	--repo https://github.com/codespell-project/codespell \
-	--repo https://github.com/shellcheck-py/shellcheck-py
+	--repo https://github.com/shellcheck-py/shellcheck-py \
+	--repo https://github.com/commitizen-tools/commitizen
