@@ -1,11 +1,12 @@
 #!/bin/bash
 
 echo "clean setup"
+make uninstall
 # python
 dnf -y remove bzip2-devel ncurses-devel libffi-devel \
     readline-devel openssl-devel sqlite-devel tk-devel
 # misc
-dnf -y remove git make wget
+dnf -y remove git git-lfs make wget
 # TODO: some packages are colliding with systemd-udev dependencies
 # dnf -y group remove "Development Tools"
 # autoremove

@@ -10,8 +10,4 @@ echo -e "---\ninstalling package"
 /bin/bash "$root_path/deploy/init.sh"
 echo -e "---\ncleaning installation"
 /bin/bash "$root_path/deploy/clean.sh"
-echo -e "---\ncopy health"
-cp "$root_path/deploy/health.sh" / && chmod +x /health.sh
-echo -e "---\ncopy entrypoint"
-cp "$root_path/deploy/entrypoint.sh" / && chmod +x /entrypoint.sh
 echo "---"

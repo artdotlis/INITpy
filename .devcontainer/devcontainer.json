@@ -1,5 +1,4 @@
 {
-  "containerUser": "root",
   "customizations": {
     "vscode": {
       "extensions": [
@@ -21,7 +20,10 @@
         "hbenl.vscode-test-explorer",
         "Gruntfuggly.todo-tree",
         "uctakeoff.vscode-counter",
-        "DotJoshJohnson.xml"
+        "DotJoshJohnson.xml",
+        "aaron-bond.better-comments",
+        "KevinRose.vsc-python-indent",
+        "tamasfe.even-better-toml"
       ]
     }
   },
@@ -31,7 +33,7 @@
   ],
   "name": "initpy",
   "postAttachCommand": "make devC",
-  "remoteUser": "root",
+  "remoteUser": "vscode",
   "runServices": [
     "dev"
   ],

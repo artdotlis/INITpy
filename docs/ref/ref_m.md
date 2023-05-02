@@ -1,5 +1,5 @@
 # INIT - Python
 
-::: src
+::: src.initpy
     options:
         show_submodules: true
