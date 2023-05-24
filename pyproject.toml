@@ -12,6 +12,14 @@ ignore-words = "configs/dev/ignore.txt"
 quiet-level = 3
 skip = '.mypy,.mypy_cache,.vscore,.tox,*~,*.cache,*.lock,venv'
 
+[tool.commitizen]
+major_version_zero = true
+name = "cz_conventional_commits"
+tag_format = "v$version"
+update_changelog_on_bump = true
+version_provider = "poetry"
+version_type = "semver"
+
 [tool.mypy]
 allow_redefinition = false
 # misc
@@ -65,7 +73,7 @@ packages = [
 ]
 readme = "README.md"
 repository = "https://github.com/artdotlis/INITpy"
-version = "0.1.0"
+version = "0.1.0-rc2"
 
 [tool.poetry.dependencies]
 python = ">=3.11,<4"
@@ -74,6 +82,7 @@ python = ">=3.11,<4"
 optional = true
 
 [tool.poetry.group.dev.dependencies]
+commitizen = "^3.2,<4"
 pre-commit = ">=3.1,<4"
 
 [tool.poetry.group.docs]
@@ -109,9 +118,9 @@ exclude = [
   "venv"
 ]
 fixable = ["A", "B", "C", "D", "E", "F", "G", "I", "N", "Q", "S", "T", "W", "ANN", "ARG", "BLE", "COM", "DJ", "DTZ", "EM", "ERA", "EXE", "FBT", "ICN", "INP", "ISC", "NPY", "PD", "PGH", "PIE", "PL", "PT", "PTH", "PYI", "RET", "RSE", "RUF", "SIM", "SLF", "TCH", "TID", "TRY", "UP", "YTT"]
-ignore = ["TRY003"]
+ignore = ["TRY003", "N818"]
 line-length = 90
-select = ["E", "F", "B", "C90", "S", "PT", "ARG", "PTH", "TRY", "RUF"]
+select = ["E", "F", "B", "C90", "S", "PT", "ARG", "PTH", "TRY", "RUF", "N"]
 target-version = "py311"
 unfixable = []
 
