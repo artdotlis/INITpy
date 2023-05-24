@@ -26,7 +26,7 @@ jobs:
           python-version: "3.11"
       - name: Install dependencies
         run: |          
-          sudo mkdir -p /home/$PY_DIR && chwon runner -R /home/$PY_DIR
+          sudo mkdir -p /home/$PY_DIR && sudo chown runner -R /home/$PY_DIR
           sudo apt install -y libedit-dev curl make git-lfs
           curl https://pyenv.run | PYENV_ROOT=/home/$PY_DIR bash
           echo "/home/$PY_DIR/bin" >> $GITHUB_PATH
