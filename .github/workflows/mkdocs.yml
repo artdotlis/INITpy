@@ -17,7 +17,8 @@ concurrency:
 jobs:
   build:
     env:
-      PY_DIR: pyenv      
+      PY_DIR: pyenv
+      CU_HOME: /home/custom
     runs-on: ubuntu-latest
     steps:
       - name: Set up Python 3.11
@@ -26,11 +27,11 @@ jobs:
           python-version: "3.11"
       - name: Install dependencies
         run: |          
-          sudo mkdir -p /home/$PY_DIR && sudo chown runner -R /home/$PY_DIR
+          sudo mkdir -p $CU_HOME/$PY_DIR && sudo chown runner -R $CU_HOME
           sudo apt install -y libedit-dev curl make git-lfs
-          curl https://pyenv.run | PYENV_ROOT=/home/$PY_DIR bash
-          echo "/home/$PY_DIR/bin" >> $GITHUB_PATH
-          echo "/home/$PY_DIR/shims" >> $GITHUB_PATH
+          curl https://pyenv.run | PYENV_ROOT=$CU_HOME/$PY_DIR bash
+          echo "$CU_HOME/$PY_DIR/bin" >> $GITHUB_PATH
+          echo "$CU_HOME/$PY_DIR/shims" >> $GITHUB_PATH
       - name: Checkout
         uses: actions/checkout@v3      
       - name: Setup Pages
