@@ -29,13 +29,14 @@ jobs:
           sudo apt install -y libedit-dev curl make git-lfs
           curl https://pyenv.run | PYENV_ROOT=$HOME/$PYENV_DIR bash
           echo "$HOME/$PYENV_DIR/bin" >> $GITHUB_PATH
+          echo "$HOME/$PYENV_DIR/shims" >> $GITHUB_PATH
       - name: Checkout
         uses: actions/checkout@v3      
       - name: Setup Pages
         uses: actions/configure-pages@v3
       - name: Create documentation html
         run: |
-          PYENV_ROOT=$HOME/$PYENV_DIR make docs
+          make docs
           make runDocs
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
