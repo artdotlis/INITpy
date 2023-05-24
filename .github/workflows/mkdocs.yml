@@ -26,10 +26,8 @@ jobs:
           python-version: "3.11"
       - name: Install dependencies
         run: |
-          echo $HOME 
           sudo apt install -y libedit-dev curl make git-lfs
           curl https://pyenv.run | PYENV_ROOT=$HOME/$PYENV_DIR bash
-          echo "$HOME/$PYENV_DIR/bin"
           echo "$HOME/$PYENV_DIR/bin" >> $GITHUB_PATH
       - name: Checkout
         uses: actions/checkout@v3      
@@ -37,7 +35,6 @@ jobs:
         uses: actions/configure-pages@v3
       - name: Create documentation html
         run: |
-          ls -al "$PYENV_ROOT"
           make docs
           make runDocs
       - name: Upload artifact
