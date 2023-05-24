@@ -46,6 +46,9 @@ runTests:
 runBuild:
 	$(POETRY) build
 
+runBump:
+	$(POETRY) run cz bump
+
 runUpdate:
 	$(POETRY) run pre-commit autoupdate \
 	--repo https://github.com/python-poetry/poetry \
