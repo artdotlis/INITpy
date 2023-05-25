@@ -100,7 +100,7 @@ repos:
   rev: v1.3.0
   hooks:
   - id: mypy
-    args: [--install-types]
+    entry: bash -c 'mypy --install-types --non-interactive "$@"'
     stages: [pre-commit]
 
   # dead code
