@@ -69,7 +69,8 @@ keywords = ["python", "skeleton"]
 license = "The Unlicense"
 name = "initpy"
 packages = [
-  {include = "initpy", from = "src"}
+  {include = "initpy", from = "src"},
+  {include = "initpy/py.typed", from = "src"}
 ]
 readme = "README.md"
 repository = "https://github.com/artdotlis/INITpy"
