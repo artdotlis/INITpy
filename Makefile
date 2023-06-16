@@ -18,11 +18,11 @@ docs: setup
 
 setup:
 	git lfs install
+	pyenv install $(PYV) -s
+	pyenv local $(PYV)
 	curl -sSL https://install.python-poetry.org | python3 -
 	$(POETRY) env remove --all
 	$(POETRY) config virtualenvs.in-project true
-	pyenv install $(PYV) -s
-	pyenv local $(PYV)
 	$(POETRY) env use `pyenv which python`
 
 uninstall:
