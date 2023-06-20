@@ -8,7 +8,7 @@ COPY . /tmp/app
 
 WORKDIR /tmp/app
 
-RUN bash ./bin/deploy.sh
+RUN mkdir -p "${HOME}/.local/bin" && bash ./bin/deploy.sh
 
 WORKDIR /
 
