@@ -63,14 +63,14 @@ authors = [
 ]
 description = """Initial bare-bone Python project."""
 include = [
-  {path = "configs/src_ex/*", format = "sdist"}
+  {path = "configs/src_ex/*", format = "sdist"},
+  "src/knacr/py.typed"
 ]
 keywords = ["python", "skeleton"]
 license = "The Unlicense"
 name = "initpy"
 packages = [
-  {include = "initpy", from = "src"},
-  {include = "initpy/py.typed", from = "src"}
+  {include = "initpy", from = "src"}
 ]
 readme = "README.md"
 repository = "https://github.com/artdotlis/INITpy"
@@ -83,15 +83,15 @@ python = ">=3.11,<4"
 optional = true
 
 [tool.poetry.group.dev.dependencies]
-commitizen = "^3.2,<4"
-pre-commit = ">=3.1,<4"
+commitizen = "^3.12,<4"
+pre-commit = ">=3.5,<4"
 
 [tool.poetry.group.docs]
 optional = true
 
 [tool.poetry.group.docs.dependencies]
-mkdocs = ">=1.4,<2"
-mkdocs-material = ">=9.1,<10"
+mkdocs = ">=1.5,<2"
+mkdocs-material = ">=9.4,<10"
 mkdocstrings = ">=0.23,<1"
 mkdocstrings-python = ">=1.7,<2"
 
@@ -99,9 +99,9 @@ mkdocstrings-python = ">=1.7,<2"
 optional = true
 
 [tool.poetry.group.test.dependencies]
-coverage = ">= 7.2,<8"
-pytest = ">= 7.3,<8"
-tox = ">=4.5,<5"
+coverage = ">= 7.3,<8"
+pytest = ">= 7.4,<8"
+tox = ">=4.11,<5"
 
 [tool.ruff]
 # Allow unused variables when underscore-prefixed.
