@@ -51,4 +51,4 @@ jobs:
     - name: lint and test
       run: |
         make dev
-        make runCheck
+        make runChecks
