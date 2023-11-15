@@ -33,7 +33,7 @@ uninstall:
 runAct:
 	$(POETRY) shell
 
-runCheck:
+runChecks:
 	$(POETRY) run pre-commit run --all-files
 
 runDocs:
@@ -54,6 +54,9 @@ runBump:
 runLock:
 	$(POETRY) lock
 	$(POETRY) export -f requirements.txt -o requirements.txt
+
+runPoetry:
+	$(POETRY) run $(CMD)
 
 runUpdate:
 	$(POETRY) run pre-commit autoupdate \

@@ -99,7 +99,7 @@ repos:
   - id: mypy
     name: mypy
     language: system
-    entry: bash -c 'make runAct && mypy --install-types --non-interactive "$@"'
+    entry: bash -c 'make runPoetry CMD="mypy --install-types --non-interactive $@"'
     files: \.py$
     stages: [pre-commit]
 
