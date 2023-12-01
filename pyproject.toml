@@ -67,7 +67,7 @@ authors = [
 description = """Initial bare-bone Python project."""
 include = [
   {path = "configs/src_ex/*", format = "sdist"},
-  "src/knacr/py.typed"
+  "src/initpy/py.typed"
 ]
 keywords = ["python", "skeleton"]
 license = "The Unlicense"
