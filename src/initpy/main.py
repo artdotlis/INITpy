@@ -1,3 +1,6 @@
+from initpy.sub.sub import MySub
+
+
 class MyMain:
     """_summary_"""
 
@@ -8,3 +11,11 @@ class MyMain:
             inp (str): _description_
         """
         print(inp)
+
+
+def run() -> None:
+    MyMain().method_main(" ".join(MySub().method_sub(["Hello", "world", "!"])))
+
+
+if __name__ == "__main__":
+    run()

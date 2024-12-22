@@ -14,10 +14,10 @@ Initial bare-bone Python project.
 
 ### Default
 
--   pyenv: ~2.13
--   GNU/Linux
+- pyenv: ~2.13
+- GNU/Linux
 
 ### Dev Container
 
--   Docker
--   Docker - Compose
+- Docker
+- Docker - Compose

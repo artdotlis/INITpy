@@ -4,7 +4,7 @@ requires = ["poetry-core"]
 
 [tool.black]
 line-length = 90
-target-version = ["py311"]
+target-version = ["py313"]
 
 [tool.codespell]
 count = ''
@@ -79,37 +79,46 @@ readme = "README.md"
 repository = "https://github.com/artdotlis/INITpy"
 version = "0.2.0"
 
+[tool.poetry.scripts]
+main_run = "initpy.main:run"
+
 [tool.poetry.dependencies]
-python = ">=3.11,<4"
+python = ">=3.13,<4"
 
 [tool.poetry.group.dev]
 optional = true
 
 [tool.poetry.group.dev.dependencies]
-commitizen = ">=3.12,<4"
-mypy = ">=1.7,<2"
-pre-commit = ">=3.5,<4"
+commitizen = ">=3.30,<4"
+mypy = ">=1.13,<2"
+ruff = ">=0.7,<1"
+black = ">=24.10,<25"
+codespell = ">=2.3,<3"
+shellcheck-py = ">=0.10,<1"
+pre-commit-hooks = ">=5.0,<6"
+# commit hooks
+lefthook = ">=1.8,<2"
 
 [tool.poetry.group.docs]
 optional = true
 
 [tool.poetry.group.docs.dependencies]
-mkdocs = ">=1.5,<2"
-mkdocs-material = ">=9.4,<10"
-mkdocstrings = ">=0.23,<1"
-mkdocstrings-python = ">=1.7,<2"
+mkdocs = ">=1.6,<2"
+mkdocs-material = ">=9.5,<10"
+mkdocstrings = ">=0.27,<1"
+mkdocstrings-python = ">=1.12,<2"
 
 [tool.poetry.group.test]
 optional = true
 
 [tool.poetry.group.test.dependencies]
-coverage = ">= 7.3,<8"
-pytest = ">= 7.4,<8"
-tox = ">=4.11,<5"
+coverage = ">= 7.6,<8"
+pytest = ">=8.3,<9"
+tox = ">=4.23,<5"
 
 [tool.ruff]
-# Allow unused variables when underscore-prefixed.
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+line-length = 90
+target-version = "py313"
 exclude = [
   ".git",
   ".mypy_cache",
@@ -122,25 +131,17 @@ exclude = [
   "dist",
   "venv"
 ]
+
+[tool.ruff.lint]
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 fixable = ["A", "B", "C", "D", "E", "F", "G", "I", "N", "Q", "S", "T", "W", "ANN", "ARG", "BLE", "COM", "DJ", "DTZ", "EM", "ERA", "EXE", "FBT", "ICN", "INP", "ISC", "NPY", "PD", "PGH", "PIE", "PL", "PT", "PTH", "PYI", "RET", "RSE", "RUF", "SIM", "SLF", "TCH", "TID", "TRY", "UP", "YTT"]
 ignore = ["TRY003", "N818"]
-line-length = 90
 select = ["E", "F", "B", "C90", "S", "PT", "ARG", "PTH", "TRY", "RUF", "N"]
-target-version = "py311"
 unfixable = []
 
-[tool.ruff.mccabe]
+[tool.ruff.lint.mccabe]
 max-complexity = 11
 
-[tool.ruff.pylint]
+[tool.ruff.lint.pylint]
 max-args = 8
-
-[tool.vulture]
-exclude = []
-ignore_decorators = []
-ignore_names = []
-make_whitelist = true
-min_confidence = 90
-paths = ["src"]
-sort_by_size = true
-verbose = true
