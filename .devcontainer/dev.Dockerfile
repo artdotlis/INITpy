@@ -1,6 +1,6 @@
 FROM docker.io/rockylinux:9
 
-ARG USERNAME=vscode
+ARG USERNAME=devu
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 ARG WORK_DIR=/workspace
@@ -33,4 +33,4 @@ RUN mkdir -p $WORK_DIR && \
 
 USER $USERNAME
 
-ENTRYPOINT ["/bin/sh", "/entrypoint.sh"]
+ENTRYPOINT ["sleep", "infinity"]
