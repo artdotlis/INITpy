@@ -20,7 +20,6 @@ setup:
 	git lfs install
 	pyenv install $(PYV) -s
 	pyenv local $(PYV)
-	`pyenv which python` -m pip install poetry-plugin-export
 	curl -sSL https://install.python-poetry.org | python3 -
 	$(POETRY) env remove --all
 	$(POETRY) config virtualenvs.in-project true
