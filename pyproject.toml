@@ -116,6 +116,10 @@ coverage = ">= 7.6,<8"
 pytest = ">=8.3,<9"
 tox = ">=4.23,<5"
 
+[tool.poetry.requires-plugins]
+poetry-plugin-export = ">=1.9"
+poetry-plugin-shell = ">=1.0"
+
 [tool.ruff]
 line-length = 90
 target-version = "py313"
