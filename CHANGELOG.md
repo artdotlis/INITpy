@@ -1,3 +1,11 @@
+## v0.3.1 (2025-01-15)
+
+### Fix
+
+- move to pep621 as version provider
+- add missing dependencies to github main workflow
+- correct fail statement in makefile
+
 ## v0.3.0 (2025-01-15)
 
 ### Feat
