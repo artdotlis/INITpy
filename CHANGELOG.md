@@ -1,3 +1,19 @@
+## v0.4.0 (2025-01-15)
+
+### Feat
+
+- remove radon
+- remove customization for vscode
+- first step to lefthook
+
+### Fix
+
+- add missing dependencies
+
+### Refactor
+
+- correct pyenv version in readme
+
 ## v0.3.0 (2025-01-15)
 
 ### Feat
