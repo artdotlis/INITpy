@@ -260,14 +260,14 @@ files = [
 
 [[package]]
 name = "commitizen"
-version = "3.31.0"
+version = "4.1.0"
 description = "Python commitizen client tool"
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.9"
 groups = ["dev"]
 files = [
-    {file = "commitizen-3.31.0-py3-none-any.whl", hash = "sha256:a28df7ab5b8665d48796c422a97dcfae0d0fce7e2d28404c0e386cf1ebd42c8f"},
-    {file = "commitizen-3.31.0.tar.gz", hash = "sha256:6ab973e91d07c1e745c6c0efe6dd0708b1f6d8fd7e4ab5e7c773b5ceb3df4ff0"},
+    {file = "commitizen-4.1.0-py3-none-any.whl", hash = "sha256:2e6c5fbd442cab4bcc5a04bc86ef2196ef84bcf611317d6c596e87f5bb4c09f5"},
+    {file = "commitizen-4.1.0.tar.gz", hash = "sha256:4f2d9400ec411aec1c738d4c63fc7fd5807cd6ddf6be970869e03e68b88ff718"},
 ]
 
 [package.dependencies]
@@ -478,14 +478,14 @@ i18n = ["Babel (>=2.7)"]
 
 [[package]]
 name = "lefthook"
-version = "1.10.4"
+version = "1.10.7"
 description = "Git hooks manager. Fast, powerful, simple."
 optional = false
 python-versions = ">=3.6"
 groups = ["dev"]
 files = [
-    {file = "lefthook-1.10.4-py3-none-any.whl", hash = "sha256:7d596ecde07a8b5268e2a450afeed7c1ba39942b45cbf3de1f54920c4bcccfe4"},
-    {file = "lefthook-1.10.4.tar.gz", hash = "sha256:4d762695df77e7ffb1209a23e9b280e17049f90e5c74eb64720049944f84b854"},
+    {file = "lefthook-1.10.7-py3-none-any.whl", hash = "sha256:c88c9cb1edff81f1d5537897da3e2b5ae5602611da1fb5eaa0c11aa8ccfbb1cf"},
+    {file = "lefthook-1.10.7.tar.gz", hash = "sha256:e1f1370c7cf06e77a3cc33716de35f84913a6cbea4cd1946d32f3490ca8672d9"},
 ]
 
 [[package]]
@@ -1453,4 +1453,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.13,<4"
-content-hash = "80d686b1ba071b1e3c6dfdae982f1336577f6d877ad2845dade6ed4f30763ae4"
+content-hash = "0ebb371047ec0277b6bfdeb5e16fa37398e2fc38ab5dbdc1d6359fc85ae18bdf"
