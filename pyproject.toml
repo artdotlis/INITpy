@@ -1,3 +1,18 @@
+[project]
+name = "initpy"
+version = "0.3.0"
+description = """Initial bare-bone Python project."""
+readme = "README.md"
+authors = [
+      { name = "Artur Lissin", email = "artdotlis@pm.me" },
+]
+license = "The Unlicense"
+keywords = ["python", "skeleton"]
+repository = "https://github.com/artdotlis/INITpy"
+
+[project.scripts]
+main_run = "initpy.main:run"
+
 [build-system]
 build-backend = "poetry.core.masonry.api"
 requires = ["poetry-core"]
@@ -61,26 +76,13 @@ warn_unreachable = true
 warn_unused_ignores = true
 
 [tool.poetry]
-authors = [
-  "Artur Lissin <artdotlis@pm.me>"
-]
-description = """Initial bare-bone Python project."""
 include = [
   {path = "configs/src_ex/*", format = "sdist"},
   "src/initpy/py.typed"
 ]
-keywords = ["python", "skeleton"]
-license = "The Unlicense"
-name = "initpy"
 packages = [
   {include = "initpy", from = "src"}
 ]
-readme = "README.md"
-repository = "https://github.com/artdotlis/INITpy"
-version = "0.3.0"
-
-[tool.poetry.scripts]
-main_run = "initpy.main:run"
 
 [tool.poetry.dependencies]
 python = ">=3.13,<4"
