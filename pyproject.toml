@@ -35,7 +35,7 @@ update_changelog_on_bump = true
 version_files = [
   "README.md:^\\[!\\[release:"
 ]
-version_provider = "poetry"
+version_provider = "pep621"
 version_type = "semver"
 
 [tool.mypy]
