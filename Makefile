@@ -34,23 +34,23 @@ uninstall:
 runAct:
 	$(POETRY) shell
 
-runChecks: runAct
-	lefthook run pre-commit --all-files
+runChecks:
+	$(POETRY) run lefthook run pre-commit --all-files
 
-runDocs: runAct
-	mkdocs build -f configs/dev/mkdocs.yml -d ../../public
+runDocs:
+	$(POETRY) run mkdocs build -f configs/dev/mkdocs.yml -d ../../public
 
-serveDocs: runAct
-	mkdocs serve -f configs/dev/mkdocs.yml
+serveDocs:
+	$(POETRY) run mkdocs serve -f configs/dev/mkdocs.yml
 
-runTests: runAct
-	tox
+runTests:
+	$(POETRY) run tox
 
 runBuild:
 	$(POETRY) build
 
-runBump: runAct
-	cz bump
+runBump:
+	$(POETRY) run cz bump
 
 runPoetry:
 	$(POETRY) run $(CMD)
@@ -66,8 +66,8 @@ export_runLock:
 export_runUpdate:
 	$(POETRY) update --with test,docs,dev
 
-com commit: runAct
-	cz commit
+com commit:
+	$(POETRY) run cz commit
 
-recom recommit: runAct
-	cz commit --retry
+recom recommit:
+	$(POETRY) run cz commit --retry
