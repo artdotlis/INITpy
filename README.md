@@ -14,7 +14,7 @@ Initial bare-bone Python project.
 
 ### Default
 
-- pyenv: ~2.13
+- pyenv: ~2.5
 - GNU/Linux
 
 ### Dev Container
