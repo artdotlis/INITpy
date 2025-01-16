@@ -187,9 +187,3 @@ parallel = true
 [tool.coverage.report]
 show_missing = false
 fail_under = 50
-
-[tool.coverage.paths]
-source = [
-    "src/",
-   ".tox/*/lib/python*/site-packages/"
-]
