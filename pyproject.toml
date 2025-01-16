@@ -181,7 +181,7 @@ commands = [
 ]
 
 [tool.coverage.run]
-source = ["knacr"]
+source = ["initpy"]
 parallel = true
 
 [tool.coverage.report]
