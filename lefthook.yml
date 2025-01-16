@@ -3,6 +3,8 @@ output:
 pre-commit:
   parallel: true
   commands:
+    tox:
+      run: tox
     mypy:
       glob: "*.py"
       run: mypy {staged_files}
