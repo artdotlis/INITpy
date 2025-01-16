@@ -1,3 +1,17 @@
+## v0.4.1 (2025-01-16)
+
+## v0.4.1 (2025-01-16)
+
+### Fix
+
+- simplify main workflow
+- change to normal pip install for windows
+- add correct path for req
+- add requirements to mac and win tests
+- add test requirements to mac and win tests
+- readd coverage path config
+- correct coverage source
+
 ## v0.4.0 (2025-01-16)
 
 ### Feat
