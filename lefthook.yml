@@ -1,7 +1,6 @@
 output:
 - summary
-- failure
-- success
+- execution_info
 pre-commit:
   piped: true
   jobs:
