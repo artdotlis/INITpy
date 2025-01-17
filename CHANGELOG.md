@@ -1,3 +1,17 @@
+## v0.5.0 (2025-01-17)
+
+### Feat
+
+- group lefthook jobs
+
+### Fix
+
+- improve lefthook usage and remove deprecated pyproject.toml elements
+
+### Refactor
+
+- clean changelog
+
 ## v0.4.1 (2025-01-16)
 
 ### Fix
