@@ -1,3 +1,9 @@
+## v0.5.1 (2025-01-17)
+
+### Fix
+
+- add missing self to workflow
+
 ## v0.5.0 (2025-01-17)
 
 ### Feat
