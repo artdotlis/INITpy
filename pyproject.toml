@@ -9,6 +9,7 @@ authors = [
 license = "The Unlicense"
 keywords = ["python", "skeleton"]
 repository = "https://github.com/artdotlis/INITpy"
+requires-python = ">=3.13,<4"
 
 [project.scripts]
 main_run = "initpy.main:run"
@@ -83,9 +84,6 @@ include = [
 packages = [
   {include = "initpy", from = "src"}
 ]
-
-[tool.poetry.dependencies]
-python = ">=3.13,<4"
 
 [tool.poetry.group.dev]
 optional = true
