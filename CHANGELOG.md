@@ -1,7 +1,5 @@
 ## v0.4.1 (2025-01-16)
 
-## v0.4.1 (2025-01-16)
-
 ### Fix
 
 - simplify main workflow
