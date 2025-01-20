@@ -23,6 +23,7 @@ pkgs.mkShell {
     sqlite
     xz
     stdenv.cc.cc
+    tk tcl
     # format
     nixfmt-rfc-style
     ruff
@@ -38,13 +39,15 @@ pkgs.mkShell {
 
     # pyenv flags to be able to install Python
     export CPPFLAGS="-I${pkgs.zlib.dev}/include -I${pkgs.libffi.dev}/include -I${pkgs.readline.dev}/include -I${pkgs.bzip2.dev}/include -I${pkgs.openssl.dev}/include -I${pkgs.sqlite.dev}/include";
-    export CXXFLAGS="-I${pkgs.zlib.dev}/include -I${pkgs.libffi.dev}/include -I${pkgs.readline.dev}/include -I${pkgs.bzip2.dev}/include -I${pkgs.openssl.dev}/include -I${pkgs.sqlite.dev}/include";
     export CFLAGS="-I${pkgs.openssl.dev}/include";
     export LDFLAGS="-L${pkgs.zlib.out}/lib -L${pkgs.libffi.out}/lib -L${pkgs.readline.out}/lib -L${pkgs.bzip2.out}/lib -L${pkgs.openssl.out}/lib -L${pkgs.sqlite.out}/lib -L${pkgs.stdenv.cc.cc.lib}/lib";
 
+    export TCLTK_LIBS="-L${pkgs.tcl}/lib -L${pkgs.tk}/lib -l${pkgs.tcl.libPrefix} -l${pkgs.tk.libPrefix}"
+    export TCLTK_CFLAGS="-I${pkgs.tcl}/include -I${pkgs.tk}/include"
+
     export LD_LIBRARY_PATH=${pkgs.stdenv.cc.cc.lib}/lib/:/run/opengl-driver/lib/
 
-    export PYTHON_CONFIGURE_OPTS="--with-openssl=${pkgs.openssl.dev} --enable-loadable-sqlite-extensions";
+    export PYTHON_CONFIGURE_OPTS="--enable-shared --with-openssl=${pkgs.openssl.dev} --enable-loadable-sqlite-extensions";
     export PYENV_VIRTUALENV_DISABLE_PROMPT="1";
   '';
 }
