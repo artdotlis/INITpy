@@ -3,7 +3,7 @@ PYV = 3.13
 
 dev: setup
 	$(POETRY) install --with test,docs,dev
-	$(POETRY) run lefthook uninstall | echo "lefthook not installed"
+	$(POETRY) run lefthook uninstall 2>&1
 	$(POETRY) run lefthook install
 	bash bin/deploy/post.sh
 
