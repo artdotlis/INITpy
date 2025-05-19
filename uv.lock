@@ -260,7 +260,7 @@ wheels = [
 
 [[package]]
 name = "initpy"
-version = "0.6.1"
+version = "0.6.0"
 source = { virtual = "." }
 
 [package.dev-dependencies]
@@ -553,7 +553,7 @@ wheels = [
 
 [[package]]
 name = "pkg1"
-version = "0.6.1"
+version = "0.6.0"
 source = { editable = "packages/pkg1" }
 dependencies = [
     { name = "utils" },
@@ -834,7 +834,7 @@ wheels = [
 
 [[package]]
 name = "utils"
-version = "0.5.1"
+version = "0.6.0"
 source = { editable = "packages/utils" }
 
 [[package]]
