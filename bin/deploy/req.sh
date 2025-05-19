@@ -8,5 +8,5 @@ dnf -y group install "Development Tools"
 dnf -y install bzip2-devel ncurses-devel libffi-devel \
     readline-devel openssl-devel sqlite-devel tk-devel
 ln -s /usr/bin/python3 /usr/bin/python
-curl https://pyenv.run | bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
 echo "requirements installed"

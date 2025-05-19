@@ -1,5 +1,12 @@
-# INIT - Python
+# INIT - Python \[PKG1\]
 
-::: initpy
+::: pkg1
+    options:
+        show_submodules: true
+
+
+# INIT - Python \[shared\]
+
+::: utils
     options:
         show_submodules: true
