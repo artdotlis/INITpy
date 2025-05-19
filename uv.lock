@@ -260,7 +260,7 @@ wheels = [
 
 [[package]]
 name = "initpy"
-version = "0.5.1"
+version = "0.6.1"
 source = { virtual = "." }
 
 [package.dev-dependencies]
@@ -294,7 +294,7 @@ test = [
 dev = [
     { name = "black", specifier = ">=24.10,<25" },
     { name = "codespell", specifier = ">=2.3,<3" },
-    { name = "commitizen", specifier = ">=4.1,<5" },
+    { name = "commitizen", specifier = ">=4.7,<5" },
     { name = "lefthook", specifier = ">=1.10,<2" },
     { name = "mypy", specifier = ">=1.14,<2" },
     { name = "pkg1", editable = "packages/pkg1" },
@@ -553,7 +553,7 @@ wheels = [
 
 [[package]]
 name = "pkg1"
-version = "0.5.1"
+version = "0.6.1"
 source = { editable = "packages/pkg1" }
 dependencies = [
     { name = "utils" },
