@@ -1,3 +1,18 @@
+## v0.6.0 (2025-05-19)
+
+### Feat
+
+- move to uv from poetry
+
+### Fix
+
+- improve Makefile
+
+### Refactor
+
+- change output
+- add success output
+
 ## v0.5.1 (2025-01-17)
 
 ### Fix

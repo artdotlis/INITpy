@@ -11,7 +11,7 @@ pkgs.mkShell {
     python313Full
     pkgs_unstable.virtualenv
     # python build requirements
-    pkgs_unstable.pyenv
+    pkgs_unstable.uv
     gcc
     gnumake
     zlib
@@ -35,9 +35,8 @@ pkgs.mkShell {
     export RUFF=${pkgs.ruff}/bin/ruff
 
     export SOURCE_DATE_EPOCH=$(date +%s)
-    export PYENV_ROOT="$HOME/.pyenv";
 
-    # pyenv flags to be able to install Python
+    # extra flags python installation
     export CPPFLAGS="-I${pkgs.zlib.dev}/include -I${pkgs.libffi.dev}/include -I${pkgs.readline.dev}/include -I${pkgs.bzip2.dev}/include -I${pkgs.openssl.dev}/include -I${pkgs.sqlite.dev}/include";
     export CFLAGS="-I${pkgs.openssl.dev}/include";
     export LDFLAGS="-L${pkgs.zlib.out}/lib -L${pkgs.libffi.out}/lib -L${pkgs.readline.out}/lib -L${pkgs.bzip2.out}/lib -L${pkgs.openssl.out}/lib -L${pkgs.sqlite.out}/lib -L${pkgs.stdenv.cc.cc.lib}/lib";
@@ -48,6 +47,5 @@ pkgs.mkShell {
     export LD_LIBRARY_PATH=${pkgs.stdenv.cc.cc.lib}/lib/:/run/opengl-driver/lib/
 
     export PYTHON_CONFIGURE_OPTS="--enable-shared --with-openssl=${pkgs.openssl.dev} --enable-loadable-sqlite-extensions";
-    export PYENV_VIRTUALENV_DISABLE_PROMPT="1";
   '';
 }

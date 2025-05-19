@@ -1,4 +1,5 @@
-from initpy.sub.sub import MySub
+from pkg1.sub.sub import MySub
+from utils.hello import main
 
 
 class MyMain:
@@ -15,6 +16,7 @@ class MyMain:
 
 def run() -> None:
     MyMain().method_main(" ".join(MySub().method_sub(["Hello", "world", "!"])))
+    main()
 
 
 if __name__ == "__main__":

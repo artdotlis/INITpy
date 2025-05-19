@@ -13,8 +13,6 @@ pre-commit:
           - name: mypy
             glob: "*.py"
             run: mypy {staged_files}
-          - name: poetry-check
-            run: poetry check
           - name: shellcheck
             glob: "*.sh"
             run: shellcheck {staged_files}
@@ -63,11 +61,8 @@ pre-commit:
             glob: "*.py"
             run: \[\[ test $RUFF != "" ]] && $RUFF check {staged_files} || ruff check {staged_files}
             stage_fixed: true
-          - name: poetry-export
-            run: poetry export -f requirements.txt -o requirements.txt
-            stage_fixed: true
-          - name: poetry-export-dev
-            run: poetry export --only=dev -f requirements.txt -o configs/dev/requirements.dev.txt
+          - name: uv-export
+            run: make runLock
             stage_fixed: true
           - name: pretty-format-json
             glob: "*.json"

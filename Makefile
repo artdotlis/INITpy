@@ -1,73 +1,72 @@
-POETRY = $(HOME)/.local/bin/poetry
 PYV = 3.13.2
+UV_CACHE_DIR = .cache
+export UV_CACHE_DIR
+
 
 dev: setup
-	$(POETRY) install --with test,docs,dev
-	$(POETRY) run lefthook uninstall 2>&1
-	$(POETRY) run lefthook install
+	uv sync --frozen --all-groups
+	uv run lefthook uninstall 2>&1
+	uv run lefthook install
 	bash bin/deploy/post.sh
 
 tests: setup
-	$(POETRY) install --without docs,dev
+	uv sync --frozen --no-group docs --no-group dev
 
 build: setup
-	$(POETRY) install --without test,docs,dev
+	uv sync --frozen --no-group test --no-group docs --no-group dev
 
 docs: setup
-	$(POETRY) install --with docs --without test,dev
+	uv sync --froze --no-group test --no-group dev
 
 setup:
 	git lfs install || echo '[FAIL] git-lfs could not be installed'
-	pyenv install $(PYV) -s
-	pyenv local $(PYV)
-	curl -sSL https://install.python-poetry.org | python3 -
-	$(POETRY) env remove --all
-	$(POETRY) config virtualenvs.in-project true
-	$(POETRY) config virtualenvs.create true
-	$(POETRY) env use `pyenv which python`
-	$(POETRY) run pip install --upgrade pip
-
-uninstall:
-	pyenv local $(PYV)
-	curl -sSL https://install.python-poetry.org | python3 - --uninstall
+	uv python install $(PYV)
+	rm -rf .venv
+	uv venv --python $(PYV)
+	uv pip install --upgrade pip
 
 runAct:
-	$(POETRY) shell
+	uv venv --python $(PYV)
 
 runChecks:
-	$(POETRY) run lefthook run pre-commit --all-files -f
+	uv run lefthook run pre-commit --all-files -f
 
 runDocs:
-	$(POETRY) run mkdocs build -f configs/dev/mkdocs.yml -d ../../public
+	uv run mkdocs build -f configs/dev/mkdocs.yml -d ../../public
 
 serveDocs:
-	$(POETRY) run mkdocs serve -f configs/dev/mkdocs.yml
+	uv run mkdocs serve -f configs/dev/mkdocs.yml
 
 runTests:
-	$(POETRY) run tox
+	uv run tox
 
 runBuild:
-	$(POETRY) build
+# add all packages rquired to be build
+	uv build --package pkg1
+	uv build --package utils
 
 runBump:
-	$(POETRY) run cz bump
+	uv run cz bump
 
-runPoetry:
-	$(POETRY) run $(CMD)
+runUV:
+	uv run $(CMD)
 
 runLock runUpdate: %: export_%
-	$(POETRY) export -f requirements.txt -o requirements.txt
-	$(POETRY) export --only=dev -f requirements.txt -o configs/dev/requirements.dev.txt
-	$(POETRY) export --only=test -f requirements.txt -o configs/dev/requirements.test.txt
+# add all packages rquired to be build
+	uv export --package pkg1 --frozen --format requirements.txt > packages/pkg1/requirements.txt
+	uv export --package utils --frozen --format requirements.txt > packages/utils/requirements.txt
+	uv export --frozen --only-group dev --format requirements.txt > configs/dev/requirements.dev.txt
+	uv export --frozen --only-group test --format requirements.txt > configs/dev/requirements.test.txt
+	uv export --frozen --only-group docs --format requirements.txt > configs/dev/requirements.docs.txt
 
 export_runLock:
-	$(POETRY) lock
+	uv lock
 
 export_runUpdate:
-	$(POETRY) update --with test,docs,dev
+	uv lock -U
 
 com commit:
-	$(POETRY) run cz commit
+	uv run cz commit
 
 recom recommit:
-	$(POETRY) run cz commit --retry
+	uv run cz commit --retry

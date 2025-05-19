@@ -1,0 +1,26 @@
+[project]
+classifiers = ["Private :: Do Not Upload"]
+name = "pkg1"
+version = "0.6.0"
+description = "One of the projects in the monorepo."
+readme = "README.md"
+authors = [
+    { name = "artdotlis", email = "artdotlis@pm.me" }
+]
+requires-python = ">=3.13.2"
+dependencies = [
+    "utils",
+]
+
+[project.scripts]
+pkg1 = "pkg1.main:run"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv.sources]
+utils = {  workspace = true }
+
+[tool.uv]
+package = true

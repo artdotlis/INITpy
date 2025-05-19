@@ -1,0 +1,18 @@
+[project]
+classifiers = ["Private :: Do Not Upload"]
+name = "utils"
+version = "0.5.1"
+description = "Shared library for packages."
+readme = "README.md"
+authors = [
+    { name = "artdotlis", email = "artdotlis@pm.me" }
+]
+requires-python = ">=3.13.2"
+dependencies = []
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+package = true
