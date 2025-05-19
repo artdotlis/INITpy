@@ -1,9 +1,3 @@
-## v0.6.1 (2025-05-19)
-
-### Fix
-
-- correct version detection
-
 ## v0.6.0 (2025-05-19)
 
 ### Feat
@@ -12,6 +6,7 @@
 
 ### Fix
 
+- correct version detection
 - improve Makefile
 
 ### Refactor
