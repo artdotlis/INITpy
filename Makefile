@@ -26,7 +26,8 @@ setup:
 	uv pip install --upgrade pip
 
 runAct:
-	uv venv --python $(PYV)
+	uv venv --python $(PYV) 
+	bash --init-file <(echo "source .venv/bin/activate")
 
 runChecks:
 	uv run lefthook run pre-commit --all-files -f
