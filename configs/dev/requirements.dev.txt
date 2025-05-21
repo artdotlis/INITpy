@@ -31,9 +31,9 @@ charset-normalizer==3.4.2 \
     --hash=sha256:eba9904b0f38a143592d9fc0e19e2df0fa2e41c3c3745554761c5f6447eedabf \
     --hash=sha256:ef8de666d6179b009dce7bcb2ad4c4a779f113f12caf8dc77f0162c29d20490b
     # via commitizen
-click==8.2.0 \
-    --hash=sha256:6b303f0b2aa85f1cb4e5303078fadcbcd4e476f114fab9b5007005711839325c \
-    --hash=sha256:f5452aeddd9988eefa20f90f05ab66f17fce1ee2a36907fd30b05bbb5953814d
+click==8.2.1 \
+    --hash=sha256:27c491cc05d968d271d5a1db13e3b5a184636d9d930f148c50b038f0d0646202 \
+    --hash=sha256:61a3265b914e850b85317d0b3109c7f8cd35a670f963866005d6ef1d5175a12b
     # via black
 codespell==2.4.1 \
     --hash=sha256:299fcdcb09d23e81e35a671bbe746d5ad7e8385972e65dbb833a2eaac33c01e5 \
@@ -44,9 +44,9 @@ colorama==0.4.6 \
     # via
     #   click
     #   commitizen
-commitizen==4.7.2 \
-    --hash=sha256:e5ca28f909c3b3d28575b294561feeee21e33c864c7362babfe0e7798ae11aae \
-    --hash=sha256:eb3cd2da0690c6edbb8c11e586d3f07b09e9795424aa51f5413ed89827927623
+commitizen==4.8.0 \
+    --hash=sha256:1cc1395010d3291b447c5d41f8201dde9cbe46e866f2a6b91ac4f599720f4516 \
+    --hash=sha256:488cb70afe18ff393a2ac18d32e82c3a18a81bf044dceeb33145ae5697ab832b
 decli==0.6.2 \
     --hash=sha256:2fc84106ce9a8f523ed501ca543bdb7e416c064917c12a59ebdc7f311a97b7ed \
     --hash=sha256:36f71eb55fd0093895efb4f416ec32b7f6e00147dda448e3365cf73ceab42d6f
@@ -174,6 +174,9 @@ typing-extensions==4.13.2 \
     --hash=sha256:a439e7c04b49fec3e5d3e2beaa21755cadbbdc391694e28ccdd36ca4a1408f8c \
     --hash=sha256:e6c81219bd689f51865d9e372991c540bda33a0379d5573cddb9a3a23f7caaef
     # via mypy
+vulture==2.14 \
+    --hash=sha256:cb8277902a1138deeab796ec5bef7076a6e0248ca3607a3f3dee0b6d9e9b8415 \
+    --hash=sha256:d9a90dba89607489548a49d557f8bac8112bd25d3cbc8aeef23e860811bd5ed9
 wcwidth==0.2.13 \
     --hash=sha256:3da69048e4540d84af32131829ff948f1e022c1c6bdb8d6102117aac784f6859 \
     --hash=sha256:72ea0c06399eb286d978fdedb6923a9eb47e1c486ce63e9b4e64fc18303972b5

@@ -33,6 +33,7 @@ dev = [
     "codespell >=2.3,<3",
     "shellcheck-py >=0.10,<1",
     "pre-commit-hooks >=5.0,<6",
+    "vulture >=2.14,<3",
     # commit hooks
     "lefthook >=1.10,<2",
     # local
@@ -179,3 +180,13 @@ parallel = true
 [tool.coverage.report]
 show_missing = false
 fail_under = 50
+
+[tool.vulture]
+exclude = []
+ignore_decorators = ["@*",]
+ignore_names = ["model_config", "formatwarning"]
+make_whitelist = true
+min_confidence = 60
+paths = ["packages"]
+sort_by_size = true
+verbose = false
