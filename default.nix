@@ -30,7 +30,9 @@ pkgs.mkShell {
   ];
 
   shellHook = ''
-    export PATH=$HOME/.local/bin/:$PWD/.venv/bin/:$PATH
+    source "$PWD/.env"
+
+    export PATH=$HOME/.local/bin/:$PWD/$UV_INSTALL_DIR:$PWD/.venv/bin/:$PATH
     export PYTHONPATH=$PWD/.venv/:$PYTHONPATH
     export RUFF=${pkgs.ruff}/bin/ruff
 
