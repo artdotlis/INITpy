@@ -5,6 +5,7 @@
 .ruff_cache/
 .VSCodeCounter/
 .cache
+.uv
 
 # https://github.com/github/gitignore
 # CC0 1.0 Universal
@@ -151,7 +152,6 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
 .venv
 env/
 venv/

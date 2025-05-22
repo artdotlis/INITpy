@@ -1,13 +1,13 @@
-PYV = 3.13.2
-UV_CACHE_DIR = .cache
-export UV_CACHE_DIR
+ROOT_MAKEFILE:=$(abspath $(patsubst %/, %, $(dir $(abspath $(lastword $(MAKEFILE_LIST))))))
 
+include $(ROOT_MAKEFILE)/.env
+
+export
 
 dev: setup
 	uv sync --frozen --all-groups
 	uv run lefthook uninstall 2>&1
 	uv run lefthook install
-	bash bin/deploy/post.sh
 
 tests: setup
 	uv sync --frozen --no-group docs --no-group dev
@@ -20,6 +20,7 @@ docs: setup
 
 setup:
 	git lfs install || echo '[FAIL] git-lfs could not be installed'
+	[ -d "${UV_INSTALL_DIR}" ] || (curl -LsSf https://astral.sh/uv/install.sh | sh)
 	uv python install $(PYV)
 	rm -rf .venv
 	uv venv --python $(PYV)

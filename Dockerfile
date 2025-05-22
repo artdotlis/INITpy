@@ -1,7 +1,9 @@
 FROM docker.io/rockylinux:9 AS appbuilder
 
+ARG UV
+
 ENV HOME="/root"
-ENV PATH="${HOME}/.local/bin:${PATH}"
+ENV PATH="${HOME}/.local/bin:/tmp/app/${UV}:${PATH}"
 
 COPY . /tmp/app
 
