@@ -23,7 +23,7 @@ setup:
 	[ -d "${UV_INSTALL_DIR}" ] || (curl -LsSf https://astral.sh/uv/install.sh | sh)
 	uv python install $(PYV)
 	rm -rf .venv
-	uv venv --python $(PYV)
+	uv venv --python $(PYV) --relocatable --link-mode clone
 	uv pip install --upgrade pip
 
 runAct:
