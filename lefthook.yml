@@ -62,7 +62,7 @@ pre-commit:
             stage_fixed: true
           - name: ruff
             glob: "*.py"
-            run: \[\[ test $RUFF != "" ]] && $RUFF check {staged_files} || ruff check {staged_files}
+            run: \[\[ test $RUFF != "" ]] && $RUFF check {staged_files} --fix || ruff check {staged_files} --fix
             stage_fixed: true
           - name: uv-export
             run: make runLock
@@ -72,7 +72,7 @@ pre-commit:
             run: pretty-format-json --autofix {staged_files} || echo "json formatted"
             stage_fixed: true
           - name: mixed-line-ending
-            run: mixed-line-ending -f auto {staged_files} || echo "fixed mixed-line-ending"
+            run: mixed-line-ending -f auto {staged_files} || echo "fixed mle"
             stage_fixed: true
           - name: trailing-whitespace
             run: trailing-whitespace-fixer --markdown-linebreak-ext=md {staged_files} || echo "fixed whitespaces"
