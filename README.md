@@ -14,7 +14,6 @@ Initial bare-bone Python project.
 
 ### Default
 
-- uv: ~0.7
 - GNU/Linux
 
 ### Dev Container
