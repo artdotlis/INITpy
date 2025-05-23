@@ -2,7 +2,7 @@
 
 ---
 
---8<-- "packages/utils/README.md"
+--8<-- "packages/shared_utils/README.md"
 
 ---
 

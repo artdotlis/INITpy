@@ -19,7 +19,7 @@ py-modules = []
 
 [tool.uv.sources]
 pkg1 = { workspace = true }
-utils = { workspace = true }
+shared_utils = { workspace = true }
 
 [tool.uv.workspace]
 members = ["packages/*"]
@@ -38,7 +38,7 @@ dev = [
     "lefthook >=1.10,<2",
     # local
     "pkg1",
-    "utils"
+    "shared_utils"
 ]
 test = [
     "coverage >= 7.6,<8",
@@ -70,7 +70,7 @@ update_changelog_on_bump = true
 version_files = [
   "README.md:^\\[!\\[release:",
   "packages/pkg1/pyproject.toml",
-  "packages/utils/pyproject.toml"
+  "packages/shared_utils/pyproject.toml"
 ]
 version_provider = "uv"
 version_type = "semver"
@@ -173,7 +173,7 @@ commands = [
 [tool.coverage.run]
 source = [
   "pkg1",
-  "utils"
+  "shared_utils"
 ]
 parallel = true
 

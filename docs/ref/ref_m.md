@@ -7,6 +7,6 @@
 
 # INIT - Python \[shared\]
 
-::: utils
+::: shared_utils
     options:
         show_submodules: true
