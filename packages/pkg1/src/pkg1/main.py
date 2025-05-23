@@ -1,5 +1,5 @@
 from pkg1.sub.sub import MySub
-from utils.hello import main
+from shared_utils.hello import main
 
 
 class MyMain:

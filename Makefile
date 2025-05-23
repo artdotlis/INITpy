@@ -5,6 +5,7 @@ include $(ROOT_MAKEFILE)/.env
 export
 
 UVE := $(UV_INSTALL_DIR)/uv
+UV_ENV := $(UV_INSTALL_DIR)/env
 
 dev: setup
 	$(UVE) sync --frozen --all-groups
@@ -28,8 +29,12 @@ setup:
 	$(UVE) venv --python $(PYV) --relocatable --link-mode clone
 	$(UVE) pip install --upgrade pip
 
+
+RAN := $(shell awk 'BEGIN{srand();printf("%d", 65536*rand())}')
+
 runAct:
-	bash --init-file <(echo "source .venv/bin/activate")
+	echo "source .venv/bin/activate; source $(UV_ENV); rm /tmp/$(RAN)" > /tmp/$(RAN)
+	bash --init-file /tmp/$(RAN)
 
 runChecks:
 	$(UVE) run lefthook run pre-commit --all-files -f
@@ -46,7 +51,7 @@ runTests:
 runBuild:
 # add all packages rquired to be build
 	$(UVE) build --package pkg1
-	$(UVE) build --package utils
+	$(UVE) build --package shared_utils
 
 runBump:
 	cz bump --files-only --yes --changelog
@@ -59,7 +64,7 @@ run$(UVE):
 runLock runUpdate: %: export_%
 # add all packages rquired to be build
 	$(UVE) export --package pkg1 --frozen --format requirements.txt > packages/pkg1/requirements.txt
-	$(UVE) export --package utils --frozen --format requirements.txt > packages/utils/requirements.txt
+	$(UVE) export --package shared_utils --frozen --format requirements.txt > packages/shared_utils/requirements.txt
 	$(UVE) export --frozen --only-group dev --format requirements.txt > configs/dev/requirements.dev.txt
 	$(UVE) export --frozen --only-group test --format requirements.txt > configs/dev/requirements.test.txt
 	$(UVE) export --frozen --only-group docs --format requirements.txt > configs/dev/requirements.docs.txt

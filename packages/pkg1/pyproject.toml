@@ -9,7 +9,7 @@ authors = [
 ]
 requires-python = ">=3.13.2"
 dependencies = [
-    "utils",
+    "shared_utils",
 ]
 
 [project.scripts]
@@ -20,7 +20,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.uv.sources]
-utils = {  workspace = true }
+shared_utils = {  workspace = true }
 
 [tool.uv]
 package = true

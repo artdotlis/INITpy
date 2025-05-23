@@ -1,6 +1,6 @@
 [project]
 classifiers = ["Private :: Do Not Upload"]
-name = "utils"
+name = "shared_utils"
 version = "0.6.0"
 description = "Shared library for packages."
 readme = "README.md"
