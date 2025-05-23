@@ -4,7 +4,6 @@
 /configs/src
 .ruff_cache/
 .VSCodeCounter/
-.cache
 .uv
 
 # https://github.com/github/gitignore
