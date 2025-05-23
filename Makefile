@@ -26,7 +26,7 @@ setup:
 	[ -d "${$(UVE)_INSTALL_DIR}" ] || (curl -LsSf https://astral.sh/uv/install.sh | sh)
 	$(UVE) python install $(PYV)
 	rm -rf .venv
-	$(UVE) venv --python $(PYV) --relocatable --link-mode clone
+	$(UVE) venv --python=$(PYV) --relocatable --link-mode=copy --seed
 	$(UVE) pip install --upgrade pip
 
 
