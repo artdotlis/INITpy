@@ -65,7 +65,7 @@ pre-commit:
             run: \[\[ test $RUFF != "" ]] && $RUFF check {staged_files} --fix || ruff check {staged_files} --fix
             stage_fixed: true
           - name: uv-export
-            run: make runLock
+            run: make runLock && git add \*/requirements\*\.txt
             stage_fixed: true
           - name: pretty-format-json
             glob: "*.json"
