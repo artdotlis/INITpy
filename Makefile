@@ -58,7 +58,7 @@ runBump:
 	git add .
 	cz version --project | xargs -i git commit -am "bump: release {}"
 
-run$(UVE):
+runUV:
 	$(UVE) run $(CMD)
 
 runLock runUpdate: %: export_%
