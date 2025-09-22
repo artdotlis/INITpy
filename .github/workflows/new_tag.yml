@@ -1,0 +1,42 @@
+name: Tag on version bump
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  tag:
+    name: Create tag if version changed
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get current version from pyproject.toml
+        id: current
+        run: |
+          VERSION=$(grep '^version =' pyproject.toml | cut -d '"' -f2)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Get previous version from main~1
+        id: previous
+        run: |
+          git checkout HEAD~1
+          PREV_VERSION=$(grep '^version =' pyproject.toml | cut -d '"' -f2)
+          echo "version=$PREV_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Compare versions and create tag if changed
+        if: steps.current.outputs.version != steps.previous.outputs.version
+        run: |
+          git config user.name "github-actions[bot]"
+
+          TAG="v${{ steps.current.outputs.version }}"
+          git tag "$TAG"
+          git push origin "$TAG"
