@@ -38,6 +38,7 @@ jobs:
         uses: actions/configure-pages@v5
       - name: Create documentation html
         run: |
+          export CONTAINER="container"
           make docs
           make runDocs
       - name: Upload artifact

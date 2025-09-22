@@ -1,29 +1,36 @@
+ifeq ($(CONTAINER),container)
+$(info Makefile enabled, proceeding ...)
+else
+$(error Error: Makefile disabled, exiting ...)
+endif
+
 ROOT_MAKEFILE:=$(abspath $(patsubst %/, %, $(dir $(abspath $(lastword $(MAKEFILE_LIST))))))
 
 include $(ROOT_MAKEFILE)/.env
 
 export
+export PATH := $(PATH):$(shell pwd)/$(UV_INSTALL_DIR)
 
-UVE := $(UV_INSTALL_DIR)/uv
-UV_ENV := $(UV_INSTALL_DIR)/env
+$(eval UVEL := $(shell which uv && echo "true" || echo ""))
+UVE = $(if ${UVEL},'uv',$(UV_INSTALL_DIR)/uv)
 
 dev: setup
 	$(UVE) sync --frozen --all-groups
-	$(UVE) run lefthook uninstall 2>&1
+	$(UVE) run lefthook uninstall 2>&1 || echo "not installed"
 	$(UVE) run lefthook install
 
 tests: setup
-	$(UVE) sync --frozen --no-group docs --no-group dev
+	$(UVE) sync --frozen --group test
 
 build: setup
-	$(UVE) sync --frozen --no-group test --no-group docs --no-group dev
+	$(UVE) sync --frozen
 
 docs: setup
-	$(UVE) sync --froze --no-group test --no-group dev
+	$(UVE) sync --frozen --group docs
 
 setup:
 	git lfs install || echo '[FAIL] git-lfs could not be installed'
-	[ -d "${$(UVE)_INSTALL_DIR}" ] || (curl -LsSf https://astral.sh/uv/install.sh | sh)
+	which uv || [ -d "${UV_INSTALL_DIR}" ] || (curl -LsSf https://astral.sh/uv/install.sh | sh -s - --quiet)
 	$(UVE) python install $(PYV)
 	rm -rf .venv
 	$(UVE) venv --python=$(PYV) --relocatable --link-mode=copy --seed
@@ -33,7 +40,7 @@ setup:
 RAN := $(shell awk 'BEGIN{srand();printf("%d", 65536*rand())}')
 
 runAct:
-	echo "source .venv/bin/activate; source $(UV_ENV); rm /tmp/$(RAN)" > /tmp/$(RAN)
+	echo "source .venv/bin/activate; rm /tmp/$(RAN)" > /tmp/$(RAN)
 	bash --init-file /tmp/$(RAN)
 
 runChecks:
