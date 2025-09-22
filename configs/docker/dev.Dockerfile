@@ -7,6 +7,7 @@ ARG USER_GID=$USER_UID
 ARG WORK_DIR=/workspace
 ENV HOME="/home/${USERNAME}"
 ENV PATH="${HOME}/.local/bin:${WORK_DIR}/${UV}:${PATH}"
+ENV CONTAINER="container"
 
 RUN groupadd --gid $USER_GID $USERNAME \
     && useradd -m -d $HOME \

@@ -4,6 +4,7 @@ ARG UV
 
 ENV HOME="/root"
 ENV PATH="${HOME}/.local/bin:/tmp/app/${UV}:${PATH}"
+ARG CONTAINER="container"
 
 COPY . /tmp/app
 

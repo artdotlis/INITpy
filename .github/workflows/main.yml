@@ -54,5 +54,6 @@ jobs:
         fetch-depth: 0
     - name: lint and test
       run: |
+        export CONTAINER="container"
         make dev
         make runChecks

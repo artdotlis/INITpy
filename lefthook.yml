@@ -62,7 +62,7 @@ pre-commit:
             stage_fixed: true
           - name: ruff
             glob: "*.py"
-            run: \[\[ test $RUFF != "" ]] && $RUFF check {staged_files} --fix || ruff check {staged_files} --fix
+            run: ruff check {staged_files} --fix
             stage_fixed: true
           - name: uv-export
             run: make runLock && git add \*/requirements\*\.txt
