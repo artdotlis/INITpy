@@ -1,4 +1,4 @@
-## v0.6.0 (2025-05-19)
+## v0.6.0 (2025-09-22)
 
 ### Feat
 
@@ -6,11 +6,23 @@
 
 ### Fix
 
+- correct makefile
+- correct make runAct
+- correct bump procedure
 - correct version detection
 - improve Makefile
 
 ### Refactor
 
+- change venv command
+- improve uv setup
+- improve uv execution
+- simplify uf utilization
+- remove redundant requirement
+- add "relocatable" uv
+- move python versions to local folder
+- change start procedure
+- improve docs
 - change output
 - add success output
 
