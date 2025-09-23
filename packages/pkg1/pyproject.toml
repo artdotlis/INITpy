@@ -24,3 +24,4 @@ shared_utils = {  workspace = true }
 
 [tool.uv]
 package = true
+default-groups = []
