@@ -1,4 +1,4 @@
-name: Tag on version bump
+name: Tag on version bump after rebase
 
 on:
   push:
@@ -10,33 +10,39 @@ permissions:
 
 jobs:
   tag:
-    name: Create tag if version changed
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Get current version from pyproject.toml
-        id: current
+      - name: Get version from pyproject.toml
+        id: get_version
         run: |
-          VERSION=$(grep '^version =' pyproject.toml | cut -d '"' -f2)
+          VERSION=$(grep '^version\s*=' pyproject.toml | cut -d '"' -f2)
+          echo "Detected version: $VERSION"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Get previous version from main~1
-        id: previous
+      - name: Check if tag exists
+        id: tag_exists
         run: |
-          git checkout HEAD~1
-          PREV_VERSION=$(grep '^version =' pyproject.toml | cut -d '"' -f2)
-          echo "version=$PREV_VERSION" >> $GITHUB_OUTPUT
+          TAG="v${{ steps.get_version.outputs.version }}"
+          echo "Checking for tag: $TAG"
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Tag already exists: $TAG"
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "Tag does not exist: $TAG"
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
 
-      - name: Compare versions and create tag if changed
-        if: steps.current.outputs.version != steps.previous.outputs.version
+      - name: Create and push tag
+        if: steps.tag_exists.outputs.exists == 'false'
         run: |
+          TAG="v${{ steps.get_version.outputs.version }}"
           git config user.name "github-actions[bot]"
 
-          TAG="v${{ steps.current.outputs.version }}"
+          echo "Creating tag: $TAG"
           git tag "$TAG"
           git push origin "$TAG"
