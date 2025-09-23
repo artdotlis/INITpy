@@ -13,7 +13,7 @@ pre-commit:
             run: mypy {staged_files}
           - name: vulture
             glob: "*.py"
-            run: vulture src/
+            run: vulture packages/
           - name: shellcheck
             glob: "*.sh"
             run: shellcheck {staged_files}
