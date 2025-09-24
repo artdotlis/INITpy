@@ -13,7 +13,7 @@ requires-python = ">=3.13,<4"
 
 [tool.uv]
 package = false
-default-groups = []
+default-groups = ["mono"]
 
 [tool.setuptools]
 py-modules = []
@@ -26,6 +26,10 @@ shared_utils = { workspace = true }
 members = ["packages/*"]
 
 [dependency-groups]
+mono = [
+  # local
+  "shared_utils", "pkg1"
+]
 dev = [
     "commitizen ==4.9.1",
     "mypy ==1.18.2",
@@ -36,10 +40,7 @@ dev = [
     "pre-commit-hooks ==6.0.0",
     "vulture ==2.14",
     # commit hooks
-    "lefthook ==1.13.3",
-    # local
-    "pkg1",
-    "shared_utils"
+    "lefthook ==1.13.3"
 ]
 test = [
     "coverage ==7.10.7",
