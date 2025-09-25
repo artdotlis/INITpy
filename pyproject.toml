@@ -149,6 +149,7 @@ requires = ["tox>=4.23"]
 
 [tool.tox.env_run_base]
 allowlist_externals = ["coverage"]
+set_env = { PYTHONPATH = "packages/pkg1/src:packages/shared_utils/src" }
 commands = [
   [
     "coverage",
@@ -174,8 +175,8 @@ commands = [
 
 [tool.coverage.run]
 source = [
-  "pkg1",
-  "shared_utils"
+  "packages/pkg1/src/pkg1",
+  "packages/shared_utils/src/shared_utils"
 ]
 parallel = true
 
