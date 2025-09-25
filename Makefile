@@ -18,6 +18,11 @@ dev: setup
 	$(UVE) sync --frozen --all-groups
 	$(UVE) run lefthook uninstall 2>&1 || echo "not installed"
 	$(UVE) run lefthook install
+	@HOOK_FILE=.git/hooks/pre-push; \
+	if ! grep -q "git lfs pre-push" $$HOOK_FILE; then \
+		echo "command -v git-lfs >/dev/null && git lfs pre-push \"\$$@\"" >> $$HOOK_FILE; \
+		echo "added 'git lfs pre-push' to pre-push hook."; \
+	fi
 
 tests: setup
 	$(UVE) sync --frozen --group test
@@ -29,7 +34,6 @@ docs: setup
 	$(UVE) sync --frozen --group docs
 
 setup:
-	git lfs install || echo '[FAIL] git-lfs could not be installed'
 	which uv || [ -d "${UV_INSTALL_DIR}" ] || (curl -LsSf https://astral.sh/uv/install.sh | sh -s - --quiet)
 	$(UVE) python install $(PYV)
 	rm -rf .venv
