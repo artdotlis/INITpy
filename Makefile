@@ -110,11 +110,13 @@ The message must follow this structure: \
 2. optional scope in parentheses (e.g., feat(auth):) \
 3. description — a brief summary of the change in present tense \
 4. optional body — a detailed explanation if needed \
-5. optional footer(s) — include breaking changes (if relevant) or issue references (e.g., Closes \#123) \
+5. optional footer(s) — include breaking changes (if they exist — do not mention “no breaking changes”), issue references (e.g., Closes \#123), or co-authors (e.g., Co-authored-by: Author Name) \
 Important formatting rules: \
 - the first line (type/scope: description) must be entirely in lowercase \
+- the body and footer may use uppercase letters \
 - the message must follow Conventional Commits 1.0.0 \
-- return only the commit message in plain text, no extra formatting \
+- return only the commit message and use only plain text, no extra formatting \
+- do not mention *no breaking changes* explicitly \
 Git diff:
 
 message:
