@@ -87,11 +87,21 @@ export_runUpdate:
 	$(UVE) lock -U
 
 com commit:
-	(curl -sf http://ollama:11434 && $(MAKE) message) || $(UVE) run cz commit
+	echo "" > .commit_msg
+	@if curl -sf http://ollama:11434; then \
+		$(MAKE) message; \
+	else \
+		$(UVE) run cz commit; \
+	fi
 	echo "" > .commit_msg
 
 recom recommit:
-	(curl -sf http://ollama:11434 && [ -s .commit_msg ] && git commit -F .commit_msg) || $(UVE) run cz commit --retry
+	@if curl -sf http://ollama:11434; then \
+		[ ! -s .commit_msg ] || (echo "Missing commit message!" && exit 1); \
+		git commit -F .commit_msg; \
+	else \
+		$(UVE) run cz commit; \
+	fi
 	echo "" > .commit_msg
 
 PROMPT=Generate a commit message in the **Conventional Commits 1.0.0** format for the following git diff. The message should be structured with the following:  \
@@ -99,7 +109,7 @@ PROMPT=Generate a commit message in the **Conventional Commits 1.0.0** format fo
 2. **Optional Scope** (in parentheses, e.g., feat(auth):). \
 3. **Description**: A brief summary of the change, written in the present tense. \
 4. **Optional Body**: A detailed explanation of the change, if needed. \
-5. **Optional Footer(s)**: Include any breaking changes (not no breaking changes are not relevant) or issue references, if applicable (e.g., BREAKING CHANGE: or Closes #123).  \
+5. **Optional Footer(s)**: Include any breaking changes (not no breaking changes are not relevant) or issue references, if applicable (e.g., BREAKING CHANGE: or Closes \#123).  \
 Please ensure the following: \
 - The commit message **follows Conventional Commits 1.0.0**. \
 - Provide an optional body if needed. \
@@ -113,5 +123,9 @@ message:
             -d "{\"stream\": false, \"model\": \"$(OLLAMA_MODEL)\", \"prompt\": \"$(PROMPT) {}\"}" | \
 		jq -r 'select(.done == true) | .response' > .commit_msg
 	vim .commit_msg
-	$(UVE) run cz check --commit-msg-file .commit_msg || (echo "" > .commit_msg && exit 1)
+	@if ! $(UVE) run cz check --commit-msg-file .commit_msg; then \
+		echo "Commit message failed cz check. Aborting."; \
+		echo "" > .commit_msg; \
+		exit 1; \
+	fi
 	git commit -F .commit_msg
