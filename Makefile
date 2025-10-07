@@ -102,9 +102,9 @@ PROMPT=Generate a commit message in the **Conventional Commits 1.0.0** format fo
 5. **Optional Footer(s)**: Include any breaking changes (not no breaking changes are not relevant) or issue references, if applicable (e.g., BREAKING CHANGE: or Closes #123).  \
 Please ensure the following: \
 - The commit message **follows Conventional Commits 1.0.0**. \
-- Only include the message as plain text - **no additional formatting**, this is very important. \
 - Provide an optional body if needed. \
 - Provide optional footer(s) if relevant.  \
+- The output should only include the commit message as plain text - **no additional formatting**, this is very important. \
 Git Diff:
 
 message:
