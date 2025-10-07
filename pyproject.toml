@@ -1,7 +1,7 @@
 [project]
 classifiers = ["Private :: Do Not Upload"]
 name = "initpy"
-version = "0.6.0"
+version = "0.7.0"
 description = """Initial bare-bone monorepo Python project."""
 readme = "README.md"
 authors = [

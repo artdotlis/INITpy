@@ -1,3 +1,20 @@
+## v0.7.0 (2025-10-07)
+
+### Feat
+
+- **devcontainer**: add Ollama integration and update build scripts
+
+### Fix
+
+- correct default dependencies
+- correct vulture path
+
+### Refactor
+
+- **makefile**: refactor commit generation logic to use conditional curl checks
+- add empty default uv groups
+- update dependencies
+
 ## v0.6.0 (2025-09-22)
 
 ### Feat
