@@ -87,7 +87,31 @@ export_runUpdate:
 	$(UVE) lock -U
 
 com commit:
-	$(UVE) run cz commit
+	(curl -sf http://ollama:11434 && $(MAKE) message) || $(UVE) run cz commit
+	echo "" > .commit_msg
 
 recom recommit:
-	$(UVE) run cz commit --retry
+	(curl -sf http://ollama:11434 && [ -s .commit_msg ] && git commit -F .commit_msg) || $(UVE) run cz commit --retry
+	echo "" > .commit_msg
+
+PROMPT=Generate a commit message in the **Conventional Commits 1.0.0** format for the following git diff. The message should be structured with the following:  \
+1. **Commit Type** (e.g., feat, fix, docs, style, refactor, perf, test). \
+2. **Optional Scope** (in parentheses, e.g., feat(auth):). \
+3. **Description**: A brief summary of the change, written in the present tense. \
+4. **Optional Body**: A detailed explanation of the change, if needed. \
+5. **Optional Footer(s)**: Include any breaking changes (not no breaking changes are not relevant) or issue references, if applicable (e.g., BREAKING CHANGE: or Closes #123).  \
+Please ensure the following: \
+- The commit message **follows Conventional Commits 1.0.0**. \
+- Only include the message as plain text - **no additional formatting**, this is very important. \
+- Provide an optional body if needed. \
+- Provide optional footer(s) if relevant.  \
+Git Diff:
+
+message:
+	git diff --staged |  paste -s -d ' ' | sed 's/\t/ /g' | sed 's/\"//g' | \
+		xargs -I {} curl -s -X POST http://ollama:11434/api/generate -H "Content-Type: application/json" \
+            -d "{\"stream\": false, \"model\": \"$(OLLAMA_MODEL)\", \"prompt\": \"$(PROMPT) {}\"}" | \
+		jq -r 'select(.done == true) | .response' > .commit_msg
+	vim .commit_msg
+	$(UVE) run cz check --commit-msg-file .commit_msg || (echo "" > .commit_msg && exit 1)
+	git commit -F .commit_msg
