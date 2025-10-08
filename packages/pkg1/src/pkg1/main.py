@@ -3,19 +3,31 @@ from shared_utils.hello import main
 
 
 class MyMain:
-    """_summary_"""
+    """Main class for pkg1.
+
+    This class serves as the entry point for pkg1 functionality.
+    It demonstrates how the package can coordinate different
+    components (e.g., sub modules and external utilities).
+    """
 
     def method_main(self, inp: str, /) -> None:
-        """_summary_
+        """Print the supplied message.
 
         Args:
-            inp (str): _description_
+            inp (str): The message to print to stdout.
         """
         print(inp)
 
 
 def run() -> None:
-    MyMain().method_main(" ".join(MySub().method_sub(["Hello", "world", "!"])))
+    """Execute the demo flow of pkg1.
+
+    The function joins a static list of words via :class:`MySub`,
+    passes the resulting string to :class:`MyMain`, and finally
+    calls the :func:`main` function from ``shared_utils.hello``.
+    """
+    message = " ".join(MySub().method_sub(["Hello", "world", "!"]))
+    MyMain().method_main(message)
     main()
 
 

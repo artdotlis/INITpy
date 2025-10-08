@@ -1,5 +1,18 @@
 {
-  "customizations": {},
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "Continue.continue",
+        "ms-python.vscode-python-envs",
+        "ms-python.debugpy",
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "oderwat.indent-rainbow",
+        "Gruntfuggly.todo-tree",
+        "yzhang.markdown-all-in-one"
+      ]
+    }
+  },
   "dockerComposeFile": [
     "../docker-compose.yml",
     "dev.docker-compose.yml"
