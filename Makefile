@@ -121,7 +121,7 @@ Important formatting rules: \
 Git diff:
 
 message:
-	git diff --staged -- . ':(exclude)**/requirements*.txt' |  paste -s -d ' ' | sed 's/\t/ /g; s/\n/ /g; s/\"//g' | \
+	git diff --staged -- . ':(exclude)*requirements*.txt' |  paste -s -d ' ' | sed 's/\t/ /g; s/\n/ /g; s/\"//g' | \
 		xargs -I {} curl -s -X POST http://ollama:11434/api/generate -H "Content-Type: application/json" \
             -d "{\"stream\": false, \"model\": \"$(OLLAMA_MODEL)\", \"prompt\": \"$(PROMPT) {}\"}" | \
 		jq -r 'select(.done == true) | .response' > .commit_msg
