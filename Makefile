@@ -10,6 +10,7 @@ include $(ROOT_MAKEFILE)/.env
 
 export
 export PATH := $(PATH):$(shell pwd)/$(UV_INSTALL_DIR)
+OLLAMA_MODEL?=gpt-oss:20b
 
 $(eval UVEL := $(shell which uv && echo "true" || echo ""))
 UVE = $(if ${UVEL},'uv',$(UV_INSTALL_DIR)/uv)
