@@ -105,25 +105,35 @@ recom recommit:
 	fi
 	echo "" > .commit_msg
 
-PROMPT=Generate a commit message in the Conventional Commits 1.0.0 format for the following git diff. \
-The message must follow this structure: \
-1. commit type (e.g., feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert) \
-2. optional scope in parentheses (e.g., feat(auth):) \
-3. description — a brief summary of the change in present tense \
-4. optional body — a detailed explanation if needed \
-5. optional footer(s) — include breaking changes (if they exist — do not mention “no breaking changes”), issue references (e.g., Closes \#123), or co-authors (e.g., Co-authored-by: Author Name) \
-Important formatting rules: \
-- the first line (type/scope: description) must be entirely in lowercase \
-- the body and footer may use uppercase letters \
-- the message must follow Conventional Commits 1.0.0 \
-- return only the commit message and use only plain text, no extra formatting \
-- do not mention *no breaking changes* explicitly \
-Git diff:
+PROMPT=Generate a commit message in the Conventional Commits 1.0.0 format based on the following git diff. The commit message must: \n\
+- Follow this structure: \n\
+1. Commit type (e.g., feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert) \n\
+2. Optional scope in parentheses (e.g., feat(auth):) \n\
+3. A brief, lowercase description in present tense on the first line \n\
+4. Optional body with detailed explanation (can use uppercase) \n\
+5. Optional footer(s) with breaking changes, issue references (e.g., Closes \#123), or co-authors (e.g., Co-authored-by: Name) \n\
+- Formatting rules: \n\
+1. The first line must be entirely lowercase \n\
+2. Body and footer may use uppercase letters \n\
+3. Follow Conventional Commits 1.0.0 strictly \n\
+4. Return only the commit message as plain text (no extra formatting, no markdown) \n\
+5. Do NOT mention - no breaking changes \n\
+6. Body lines must not be longer than 100 characters \n\
+- Example: \n\
+feat(auth): add user login API\n\
+\n\
+Added support for user login via OAuth2. This allows users to authenticate\n\
+using their Google account.\n\
+\n\
+Closes \#42\n\
+- Git diff
 
 message:
-	git diff --staged -- . ':(exclude)*requirements*.txt' |  paste -s -d ' ' | sed 's/\t/ /g; s/\n/ /g; s/\"//g' | \
-		xargs -I {} curl -s -X POST http://ollama:11434/api/generate -H "Content-Type: application/json" \
-            -d "{\"stream\": false, \"model\": \"$(OLLAMA_MODEL)\", \"prompt\": \"$(PROMPT) {}\"}" | \
+	git diff --staged -- . ':(exclude)*requirements*.txt' | \
+		jq -Rs --arg prompt "$(PROMPT)" '{"stream": false, "model": "$(OLLAMA_MODEL)", "prompt": ($$prompt + " -- " + .)}' | \
+		curl -s -X POST http://ollama:11434/api/generate \
+			-H "Content-Type: application/json" \
+			-d @- | \
 		jq -r 'select(.done == true) | .response' > .commit_msg
 	vim .commit_msg
 	@if ! $(UVE) run cz check --commit-msg-file .commit_msg; then \
