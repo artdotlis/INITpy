@@ -3,13 +3,14 @@
     "vscode": {
       "extensions": [
         "Continue.continue",
-        "ms-python.vscode-python-envs",
-        "ms-python.debugpy",
-        "ms-python.python",
-        "ms-python.vscode-pylance",
+        "streetsidesoftware.code-spell-checker",
         "oderwat.indent-rainbow",
+        "yzhang.markdown-all-in-one",
+        "christian-kohler.path-intellisense",
         "Gruntfuggly.todo-tree",
-        "yzhang.markdown-all-in-one"
+        "aaron-bond.better-comments",
+        "tamasfe.even-better-toml",
+        "ms-python.python"
       ]
     }
   },

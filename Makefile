@@ -126,11 +126,11 @@ Added support for user login via OAuth2. This allows users to authenticate\n\
 using their Google account.\n\
 \n\
 Closes \#42\n\
-- Git diff
+
 
 message:
 	git diff --staged -- . ':(exclude)*requirements*.txt' | \
-		jq -Rs --arg prompt "$(PROMPT)" '{"stream": false, "model": "$(OLLAMA_MODEL)", "prompt": ($$prompt + " -- " + .)}' | \
+		jq -Rs --arg prompt "$(PROMPT)" '{"stream": false, "model": "$(OLLAMA_MODEL)", "prompt": (" <GIT_DIFF> " + . + " </GIT_DIFF> " + $$prompt)}' | \
 		curl -s -X POST http://ollama:11434/api/generate \
 			-H "Content-Type: application/json" \
 			-d @- | \
