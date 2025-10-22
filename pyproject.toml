@@ -4,9 +4,7 @@ name = "initpy"
 version = "0.7.0"
 description = """Initial bare-bone monorepo Python project."""
 readme = "README.md"
-authors = [
-      { name = "Artur Lissin", email = "artdotlis@pm.me" },
-]
+authors = [{ name = "Artur Lissin", email = "artdotlis@pm.me" }]
 license = "Unlicense"
 keywords = ["python", "skeleton"]
 requires-python = ">=3.13,<4"
@@ -28,25 +26,22 @@ members = ["packages/*"]
 [dependency-groups]
 mono = [
   # local
-  "shared_utils", "pkg1"
+  "shared_utils",
+  "pkg1",
 ]
 dev = [
-    "commitizen ==4.9.1",
-    "mypy ==1.18.2",
-    "ruff ==0.13.1",
-    "black ==25.9.0",
-    "codespell ==2.4.1",
-    "shellcheck-py ==0.11.0.1",
-    "pre-commit-hooks ==6.0.0",
-    "vulture ==2.14",
-    # commit hooks
-    "lefthook ==1.13.3"
+  "commitizen ==4.9.1",
+  "mypy ==1.18.2",
+  "ruff ==0.13.1",
+  "black ==25.9.0",
+  "codespell ==2.4.1",
+  "shellcheck-py ==0.11.0.1",
+  "pre-commit-hooks ==6.0.0",
+  "vulture ==2.14",
+  # commit hooks
+  "lefthook ==1.13.3",
 ]
-test = [
-    "coverage ==7.10.7",
-    "pytest ==8.4.2",
-    "tox ==4.30.2",
-]
+test = ["coverage ==7.10.7", "pytest ==8.4.2", "tox ==4.30.2"]
 docs = [
   "mkdocs ==1.6.1",
   "mkdocs-material ==9.6.20",
@@ -72,7 +67,7 @@ update_changelog_on_bump = true
 version_files = [
   "README.md:^\\[!\\[release:",
   "packages/pkg1/pyproject.toml",
-  "packages/shared_utils/pyproject.toml"
+  "packages/shared_utils/pyproject.toml",
 ]
 version_provider = "uv"
 version_type = "semver"
@@ -94,12 +89,7 @@ disallow_subclassing_any = false
 disallow_untyped_calls = true
 disallow_untyped_decorators = true
 disallow_untyped_defs = true
-exclude = [
-  "__pycache__",
-  "\\.tox",
-  "\\.mypy_cache",
-  "venv"
-]
+exclude = ["__pycache__", "\\.tox", "\\.mypy_cache", "venv"]
 ignore_missing_imports = true
 implicit_reexport = true
 local_partial_types = true
@@ -127,16 +117,75 @@ exclude = [
   "__pycache__",
   "build",
   "dist",
-  "venv"
+  "venv",
 ]
 
 [tool.ruff.lint]
 # Allow unused variables when underscore-prefixed.
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
-fixable = ["A", "B", "C", "D", "E", "F", "G", "I", "N", "Q", "S", "T", "W", "ANN", "ARG", "BLE", "COM", "DJ", "DTZ", "EM", "ERA", "EXE", "FBT", "ICN", "INP", "ISC", "NPY", "PD", "PGH", "PIE", "PL", "PT", "PTH", "PYI", "RET", "RSE", "RUF", "SIM", "SLF", "TCH", "TID", "TRY", "UP", "YTT"]
-ignore = ["TRY003", "N818", "D100", "D101", "D102", "D103", "D104", "D105", "D106", "D107"]
-select = ["E", "F", "B", "C90", "S", "PT", "ARG", "PTH", "TRY", "RUF", "N", "D", "DOC"]
+fixable = [
+  "A",
+  "B",
+  "C",
+  "D",
+  "E",
+  "F",
+  "G",
+  "I",
+  "N",
+  "Q",
+  "S",
+  "T",
+  "W",
+  "ANN",
+  "ARG",
+  "BLE",
+  "COM",
+  "DJ",
+  "DTZ",
+  "EM",
+  "ERA",
+  "EXE",
+  "FBT",
+  "ICN",
+  "INP",
+  "ISC",
+  "NPY",
+  "PD",
+  "PGH",
+  "PIE",
+  "PL",
+  "PT",
+  "PTH",
+  "PYI",
+  "RET",
+  "RSE",
+  "RUF",
+  "SIM",
+  "SLF",
+  "TCH",
+  "TID",
+  "TRY",
+  "UP",
+  "YTT",
+]
+ignore = [
+  "TRY003",
+  "N818",
+  "D100",
+  "D101",
+  "D102",
+  "D103",
+  "D104",
+  "D105",
+  "D106",
+  "D107",
+]
+select = ["E", "F", "B", "C90", "S", "PT", "ARG", "PTH", "TRY", "RUF", "N", "D"]
 unfixable = []
+
+[tool.ruff.per-file-ignores]
+"tests/**/*.py" = ["S101"]
 
 [tool.ruff.lint.mccabe]
 max-complexity = 11
@@ -144,7 +193,7 @@ max-complexity = 11
 [tool.ruff.lint.pylint]
 max-args = 8
 
-[tool.ruff.pydocstyle]
+[tool.ruff.lint.pydocstyle]
 convention = "google"
 
 [tool.tox]
@@ -154,33 +203,27 @@ requires = ["tox>=4.23"]
 allowlist_externals = ["coverage"]
 set_env = { PYTHONPATH = "packages/pkg1/src:packages/shared_utils/src" }
 commands = [
-  [
-    "coverage",
-    "erase",
-  ],
-#  [
-#    "coverage",
-#    "run",
-#    "--parallel-mode",
-#    "-m",
-#    "pytest",
-#    "{posargs}",
-#  ],
-#  [
-#    "coverage",
-#    "combine",
-#  ],
-#  [
-#    "coverage",
-#    "report",
-#  ],
+  ["coverage", "erase"],
+  #  [
+  #    "coverage",
+  #    "run",
+  #    "--parallel-mode",
+  #    "-m",
+  #    "pytest",
+  #    "{posargs}",
+  #  ],
+  #  [
+  #    "coverage",
+  #    "combine",
+  #  ],
+  #  [
+  #    "coverage",
+  #    "report",
+  #  ],
 ]
 
 [tool.coverage.run]
-source = [
-  "packages/pkg1/src/pkg1",
-  "packages/shared_utils/src/shared_utils"
-]
+source = ["packages/pkg1/src/pkg1", "packages/shared_utils/src/shared_utils"]
 parallel = true
 
 [tool.coverage.report]
@@ -189,7 +232,7 @@ fail_under = 50
 
 [tool.vulture]
 exclude = []
-ignore_decorators = ["@*",]
+ignore_decorators = ["@*"]
 ignore_names = ["model_config", "formatwarning"]
 make_whitelist = true
 min_confidence = 60
