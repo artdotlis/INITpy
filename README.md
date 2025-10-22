@@ -18,6 +18,33 @@ The project ships with a Docker‑Compose powered dev container. It automaticall
 
 Inside the container you can use the `make` targets as below.
 
+#### Prerequisites
+
+- **GNU/Linux**
+- **Docker**
+- **Docker Compose**
+- **Dev Container CLI**
+
+#### Steps
+
+1. Clone the repository:
+   ```sh
+   git clone https://github.com/artdotlis/INITpy.git
+   cd INITpy
+   ```
+
+2. If using Docker, start the development container manually or use VSCode:
+   ```sh
+   devcontainer up --workspace-folder .
+   devcontainer exec --workspace-folder . bash
+   ```
+
+3. Create and activate a virtual environment (inside docker the container):
+   ```sh
+   make dev
+   make runAct
+   ```
+
 ### 2. Makefile Targets
 
 | Target            | Purpose |
