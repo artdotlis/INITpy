@@ -5,8 +5,8 @@ ARG USERNAME=devu
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 ARG WORK_DIR=/workspace
-ENV HOME="/home/${USERNAME}"
-ENV PATH="${HOME}/.local/bin:${WORK_DIR}/${UV}:${PATH}"
+ENV HOME_MAIN="/home/${USERNAME}"
+ENV PATH="${HOME_MAIN}/.local/bin:${WORK_DIR}/${UV}:${PATH}"
 ENV CONTAINER="container"
 ENV HISTFILE=/dev/null
 ENV HISTSIZE=0
@@ -16,7 +16,7 @@ ARG BIN_DEPLOY_PREP
 ARG BIN_DEPLOY_REQ
 
 RUN groupadd --gid $USER_GID $USERNAME \
-    && useradd -m -d $HOME \
+    && useradd -m -d $HOME_MAIN \
     --uid $USER_UID --gid $USER_GID $USERNAME
 
 COPY . /tmp/app
