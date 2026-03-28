@@ -16,7 +16,7 @@ pre-commit:
             run: vulture packages/
           - name: shellcheck
             glob: "*.sh"
-            run: shellcheck {staged_files}
+            run: shellcheck --rcfile=$CONFIG_SHELL {staged_files}
           - name: codespell
             glob: "*.py"
             run: codespell {staged_files}
@@ -54,13 +54,13 @@ pre-commit:
       group:
         piped: true
         jobs:
-          - name: black
-            glob: "*.py"
-            run: black {staged_files}
-            stage_fixed: true
-          - name: ruff
+          - name: ruff-check
             glob: "*.py"
             run: ruff check {staged_files} --fix
+            stage_fixed: true
+          - name: ruff-format
+            glob: "*.py"
+            run: ruff format {staged_files}
             stage_fixed: true
           - name: uv-export
             run: make runLock && git add \*/requirements\*\.txt

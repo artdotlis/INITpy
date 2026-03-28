@@ -1,16 +1,18 @@
 ifeq ($(CONTAINER),container)
 $(info Makefile enabled, proceeding ...)
-else
+else	
 $(error Error: Makefile disabled, exiting ...)
 endif
 
+SHELL := /bin/bash
 ROOT_MAKEFILE:=$(abspath $(patsubst %/, %, $(dir $(abspath $(lastword $(MAKEFILE_LIST))))))
 
-include $(ROOT_MAKEFILE)/.env
+$(shell $(ROOT_MAKEFILE)/bin/install/env.sh $(ROOT_MAKEFILE)/package.env > .env.mk)
+-include .env.mk
 
 export
 export PATH := $(PATH):$(shell pwd)/$(UV_INSTALL_DIR)
-OLLAMA_MODEL?=gpt-oss:20b
+OLLAMA_MODEL?=qwen3.5:9b
 
 $(eval UVEL := $(shell which uv && echo "true" || echo ""))
 UVE = $(if ${UVEL},'uv',$(UV_INSTALL_DIR)/uv)
@@ -52,10 +54,10 @@ runChecks:
 	$(UVE) run lefthook run pre-commit --all-files -f
 
 runDocs:
-	$(UVE) run mkdocs build -f configs/dev/mkdocs.yml -d ../../public
+	$(UVE) run mkdocs build -f configs/docs/mkdocs.yml -d ../../public
 
 serveDocs:
-	$(UVE) run mkdocs serve -f configs/dev/mkdocs.yml
+	$(UVE) run mkdocs serve -f configs/docs/mkdocs.yml
 
 runTests:
 	$(UVE) run tox
@@ -101,36 +103,45 @@ recom recommit:
 		[ ! -s .commit_msg ] || (echo "Missing commit message!" && exit 1); \
 		git commit -F .commit_msg; \
 	else \
-		$(UVE) run cz commit; \
+		$(UVE) run cz commit --retry; \
 	fi
 	echo "" > .commit_msg
 
-PROMPT=Generate a commit message in the Conventional Commits 1.0.0 format based on the following git diff. The commit message must: \n\
-- Follow this structure: \n\
-1. Commit type (e.g., feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert) \n\
-2. Optional scope in parentheses (e.g., feat(auth):) \n\
-3. A brief, lowercase description in present tense on the first line \n\
-4. Optional body with detailed explanation (can use uppercase) \n\
-5. Optional footer(s) with breaking changes, issue references (e.g., Closes \#123), or co-authors (e.g., Co-authored-by: Name) \n\
-- Formatting rules: \n\
-1. The first line must be entirely lowercase \n\
-2. Body and footer may use uppercase letters \n\
-3. Follow Conventional Commits 1.0.0 strictly \n\
-4. Return only the commit message as plain text (no extra formatting, no markdown) \n\
-5. Do NOT mention - no breaking changes \n\
-6. Body lines must not be longer than 100 characters \n\
-- Example: \n\
-feat(auth): add user login API\n\
-\n\
-Added support for user login via OAuth2. This allows users to authenticate\n\
-using their Google account.\n\
-\n\
-Closes \#42\n\
+PROMPT := Generate a commit message in the Conventional Commits 1.0.0 format 
+based on the following git diff. The commit message must:
+- Analyze the diff and summarize the changes accurately:
+  1. Include added, removed, or modified functionality.
+  2. Ignore cosmetic changes like whitespace or formatting if not relevant.
+  3. Exclude changes in files matching 'requirements*.txt'.
+- Follow this structure:
+  1. Commit type (feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert)
+  2. Optional scope in parentheses inferred from the changed file paths (e.g., feat(auth):)
+  3. A brief, lowercase description in present tense on the first line
+  4. Optional body with detailed explanation. Use uppercase letters to emphasize key points. 
+     Explain why the change was made and how it affects behavior.
+  5. Optional footer(s) with issue references (e.g., Closes #123), co-authors (Co-authored-by: Name), 
+     or additional metadata if present in the diff.
+- Formatting rules:
+  1. The first line must be entirely lowercase.
+  2. Body lines must be wrapped at 100 characters.
+  3. Follow Conventional Commits 1.0.0 strictly.
+  4. Return only the commit message as plain text (no markdown, no quotes).
+  5. Do not invent breaking changes; only include if explicitly present in the diff.
+- Prioritize:
+  1. Functional or behavioral changes over formatting changes.
+  2. Changes in core logic over trivial modifications.
+- Example:
+feat(auth): add user login API
 
+Added support for user login via OAuth2. This allows users to authenticate
+using their Google account.
+
+Closes #42
 
 message:
 	git diff --staged -- . ':(exclude)*requirements*.txt' | \
-		jq -Rs --arg prompt "$(PROMPT)" '{"stream": false, "model": "$(OLLAMA_MODEL)", "prompt": (" <GIT_DIFF> " + . + " </GIT_DIFF> " + $$prompt)}' | \
+		jq -Rs --arg prompt "$(PROMPT)" \
+			'{"stream": false, "model": "$(OLLAMA_MODEL)", "prompt": ("<GIT_DIFF>" + . + "</GIT_DIFF>" + $$prompt)}' | \
 		curl -s -X POST http://ollama:11434/api/generate \
 			-H "Content-Type: application/json" \
 			-d @- | \
