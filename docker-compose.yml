@@ -1,13 +1,20 @@
 services:
   deploy:
-    env_file:
-      - .env
     build:
       context: .
       dockerfile: ./Dockerfile
+      secrets:
+        - env_file
       args:
         USERNAME: devu
         USER_UID: 1000
         USER_GID: 1000
         WORK_DIR: "/workspace"
         UV: ${UV_INSTALL_DIR}
+        BIN_DEPLOY_ENTRY_PROD: ${BIN_DEPLOY_ENTRY_PROD}
+        BIN_DEPLOY_PREP: ${BIN_DEPLOY_PREP}
+        BIN_DEPLOY_REQ: ${BIN_DEPLOY_REQ}
+
+secrets:
+    env_file:
+        file: ./.env

@@ -1,16 +1,16 @@
 *
 
+!/packages
+
 !/bin
-!/src
 !/configs
 
 !Makefile
-!uv.lock
-!pyproject.toml
 
 !README.md
 !LICENSE
 
-**/__pycache__
-**/*.py[cod]
-**/*$py.class
+!package.env
+!pyproject.toml
+!uv.lock
+!.git

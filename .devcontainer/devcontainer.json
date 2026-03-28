@@ -26,5 +26,6 @@
   "service": "dev",
   "shutdownAction": "stopCompose",
   "updateRemoteUserUID": true,
-  "workspaceFolder": "/workspace"
+  "workspaceFolder": "/workspace",
+  "initializeCommand": "if [ ! -f .env ]; then cat package.env > .env; fi"
 }
