@@ -7,7 +7,7 @@ endif
 SHELL := /bin/bash
 ROOT_MAKEFILE:=$(abspath $(patsubst %/, %, $(dir $(abspath $(lastword $(MAKEFILE_LIST))))))
 
-$(shell $(ROOT_MAKEFILE)/bin/install/env.sh $(ROOT_MAKEFILE)/package.env > .env.mk)
+$(shell $(ROOT_MAKEFILE)/bin/install/env.sh $(ROOT_MAKEFILE)/package.env > .env.mk 2>/dev/null)
 -include .env.mk
 
 export
@@ -15,7 +15,7 @@ export PATH := $(PATH):$(shell pwd)/$(UV_INSTALL_DIR)
 OLLAMA_MODEL?=qwen3.5:9b
 
 $(eval UVEL := $(shell which uv && echo "true" || echo ""))
-UVE = $(if ${UVEL},'uv',$(UV_INSTALL_DIR)/uv)
+UVE = $(if $(UVEL),uv,$(UV_INSTALL_DIR)/uv)
 
 dev: setup
 	$(UVE) sync --frozen --all-groups
@@ -93,7 +93,7 @@ com commit:
 	echo "" > .commit_msg
 	@if curl -sf http://ollama:11434; then \
 		$(MAKE) message; \
-	else \
+	else\
 		$(UVE) run cz commit; \
 	fi
 	echo "" > .commit_msg
@@ -102,12 +102,13 @@ recom recommit:
 	@if curl -sf http://ollama:11434; then \
 		[ ! -s .commit_msg ] || (echo "Missing commit message!" && exit 1); \
 		git commit -F .commit_msg; \
-	else \
+	else\
 		$(UVE) run cz commit --retry; \
 	fi
 	echo "" > .commit_msg
 
-PROMPT := Generate a commit message in the Conventional Commits 1.0.0 format 
+define PROMPT
+Generate a commit message in the Conventional Commits 1.0.0 format 
 based on the following git diff. The commit message must:
 - Analyze the diff and summarize the changes accurately:
   1. Include added, removed, or modified functionality.
@@ -137,6 +138,7 @@ Added support for user login via OAuth2. This allows users to authenticate
 using their Google account.
 
 Closes #42
+endef
 
 message:
 	git diff --staged -- . ':(exclude)*requirements*.txt' | \
