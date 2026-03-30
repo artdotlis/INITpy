@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 Artur Lissin
+#
+# SPDX-License-Identifier: CC0-1.0
+
 services:
   deploy:
     build:
@@ -11,7 +15,6 @@ services:
         USER_GID: 1000
         WORK_DIR: "/workspace"
         UV: ${UV_INSTALL_DIR}
-        BIN_DEPLOY_ENTRY_PROD: ${BIN_DEPLOY_ENTRY_PROD}
         BIN_DEPLOY_PREP: ${BIN_DEPLOY_PREP}
         BIN_DEPLOY_REQ: ${BIN_DEPLOY_REQ}
 

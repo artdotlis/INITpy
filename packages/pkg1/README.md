@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2026 Artur Lissin
+
+SPDX-License-Identifier: CC0-1.0
+-->
+
 # pkg1
 
 **An example package that lives inside the INITpy monorepo.**

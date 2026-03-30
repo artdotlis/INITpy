@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2026 Artur Lissin
+
+SPDX-License-Identifier: CC0-1.0
+-->
+
 ## v0.7.0 (2025-10-07)
 
 ### Feat

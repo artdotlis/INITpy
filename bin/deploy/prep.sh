@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# SPDX-FileCopyrightText: 2026 Artur Lissin
+#
+# SPDX-License-Identifier: Unlicense
+
 root_path=$(dirname "$(realpath "$0")")
 source "$root_path/../../package.env"
 

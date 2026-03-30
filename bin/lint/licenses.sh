@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# SPDX-FileCopyrightText: 2026 Artur Lissin
+#
+# SPDX-License-Identifier: Unlicense
+
 set -euo pipefail
 ROOT="$(dirname "$(realpath "$0")")/../.."
 source "$ROOT/package.env"
@@ -13,24 +17,23 @@ find "$ROOT" -type f -name "*.license" | while read -r license; do
   fi
 done
 
-SOFTWARE_LIC="MIT"
-DATA_LIC="CC-BY-4.0"
-PUB_LIC="CC0-1.0"
+SOFTWARE_LIC="Unlicense"
+DATA_LIC="CC0-1.0"
 YEAR=$(date +%Y)
 
 if [[ -n "$COPYRIGHT" ]]; then
     echo "COPYRIGHT is set: $COPYRIGHT"
 
-    LICENSE_FILES=("$ROOT/LICENSE" "$ROOT/LICENSES/$SOFTWARE_LIC.txt")
+    LICENSE_FILES=()
 
     for license_file in "${LICENSE_FILES[@]}"; do
         if [[ ! -f "$license_file" ]]; then
             echo "License file $license_file does not exist"
-            exit 1 
+            exit 1
         fi
         if ! grep -q "$YEAR" "$license_file"; then
             echo "License file $license_file does not exist or COPYRIGHT not found"
-            exit 1 
+            exit 1
         fi
         if ! grep -q "$YEAR" "$license_file"; then
             echo "Current year ($YEAR) not be found in $license_file"
@@ -74,13 +77,15 @@ fi
 
 
 SOFTWARE=("py" "sh" "Dockerfile" "conf" "template")
-CC_BY=("jpg" "png" "ico" "webp" "avif" "md" "yaml" "yml" "json" "toml" "txt")
-CC0_FILES=(".gitignore" ".gitattributes" ".env" "package.env" "bun.lock" ".dockerignore")
-MIT_FILES=("Makefile" "shellcheckrc")
-MIT_FOLDERS=()
+CC0_FILES=(
+    "jpg" "png" "ico" "webp" "avif" "md" "yaml" "yml" "json" "toml"
+    ".gitignore" ".gitattributes" ".env" "package.env" "uv.lock" ".dockerignore" "txt"
+    "shellcheckrc"
+)
+UNL_FILES=("Makefile")
+UNL_FOLDERS=()
 
-mit_to_annotate=()
-ccby_to_annotate=()
+unl_to_annotate=()
 cc0_to_annotate=()
 
 check_folder_in_array() {
@@ -90,31 +95,27 @@ check_folder_in_array() {
 
     for ele in "${container[@]}"; do
         if [[ "$search" == *"$ele"* ]]; then
-            return 0 
+            return 0
         fi
     done
 
-    return 1  
+    return 1
 }
 
 for file in "${FILES[@]}"; do
-    extension="${file##*.}"    
+    extension="${file##*.}"
     file_name=$(basename "$file")
     file_dir=$(dirname "$file")
-    if check_folder_in_array "$file_dir" "${MIT_FOLDERS[@]}"; then
-        mit_to_annotate+=("$file")
+    if check_folder_in_array "$file_dir" "${UNL_FOLDERS[@]}"; then
+        unl_to_annotate+=("$file")
         continue
     fi
     if check_folder_in_array "$extension" "${SOFTWARE[@]}"; then
-        mit_to_annotate+=("$file")
+        unl_to_annotate+=("$file")
         continue
     fi
-    if check_folder_in_array "$extension" "${CC_BY[@]}"; then
-        ccby_to_annotate+=("$file")
-        continue
-    fi
-    if check_folder_in_array "$file_name" "${MIT_FILES[@]}"; then
-        mit_to_annotate+=("$file")
+    if check_folder_in_array "$file_name" "${UNL_FILES[@]}"; then
+        unl_to_annotate+=("$file")
         continue
     fi
     if check_folder_in_array " ${file_name}" "${CC0_FILES[@]}"; then
@@ -123,28 +124,21 @@ for file in "${FILES[@]}"; do
     fi
 done
 
-if [ ${#mit_to_annotate[@]} -gt 0 ]; then
-    echo "annotating MIT"
-    make runUV reuse annotate -c "$COPYRIGHT" -l "$SOFTWARE_LIC" -y "$YEAR" --merge-copyrights --fallback-dot-license "${mit_to_annotate[@]}"
+if [ ${#unl_to_annotate[@]} -gt 0 ]; then
+    echo "annotating UNLICENSE"
+    reuse annotate -c "$COPYRIGHT" -l "$SOFTWARE_LIC" -y "$YEAR" --merge-copyrights --fallback-dot-license "${unl_to_annotate[@]}"
 else
-    echo "No MIT files to annotate"
-fi
-
-if [ ${#ccby_to_annotate[@]} -gt 0 ]; then
-    echo "annotating CC-BY"
-    make runUV reuse annotate -c "$COPYRIGHT" -l "$DATA_LIC" -y "$YEAR" --merge-copyrights --fallback-dot-license "${ccby_to_annotate[@]}"
-else
-    echo "No CC-BY files to annotate"
+    echo "No UNLICENSE files to annotate"
 fi
 
 if [ ${#cc0_to_annotate[@]} -gt 0 ]; then
     echo "annotating CC0"
-    make runUV reuse annotate -c "$COPYRIGHT" -l "$PUB_LIC" -y "$YEAR" --merge-copyrights --fallback-dot-license "${cc0_to_annotate[@]}"
+    reuse annotate -c "$COPYRIGHT" -l "$DATA_LIC" -y "$YEAR" --merge-copyrights --fallback-dot-license "${cc0_to_annotate[@]}"
 else
     echo "No CC0 files to annotate"
 fi
 
-if ! make runUV reuse lint; then
+if ! reuse lint; then
     echo "Linting failed!"
     exit 1
 fi
