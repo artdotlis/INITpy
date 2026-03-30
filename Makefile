@@ -1,6 +1,10 @@
+# SPDX-FileCopyrightText: 2026 Artur Lissin
+#
+# SPDX-License-Identifier: Unlicense
+
 ifeq ($(CONTAINER),container)
 $(info Makefile enabled, proceeding ...)
-else	
+else
 $(error Error: Makefile disabled, exiting ...)
 endif
 
@@ -72,13 +76,11 @@ runBump:
 	git add .
 	$(UVE) run cz version --project | xargs -i git commit -am "bump: release {}"
 
-runUV:
-	$(UVE) run $(CMD)
 
 runLock runUpdate: %: export_%
 # add all packages rquired to be build
-	$(UVE) export --package pkg1 --frozen --format requirements.txt > packages/pkg1/requirements.txt
-	$(UVE) export --package shared_utils --frozen --format requirements.txt > packages/shared_utils/requirements.txt
+	$(UVE) export --package pkg1 --frozen --format requirements.txt > packages/pkg1/requirements.prod.txt
+	$(UVE) export --package shared_utils --frozen --format requirements.txt > packages/shared_utils/requirements.prod.txt
 	$(UVE) export --frozen --only-group dev --format requirements.txt > configs/dev/requirements.dev.txt
 	$(UVE) export --frozen --only-group test --format requirements.txt > configs/dev/requirements.test.txt
 	$(UVE) export --frozen --only-group docs --format requirements.txt > configs/dev/requirements.docs.txt
@@ -108,7 +110,7 @@ recom recommit:
 	echo "" > .commit_msg
 
 define PROMPT
-Generate a commit message in the Conventional Commits 1.0.0 format 
+Generate a commit message in the Conventional Commits 1.0.0 format
 based on the following git diff. The commit message must:
 - Analyze the diff and summarize the changes accurately:
   1. Include added, removed, or modified functionality.
@@ -118,9 +120,9 @@ based on the following git diff. The commit message must:
   1. Commit type (feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert)
   2. Optional scope in parentheses inferred from the changed file paths (e.g., feat(auth):)
   3. A brief, lowercase description in present tense on the first line
-  4. Optional body with detailed explanation. Use uppercase letters to emphasize key points. 
+  4. Optional body with detailed explanation. Use uppercase letters to emphasize key points.
      Explain why the change was made and how it affects behavior.
-  5. Optional footer(s) with issue references (e.g., Closes #123), co-authors (Co-authored-by: Name), 
+  5. Optional footer(s) with issue references (e.g., Closes #123), co-authors (Co-authored-by: Name),
      or additional metadata if present in the diff.
 - Formatting rules:
   1. The first line must be entirely lowercase.

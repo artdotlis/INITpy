@@ -1,4 +1,9 @@
 #!/bin/bash
+
+# SPDX-FileCopyrightText: 2026 Artur Lissin
+#
+# SPDX-License-Identifier: Unlicense
+
 declare -A SEEN_FILES
 
 load_env_file() {

@@ -31,9 +31,9 @@ WORKDIR /
 RUN rm -rf /tmp/app
 
 RUN userdel -r ${USERNAME} 2>/dev/null || true
-RUN groupdel ${USERNAME} 2>/dev/null || true 
+RUN groupdel ${USERNAME} 2>/dev/null || true
 RUN groupadd --gid ${USER_GID} ${USERNAME}
-RUN useradd --uid ${USER_UID} --gid ${USER_GID} -m -d ${HOME_MAIN} ${USERNAME} 
+RUN useradd --uid ${USER_UID} --gid ${USER_GID} -m -d ${HOME_MAIN} ${USERNAME}
 
 RUN mkdir -p ${WORK_DIR} && mkdir -p /var/www &&\
     chown ${USERNAME}:${USERNAME} -R ${WORK_DIR} && \

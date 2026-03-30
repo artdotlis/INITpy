@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 Artur Lissin
+#
+# SPDX-License-Identifier: CC0-1.0
+
 [project]
 classifiers = ["Private :: Do Not Upload"]
 name = "initpy"
@@ -37,6 +41,8 @@ dev = [
   "shellcheck-py ==0.11.0.1",
   "pre-commit-hooks ==6.0.0",
   "vulture ==2.16",
+  # license
+  "reuse ==6.2.0",
   # commit hooks
   "lefthook ==2.1.4",
   # types

@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 Artur Lissin
+#
+# SPDX-License-Identifier: Unlicense
+
 FROM docker.io/almalinux:10 AS appbuilder
 
 ARG UV
@@ -32,9 +36,9 @@ ARG HOME_MAIN="/home/${USERNAME}"
 RUN dnf clean all && dnf install -y bash
 
 RUN userdel -r ${USERNAME} 2>/dev/null || true
-RUN groupdel ${USERNAME} 2>/dev/null || true 
+RUN groupdel ${USERNAME} 2>/dev/null || true
 RUN groupadd --gid ${USER_GID} ${USERNAME}
-RUN useradd --uid ${USER_UID} --gid ${USER_GID} -m -d ${HOME_MAIN} ${USERNAME} 
+RUN useradd --uid ${USER_UID} --gid ${USER_GID} -m -d ${HOME_MAIN} ${USERNAME}
 RUN mkdir -p "${HOME_MAIN}/.local/bin" \
     && chown ${USERNAME}:${USERNAME} -R ${HOME_MAIN}
 

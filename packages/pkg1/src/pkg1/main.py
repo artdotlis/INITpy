@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 Artur Lissin
+#
+# SPDX-License-Identifier: Unlicense
+
 from pkg1.sub.sub import MySub
 from shared_utils.hello import main
 

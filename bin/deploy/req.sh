@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# SPDX-FileCopyrightText: 2026 Artur Lissin
+#
+# SPDX-License-Identifier: Unlicense
+
 echo "update"
 dnf -y update
 echo "installing requirements"
