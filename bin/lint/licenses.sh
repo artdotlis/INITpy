@@ -76,49 +76,68 @@ else
 fi
 
 
-SOFTWARE=("py" "sh" "Dockerfile" "conf" "template")
-CC0_FILES=(
-    "jpg" "png" "ico" "webp" "avif" "md" "yaml" "yml" "json" "toml"
-    ".gitignore" ".gitattributes" ".env" "package.env" "uv.lock" ".dockerignore" "txt"
-    "shellcheckrc"
+SOFTWARE_PATTERNS=(
+    '\.py$'
+    '\.sh$'
+    'Dockerfile$'
+    '\.conf$'
+    '\.template$'
 )
-UNL_FILES=("Makefile")
-UNL_FOLDERS=()
+
+CC0_PATTERNS=(
+    '\.(jpg|png|ico|webp|avif|md|yaml|yml|json|toml|txt)$'
+    '\.gitignore$'
+    '\.gitattributes$'
+    '\.env$'
+    'package\.env$'
+    'uv\.lock$'
+    '\.dockerignore$'
+    'shellcheckrc$'
+)
+
+UNL_PATTERNS=(
+    'Makefile$'
+)
+
+UNL_FOLDER_PATTERNS=(
+    # example:
+    # '^docs/'
+)
 
 unl_to_annotate=()
 cc0_to_annotate=()
 
-check_folder_in_array() {
-    local search="$1"
+matches_pattern() {
+    local value="$1"
     shift
-    local -a container=("$@")
+    local -a patterns=("$@")
 
-    for ele in "${container[@]}"; do
-        if [[ "$search" == *"$ele"* ]]; then
+    for pattern in "${patterns[@]}"; do
+        if [[ "$value" =~ $pattern ]]; then
             return 0
         fi
     done
-
     return 1
 }
+
 
 for file in "${FILES[@]}"; do
     extension="${file##*.}"
     file_name=$(basename "$file")
     file_dir=$(dirname "$file")
-    if check_folder_in_array "$file_dir" "${UNL_FOLDERS[@]}"; then
+    if matches_pattern "$file_dir" "${UNL_FOLDERS[@]}"; then
         unl_to_annotate+=("$file")
         continue
     fi
-    if check_folder_in_array "$extension" "${SOFTWARE[@]}"; then
+    if matches_pattern "$extension" "${SOFTWARE[@]}"; then
         unl_to_annotate+=("$file")
         continue
     fi
-    if check_folder_in_array "$file_name" "${UNL_FILES[@]}"; then
+    if matches_pattern "$file_name" "${UNL_FILES[@]}"; then
         unl_to_annotate+=("$file")
         continue
     fi
-    if check_folder_in_array " ${file_name}" "${CC0_FILES[@]}"; then
+    if matches_pattern " ${file_name}" "${CC0_FILES[@]}"; then
         cc0_to_annotate+=("$file")
         continue
     fi
