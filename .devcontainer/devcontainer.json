@@ -18,6 +18,7 @@
     "../docker-compose.yml",
     "dev.docker-compose.yml"
   ],
+  "initializeCommand": "if [ ! -f .env ]; then cat package.env > .env; fi",
   "name": "initpy",
   "remoteUser": "devu",
   "runServices": [
@@ -26,6 +27,5 @@
   "service": "dev",
   "shutdownAction": "stopCompose",
   "updateRemoteUserUID": true,
-  "workspaceFolder": "/workspace",
-  "initializeCommand": "if [ ! -f .env ]; then cat package.env > .env; fi"
+  "workspaceFolder": "/workspace"
 }

@@ -74,13 +74,13 @@ check_name_occurrence() {
     if [[ "$(grep -Rnw "$ROOT/configs" -e "$norm_reg" | wc -l)" -gt 0 ]]; then
         return 0
     fi
-    if [[ "$(grep --exclude-dir={__pycache__} -Rnw "$PKG" -e "$norm_reg" | wc -l)" -gt 0 ]]; then
+    if [[ "$(grep --exclude-dir=__pycache__ -Rnw "$PKG" -e "$norm_reg" | wc -l)" -gt 0 ]]; then
         return 0
     fi
     if [[ "$2" = 1 ]]; then
         return 1
     fi
-    if [[ "$(grep --exclude-dir={__pycache__} -Rnw "$PKG" -e "$1" | wc -l)" -gt 0 ]]; then
+    if [[ "$(grep --exclude-dir=__pycache__ -Rnw "$PKG" -e "$1" | wc -l)" -gt 0 ]]; then
         return 0
     fi
     return 1
