@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: Unlicense
 
+
 def main() -> None:
     """Prints a simple greeting from the shared utilities package.
 

@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: Unlicense
 
+
 class MySub:
     """Utility helper that simply echoes a list of strings.
 

@@ -76,7 +76,7 @@ else
 fi
 
 
-SOFTWARE_PATTERNS=(
+SOFTWARE=(
     '\.py$'
     '\.sh$'
     'Dockerfile$'
@@ -84,7 +84,7 @@ SOFTWARE_PATTERNS=(
     '\.template$'
 )
 
-CC0_PATTERNS=(
+CC0_FILES=(
     '\.(jpg|png|ico|webp|avif|md|yaml|yml|json|toml|txt)$'
     '\.gitignore$'
     '\.gitattributes$'
@@ -95,11 +95,11 @@ CC0_PATTERNS=(
     'shellcheckrc$'
 )
 
-UNL_PATTERNS=(
+UNL_FILES=(
     'Makefile$'
 )
 
-UNL_FOLDER_PATTERNS=(
+UNL_FOLDERS=(
     # example:
     # '^docs/'
 )
