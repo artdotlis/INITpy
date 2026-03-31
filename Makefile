@@ -79,11 +79,11 @@ runBump:
 
 runLock runUpdate: %: export_%
 # add all packages rquired to be build
-	$(UVE) export --package pkg1 --frozen --format requirements.txt > packages/pkg1/requirements.prod.txt
-	$(UVE) export --package shared_utils --frozen --format requirements.txt > packages/shared_utils/requirements.prod.txt
-	$(UVE) export --frozen --only-group dev --format requirements.txt > configs/dev/requirements.dev.txt
-	$(UVE) export --frozen --only-group test --format requirements.txt > configs/dev/requirements.test.txt
-	$(UVE) export --frozen --only-group docs --format requirements.txt > configs/dev/requirements.docs.txt
+	$(UVE) export --package pkg1 --frozen --format requirements.txt > packages/pkg1/requirements.txt
+	$(UVE) export --package shared_utils --frozen --format requirements.txt > packages/shared_utils/requirements.txt
+	$(UVE) export --frozen --only-group dev --format requirements.txt > configs/requirements/dev/requirements.txt
+	$(UVE) export --frozen --only-group test --format requirements.txt > configs/requirements/test/requirements.txt
+	$(UVE) export --frozen --only-group docs --format requirements.txt > configs/requirements/docs/requirements.txt
 
 export_runLock:
 	$(UVE) lock
@@ -102,49 +102,16 @@ com commit:
 
 recom recommit:
 	@if curl -sf http://ollama:11434; then \
-		[ ! -s .commit_msg ] || (echo "Missing commit message!" && exit 1); \
+		[ -s .commit_msg ] || (echo "Missing commit message!" && exit 1); \
 		git commit -F .commit_msg; \
 	else\
 		$(UVE) run cz commit --retry; \
 	fi
 	echo "" > .commit_msg
 
-define PROMPT
-Generate a commit message in the Conventional Commits 1.0.0 format
-based on the following git diff. The commit message must:
-- Analyze the diff and summarize the changes accurately:
-  1. Include added, removed, or modified functionality.
-  2. Ignore cosmetic changes like whitespace or formatting if not relevant.
-  3. Exclude changes in files matching 'requirements*.txt'.
-- Follow this structure:
-  1. Commit type (feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert)
-  2. Optional scope in parentheses inferred from the changed file paths (e.g., feat(auth):)
-  3. A brief, lowercase description in present tense on the first line
-  4. Optional body with detailed explanation. Use uppercase letters to emphasize key points.
-     Explain why the change was made and how it affects behavior.
-  5. Optional footer(s) with issue references (e.g., Closes #123), co-authors (Co-authored-by: Name),
-     or additional metadata if present in the diff.
-- Formatting rules:
-  1. The first line must be entirely lowercase.
-  2. Body lines must be wrapped at 100 characters.
-  3. Follow Conventional Commits 1.0.0 strictly.
-  4. Return only the commit message as plain text (no markdown, no quotes).
-  5. Do not invent breaking changes; only include if explicitly present in the diff.
-- Prioritize:
-  1. Functional or behavioral changes over formatting changes.
-  2. Changes in core logic over trivial modifications.
-- Example:
-feat(auth): add user login API
-
-Added support for user login via OAuth2. This allows users to authenticate
-using their Google account.
-
-Closes #42
-endef
-
 message:
 	git diff --staged -- . ':(exclude)*requirements*.txt' | \
-		jq -Rs --arg prompt "$(PROMPT)" \
+		jq -Rs --rawfile prompt configs/prompt/commit.md \
 			'{"stream": false, "model": "$(OLLAMA_MODEL)", "prompt": ("<GIT_DIFF>" + . + "</GIT_DIFF>" + $$prompt)}' | \
 		curl -s -X POST http://ollama:11434/api/generate \
 			-H "Content-Type: application/json" \
