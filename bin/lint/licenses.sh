@@ -161,10 +161,3 @@ if ! reuse lint; then
     echo "Linting failed!"
     exit 1
 fi
-
-if ! git diff --quiet || [ -n "$(git ls-files --other --exclude-standard)" ]; then
-    echo "There are uncommitted changes or untracked files in the repository."
-    git ls-files --other --exclude-standard
-    git --no-pager diff
-    exit 1
-fi

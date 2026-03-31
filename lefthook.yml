@@ -82,8 +82,6 @@ pre-commit:
       group:
         piped: true
         jobs:
-          - name: license
-            run: bash $BIN_RUN_LICENSE_LINT
           - name: ruff-check
             glob: "*.py"
             run: |
@@ -98,6 +96,11 @@ pre-commit:
             stage_fixed: true
           - name: uv-export
             run: make runLock && git add \*/requirements\*\.txt
+            stage_fixed: true
+          - name: license
+            run: |
+              bash $BIN_RUN_LICENSE_LINT
+              git add .
             stage_fixed: true
           - name: pretty-format-json
             glob: "*.json"
