@@ -74,11 +74,6 @@ pre-commit:
           - name: license
             run: bin/install/wrap.sh $BIN_RUN_LICENSE_LINT && git add .
             stage_fixed: true
-          - name: license
-            run: |
-              bash $BIN_RUN_LICENSE_LINT
-              git add .
-            stage_fixed: true
           - name: pretty-format-json
             glob: "*.json"
             run: bin/install/wrap.sh pretty-format-json --autofix -- {staged_files}
