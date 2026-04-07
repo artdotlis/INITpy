@@ -8,7 +8,7 @@ ROOT="$(dirname "$(realpath "$0")")/../.."
 
 ROOT_ENV="$ROOT/package.env"
 
-ENV_FILES=("$ROOT_ENV" "$PKG1_ENV")
+ENV_FILES=( "$ROOT_ENV" "$PKG1_ENV" )
 
 ALL_ENV=(
     "MAKEFILE_LIST"
@@ -53,7 +53,7 @@ check_name_occurrence() {
     docker_reg="\${\?$1}\?"
     if [[ "$2" = 1 ]]; then
         norm_reg="$1[[:space:]]*=[A-Za-z0-9]*"
-        make_reg="$1[[:space:]]*[:+/?]\?=[A-Za-z0-9]*\|define[[:space:]]*$1"
+        make_reg="$1[[:space:]]*[:+?]\?=[A-Za-z0-9]*\|define[[:space:]]*$1"
         docker_reg="$1[[:space:]]*=[A-Za-z0-9]*"
     fi
     if [[ "$(grep -Rnw "$ROOT/bin" -e "$norm_reg" | wc -l)" -gt 0 ]]; then

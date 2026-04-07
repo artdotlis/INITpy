@@ -9,7 +9,7 @@ $(error Error: Makefile disabled, exiting ...)
 endif
 
 SHELL := /bin/bash
-ROOT_MAKEFILE:=$(abspath $(patsubst %/, %, $(dir $(abspath $(lastword $(MAKEFILE_LIST))))))
+ROOT_MAKEFILE := $(abspath $(patsubst %/, %, $(dir $(abspath $(lastword $(MAKEFILE_LIST))))))
 
 $(shell $(ROOT_MAKEFILE)/bin/install/env.sh $(ROOT_MAKEFILE)/package.env > .env.mk 2>/dev/null)
 -include .env.mk
@@ -58,18 +58,16 @@ runChecks:
 	$(UVE) run lefthook run pre-commit --all-files -f
 
 runDocs:
-	$(UVE) run mkdocs build -f configs/docs/mkdocs.yml -d ../../public
+	$(UVE) run zensical build -f $(CONFIG_DOCS)
 
 serveDocs:
-	$(UVE) run mkdocs serve -f configs/docs/mkdocs.yml
+	$(UVE) run zensical serve -f $(CONFIG_DOCS) -a localhost:8000
 
 runTests:
 	$(UVE) run tox
 
 runBuild:
-# add all packages rquired to be build
-	$(UVE) build --package pkg1
-	$(UVE) build --package shared_utils
+	$(UVE) run zensical serve -f $(CONFIG_DOCS)
 
 runBump:
 	$(UVE) run cz bump --files-only --yes --changelog

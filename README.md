@@ -62,8 +62,8 @@ Inside the container you can use the `make` targets as below.
 | `setup`           | Installs **uv**, the specified Python version, creates a relocatable virtual environment, and upgrades pip. |
 | `runAct`          | Activates the `.venv` and cleans a temporary file. |
 | `runChecks`       | Runs the pre‑commit hook suite (`lefthook run pre-commit`). |
-| `runDocs`         | Builds the MkDocs site (using the dev configuration). |
-| `serveDocs`       | Serves the MkDocs site locally. |
+| `runDocs`         | Builds the Zensical site (using the dev configuration). |
+| `serveDocs`       | Serves the Zensical site locally. |
 | `runTests`        | Executes the test suite via **tox**. |
 | `runBuild`        | Builds the declared packages (`pkg1`, `shared_utils`). |
 | `runBump`         | Bumps the version with **cz** and commits the change. |
@@ -79,10 +79,10 @@ Inside the container you can use the `make` targets as below.
 
 ## 📚 Documentation
 
-The full API documentation is built with **MkDocs** and automatically deployed to GitHub Pages.
+The full API documentation is built with **Zensical** and automatically deployed to GitHub Pages.
 
 ```bash
-# Build the site into the `public/` folder
+# Build the site into the `public/docs` folder
 make runDocs
 ```
 
@@ -104,7 +104,7 @@ Open `http://localhost:8000` to explore.
 - **Modern tooling** – Linting, formatting, static analysis, and security checks are handled by `black`, `ruff`, and `mypy`.
 - **Testing** – Automated tests run with `tox`, and coverage reports are generated automatically.
 - **Packaging** – Distribution follows PEP 621; the project can be built and published via `uv` or `pip`.
-- **Documentation** – MkDocs generates a fully‑static site from Markdown; it can be previewed locally or published to GitHub Pages.
+- **Documentation** – Zensical generates a fully‑static site from Markdown; it can be previewed locally or published to GitHub Pages.
 - **Containerised development** – A Docker‑Compose dev container replicates the CI environment, ensuring consistent tool versions.
 - **License** – The project is released into the public domain under the Unlicense.
 

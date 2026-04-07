@@ -1,0 +1,44 @@
+# SPDX-FileCopyrightText: 2026 Artur Lissin
+#
+# SPDX-License-Identifier: CC0-1.0
+
+[project]
+variant = "classic"
+site_name = "INIT PY"
+docs_dir = "docs"
+site_dir = "public/docs"
+use_directory_urls = true
+extra_css = []
+
+[project.theme]
+features = [
+    "header.autohide"
+]
+font = false
+
+[project.theme.palette]
+primary = "custom"
+accent = "custom"
+
+[project.markdown_extensions.pymdownx.snippets]
+[project.markdown_extensions.toc]
+toc_depth = 0
+
+[project.plugins.mkdocstrings.handlers.python]
+inventories = ["https://docs.python.org/3/objects.inv"]
+paths = ["packages/pkg1/src", "packages/"]
+
+[project.plugins.mkdocstrings.handlers.python.options]
+docstring_style = "google"
+inherited_members = true
+show_source = false
+show_submodules = true
+
+[[project.nav]]
+Home = "index.md"
+
+[[project.nav]]
+About = "about.md"
+
+[[project.nav]]
+License = "license.md"

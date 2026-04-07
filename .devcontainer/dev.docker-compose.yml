@@ -29,8 +29,11 @@ services:
       - ${GITCONFIG_PATH:-${HOME}/.gitconfig}:/etc/gitconfig:ro
     networks:
       - ollama
+    ports:
+      - ${DOC_PORT}:8000
 
 networks:
     ollama:
         name: ollama
         driver: bridge
+        external: true
