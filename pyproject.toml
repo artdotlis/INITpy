@@ -49,9 +49,7 @@ dev = [
 ]
 test = ["coverage ==7.13.5", "pytest ==9.0.2", "tox ==4.50.3"]
 docs = [
-  "mkdocs ==1.6.1",
-  "mkdocs-material ==9.7.6",
-  "mkdocstrings ==1.0.3",
+  "zensical ==0.0.31",
   "mkdocstrings-python ==2.0.3",
 ]
 

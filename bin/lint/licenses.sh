@@ -4,18 +4,17 @@
 #
 # SPDX-License-Identifier: Unlicense
 
-set -euo pipefail
 ROOT="$(dirname "$(realpath "$0")")/../.."
 source "$ROOT/package.env"
 
-find "$ROOT" -type f -name "*.license" | while read -r license; do
+while IFS= read -r -d '' license; do
   original="${license%.license}"
 
   if [[ ! -e "$original" ]]; then
     echo "Removing orphan license: $license"
     rm "$license"
   fi
-done
+done < <(find "$ROOT" -type f -name "*.license" -print0)
 
 SOFTWARE_LIC="Unlicense"
 DATA_LIC="CC0-1.0"
@@ -31,16 +30,16 @@ if [[ -n "$COPYRIGHT" ]]; then
             echo "License file $license_file does not exist"
             exit 1
         fi
-        if ! grep -q "$YEAR" "$license_file"; then
+        if ! grep -q "$COPYRIGHT" "$license_file"; then
             echo "License file $license_file does not exist or COPYRIGHT not found"
             exit 1
         fi
         if ! grep -q "$YEAR" "$license_file"; then
-            echo "Current year ($YEAR) not be found in $license_file"
+            echo "Current year ($YEAR) could not be found in $license_file"
             exit 1
         fi
-        if ! grep -q "$SOFTWARE_LIC" "$license_file"; then
-            echo "License ($SOFTWARE_LIC) not be found in $license_file"
+        if ! grep -q -e "$SOFTWARE_LIC" -e "$DATA_LIC" "$license_file"; then
+            echo "Neither license ($SOFTWARE_LIC) nor ($DATA_LIC) found in $license_file"
             exit 1
         fi
     done
@@ -93,6 +92,7 @@ CC0_FILES=(
     'uv\.lock$'
     '\.dockerignore$'
     'shellcheckrc$'
+    '\.(txt|yaml|yml|json|toml)$'
 )
 
 UNL_FILES=(
@@ -120,16 +120,14 @@ matches_pattern() {
     return 1
 }
 
-
 for file in "${FILES[@]}"; do
-    extension="${file##*.}"
-    file_name=$(basename "$file")
-    file_dir=$(dirname "$file")
+    file_name="${file##*/}"
+    file_dir="${file%/*}"
     if matches_pattern "$file_dir" "${UNL_FOLDERS[@]}"; then
         unl_to_annotate+=("$file")
         continue
     fi
-    if matches_pattern "$extension" "${SOFTWARE[@]}"; then
+    if matches_pattern "$file_name" "${SOFTWARE[@]}"; then
         unl_to_annotate+=("$file")
         continue
     fi
@@ -137,17 +135,17 @@ for file in "${FILES[@]}"; do
         unl_to_annotate+=("$file")
         continue
     fi
-    if matches_pattern " ${file_name}" "${CC0_FILES[@]}"; then
+    if matches_pattern "$file_name" "${CC0_FILES[@]}"; then
         cc0_to_annotate+=("$file")
         continue
     fi
 done
 
 if [ ${#unl_to_annotate[@]} -gt 0 ]; then
-    echo "annotating UNLICENSE"
+    echo "annotating Unlicense"
     reuse annotate -c "$COPYRIGHT" -l "$SOFTWARE_LIC" -y "$YEAR" --merge-copyrights --fallback-dot-license "${unl_to_annotate[@]}"
 else
-    echo "No UNLICENSE files to annotate"
+    echo "No Unlicense files to annotate"
 fi
 
 if [ ${#cc0_to_annotate[@]} -gt 0 ]; then
