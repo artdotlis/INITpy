@@ -110,7 +110,7 @@ commit-msg:
   piped: true
   commands:
     commitizen:
-      run: cat {1} | cz check
+      run: bin/install/wrap.sh cat {1} | cz check
 
 pre-push:
   piped: true
