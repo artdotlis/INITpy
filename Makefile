@@ -67,7 +67,7 @@ runTests:
 	$(UVE) run tox
 
 runBuild:
-	$(UVE) run zensical serve -f $(CONFIG_DOCS)
+	$(UVE) build
 
 runBump:
 	$(UVE) run cz bump --files-only --yes --changelog
