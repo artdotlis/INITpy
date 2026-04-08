@@ -68,7 +68,7 @@ Inside the container you can use the `make` targets as below.
 | `runBuild`        | Builds the declared packages (`pkg1`, `shared_utils`). |
 | `runBump`         | Bumps the version with **cz** and commits the change. |
 | `runUV`           | Executes an arbitrary `uv` command passed in `CMD`. |
-| `runLock / runUpdate` | Exports the frozen dependency set to `requirements.prod.txt` files for each package/group and locks the environment. Also updates the dependencies in `runUpdate`. |
+| `runLock / runUpdate` | Exports the frozen dependency set to `requirements.txt` files for each package/group and locks the environment. Also updates the dependencies in `runUpdate`. |
 | `com commit`      | Generates a Conventional Commit message (via ollama or `cz`), validates it, and commits. |
 | `recom recommit`  | Commits the previously generated message (again validating with `cz`). |
 
