@@ -15,7 +15,7 @@ WORKDIR /tmp/app
 
 RUN dnf clean all && dnf install -y bash
 RUN bash "./${BIN_DEPLOY_PREP}" && bash "./${BIN_DEPLOY_REQ}"
-RUN  make build
+RUN make build
 
 RUN --mount=type=secret,id=env_file,target=/run/secrets/env_file \
     bash -c "\
