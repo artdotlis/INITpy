@@ -72,7 +72,7 @@ pre-commit:
             run: bin/install/wrap.sh make runLock && git add \*/requirements\*\.txt
             stage_fixed: true
           - name: license
-            run: bin/install/wrap.sh $BIN_RUN_LICENSE_LINT && git add .
+            run: bin/install/wrap.sh $BIN_RUN_LICENSE_LINT
             stage_fixed: true
           - name: pretty-format-json
             glob: "*.json"
