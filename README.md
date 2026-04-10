@@ -4,7 +4,9 @@ SPDX-FileCopyrightText: 2026 Artur Lissin
 SPDX-License-Identifier: CC0-1.0
 -->
 
-# INITpy – A Bare‑Bone Python Project Template
+# 🛠️ INITpy
+
+### A Bare-Bone Python Monorepo Template
 
 [![release: 0.7.0](https://img.shields.io/badge/rel-0.7.0-blue.svg?style=flat-square)](https://github.com/artdotlis/INITpy)
 [![The Unlicense](https://img.shields.io/badge/License-Unlicense-brightgreen.svg?style=flat-square)](https://choosealicense.com/licenses/unlicense/)
@@ -12,105 +14,97 @@ SPDX-License-Identifier: CC0-1.0
 
 [![main](https://github.com/artdotlis/INITpy/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/artdotlis/INITpy/actions/workflows/main.yml)
 
-> **A minimal, opinionated, and fully‑automated Python project layout.**
 
----
+**INITpy** is a minimal, opinionated project layout designed for modern Python development. It leverages `uv` for lightning-fast environment management, `tox` for testing, and `zensical` for documentation.
+
+-----
+
+## ✨ Key Features
+
+  * **Single-Source Truth:** Tooling and dependencies are declared in one `pyproject.toml`.
+  * **Native Monorepo Support:** Built-in logic for managing multiple packages (`pkg1`, `shared_utils`).
+  * **AI-Powered Commits:** Integration with **Ollama** to generate Conventional Commit messages based on your staged changes.
+  * **Strict Consistency:** A Docker-based Dev Container ensures every contributor uses the exact same tool versions.
+  * **Robust CI/CD:** Ready-to-go workflows for testing, linting (`ruff`), and static analysis (`mypy`).
+
+-----
+
+## 🚀 Quick Start
+
+If you are using **VS Code** and have the **Dev Containers** extension, simply open the folder and click **"Reopen in Container"**.
+
+Alternatively, via CLI:
+
+```bash
+# 1. Clone the template
+git clone https://github.com/artdotlis/INITpy.git && cd INITpy
+
+# 2. Spin up the environment (Requires Docker)
+devcontainer up --workspace-folder .
+devcontainer exec --workspace-folder . bash
+
+# 3. Bootstrap the project (Inside the container)
+make dev
+make runAct
+```
+
+-----
+
+## 🏗️ Project Structure
+
+```text
+INITpy/
+├── configs/            # Tooling & Linting configurations
+├── packages/           # Your Python packages (Monorepo)
+│   ├── pkg1/
+│   └── shared_utils/
+├── public/docs/        # Static site output
+├── pyproject.toml      # The heart of the project
+└── Makefile            # Command automation (requires CONTAINER=container)
+```
+
+-----
 
 ## 🛠️ Development Workflow
 
-### 1. Dev Container (Optional)
+### Makefile Command Reference
 
-The project ships with a Docker‑Compose powered dev container. It automatically installs all dev dependencies - ideal for a consistent and sandboxed development environment.
+All commands must be run within the Dev Container or by passing `CONTAINER=container`.
 
-Inside the container you can use the `make` targets as below.
+| Category | Command | Action |
+| :--- | :--- | :--- |
+| **Setup** | `make dev` | Installs `uv`, Python, and git hooks. |
+| **Active** | `make runAct` | Enters the virtual environment shell. |
+| **Quality** | `make runChecks` | Runs `ruff`, `mypy`, and other pre-commit hooks. |
+| **Test** | `make runTests` | Runs the test suite via `tox`. |
+| **Docs** | `make serveDocs` | Previews documentation at `localhost:$DOC_PORT`. |
+| **Release** | `make runBump` | Bumps version and updates CHANGELOG. |
+| **Git** | `make commit` | Generates AI commit message (via Ollama) or opens `cz`. |
 
-#### Prerequisites
+### 🧠 Smart Commits
 
-- **GNU/Linux**
-- **Docker**
-- **Docker Compose**
-- **Dev Container CLI**
+The `make commit` target checks if an Ollama server is reachable.
 
-#### Steps
+  - **If Ollama is up:** It sends your `git diff` to the model (default: `gemma4:26b`), generates a message, and opens `vim` for you to edit.
+  - **If Ollama is down:** It falls back to standard `commitizen` prompts.
 
-1. Clone the repository:
-   ```sh
-   git clone https://github.com/artdotlis/INITpy.git
-   cd INITpy
-   ```
-
-2. If using Docker, start the development container manually or use VSCode:
-   ```sh
-   devcontainer up --workspace-folder .
-   devcontainer exec --workspace-folder . bash
-   ```
-
-3. Create and activate a virtual environment (inside docker the container):
-   ```sh
-   make dev
-   make runAct
-   ```
-
-### 2. Makefile Targets
-
-| Target            | Purpose |
-|-------------------|---------|
-| `dev`             | Sets up the development environment, installs the frozen dependency set, and installs the git hooks. |
-| `tests`           | Synchronises the test‑only dependency set. |
-| `build`           | Synchronises the build‑time dependency set. |
-| `docs`            | Synchronises the docs‑only dependency set. |
-| `setup`           | Installs **uv**, the specified Python version, creates a relocatable virtual environment, and upgrades pip. |
-| `runAct`          | Activates the `.venv` and cleans a temporary file. |
-| `runChecks`       | Runs the pre‑commit hook suite (`lefthook run pre-commit`). |
-| `runDocs`         | Builds the Zensical site (using the dev configuration). |
-| `serveDocs`       | Serves the Zensical site locally. |
-| `runTests`        | Executes the test suite via **tox**. |
-| `runBuild`        | Builds the declared packages (`pkg1`, `shared_utils`). |
-| `runBump`         | Bumps the version with **cz** and commits the change. |
-| `runUV`           | Executes an arbitrary `uv` command passed in `CMD`. |
-| `runLock / runUpdate` | Exports the frozen dependency set to `requirements.txt` files for each package/group and locks the environment. Also updates the dependencies in `runUpdate`. |
-| `com commit`      | Generates a Conventional Commit message (via ollama or `cz`), validates it, and commits. |
-| `recom recommit`  | Commits the previously generated message (again validating with `cz`). |
-
-> **Important** – the Makefile is guarded by `ifeq ($(CONTAINER),container)`; if `CONTAINER` is not set to `container` the make process aborts with an error.  
-> To run the targets, set the variable on the command line, e.g. `make CONTAINER=container dev`, or run it from inside the dev container.
-
----
+-----
 
 ## 📚 Documentation
 
-The full API documentation is built with **Zensical** and automatically deployed to GitHub Pages.
+The API documentation is built with **Zensical**.
 
-```bash
-# Build the site into the `public/docs` folder
-make runDocs
-```
+  - **Build:** `make runDocs`
+  - **Serve:** `make serveDocs`
 
-You can preview the documentation locally while you work:
-
-```bash
-# Start a lightweight development server
-make serveDocs
-```
-
-Open `http://localhost:8000` to explore.
-
----
-
-## 🚀 Features
-
-- **Zero‑configuration** – All tooling, dependencies, and build settings are declared in a single `pyproject.toml` file.
-- **Monorepo‑friendly** – The layout supports multiple packages in a single repository, making it ideal for mono‑repo workflows.
-- **Modern tooling** – Linting, formatting, static analysis, and security checks are handled by `ruff` and `mypy`.
-- **Testing** – Automated tests run with `tox`, and coverage reports are generated automatically.
-- **Packaging** – Distribution follows PEP 621; the project can be built and published via `uv` or `pip`.
-- **Documentation** – Zensical generates a fully‑static site from Markdown; it can be previewed locally or published to GitHub Pages.
-- **Containerised development** – A Docker‑Compose dev container replicates the CI environment, ensuring consistent tool versions.
-- **License** – The project is released into the public domain under the Unlicense.
-
----
+-----
 
 ## 📜 License
 
-This project is licensed under the [Unlicense](https://choosealicense.com/licenses/unlicense/).  
-Feel free to use, modify, and distribute it without any restrictions.
+Released into the public domain via the [Unlicense](https://choosealicense.com/licenses/unlicense/). No strings attached.
+
+-----
+
+### Why the `CONTAINER=container` guard?
+
+To prevent accidental execution on your host, this `Makefile` uses a mandatory `CONTAINER` constraint. This safety gate ensures the code runs exclusively in the intended containerized environment.
