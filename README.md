@@ -101,7 +101,7 @@ Open `http://localhost:8000` to explore.
 
 - **Zero‑configuration** – All tooling, dependencies, and build settings are declared in a single `pyproject.toml` file.
 - **Monorepo‑friendly** – The layout supports multiple packages in a single repository, making it ideal for mono‑repo workflows.
-- **Modern tooling** – Linting, formatting, static analysis, and security checks are handled by `black`, `ruff`, and `mypy`.
+- **Modern tooling** – Linting, formatting, static analysis, and security checks are handled by `ruff` and `mypy`.
 - **Testing** – Automated tests run with `tox`, and coverage reports are generated automatically.
 - **Packaging** – Distribution follows PEP 621; the project can be built and published via `uv` or `pip`.
 - **Documentation** – Zensical generates a fully‑static site from Markdown; it can be previewed locally or published to GitHub Pages.
