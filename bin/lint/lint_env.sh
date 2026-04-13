@@ -50,11 +50,11 @@ check_env_uniqueness() {
 check_name_occurrence() {
     norm_reg="\${\?$1}\?"
     make_reg="\$($1)"
-    docker_reg="\${\?$1}\?"
+    docker_reg="\${\?$1}\?\|environment:[[:space:]]*$1"
     if [[ "$2" = 1 ]]; then
         norm_reg="$1[[:space:]]*=[A-Za-z0-9]*"
         make_reg="$1[[:space:]]*[:+?]\?=[A-Za-z0-9]*\|define[[:space:]]*$1"
-        docker_reg="$1[[:space:]]*=[A-Za-z0-9]*"
+        docker_reg="$1[[:space:]]*[:=][A-Za-z0-9]*"
     fi
     if [[ "$(grep -Rnw "$ROOT/bin" -e "$norm_reg" | wc -l)" -gt 0 ]]; then
         return 0
@@ -156,6 +156,12 @@ while SEP=' ' read -ra files; do
         check_name_rev_occurrence "$file" "$cmd"
     done
 done <<<"$(find "$ROOT/configs" -type f)"
+
+while SEP=' ' read -ra files; do
+    for file in "${files[@]}"; do
+        check_name_rev_occurrence "$file" "$cmd"
+    done
+done <<<"$(find "$PKG" -type f -regex '.*/packages/[^/]*/[^/]*')"
 
 cmd='{
     while (match($0, /\$[A-Z_]+/)) {
