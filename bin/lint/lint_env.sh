@@ -136,7 +136,7 @@ for name in "${ALL_ENV[@]}"; do
 done
 echo "-- reverse occurrence check --"
 cmd='{
-    while (match($0, /\$[({][A-Z_]+[)}]/)) {
+    while (match($0, /\$[({][A-Z_]+[A-Z0-9_]*[)}]/)) {
         print substr($0, RSTART+2, RLENGTH-3);
         $0 = substr($0, RSTART+RLENGTH)
     }
@@ -164,7 +164,7 @@ while SEP=' ' read -ra files; do
 done <<<"$(find "$PKG" -type f -regex '.*/packages/[^/]*/[^/]*')"
 
 cmd='{
-    while (match($0, /\$[A-Z_]+/)) {
+    while (match($0, /\$[A-Z_]+[A-Z0-9_]*/)) {
         print substr($0, RSTART+1, RLENGTH-1);
         $0 = substr($0, RSTART+RLENGTH)
     }
