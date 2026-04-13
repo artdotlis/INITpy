@@ -4,7 +4,6 @@
 
 FROM docker.io/almalinux:10 AS appbuilder
 
-ARG UV
 ARG BIN_DEPLOY_PREP
 ARG BIN_DEPLOY_REQ
 ARG CONTAINER="container"
