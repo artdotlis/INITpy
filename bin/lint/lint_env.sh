@@ -139,6 +139,7 @@ cmd='{
     }
 }'
 check_name_rev_occurrence "$ROOT/Makefile" "$cmd"
+check_name_rev_occurrence "$ROOT/Dockerfile" "$cmd"
 check_name_rev_occurrence "$ROOT/docker-compose.yml" "$cmd"
 
 while SEP=' ' read -ra files; do
