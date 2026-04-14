@@ -20,6 +20,22 @@ Generate a commit message in the **Conventional Commits 1.0.0** format based on 
 
 ---
 
+### Security Check (MANDATORY)
+- Scan the diff for potential secrets, including but not limited to:
+  - Passwords
+  - API keys
+  - Tokens
+  - Private keys
+  - Hardcoded credentials
+- If ANY secret or sensitive value is detected:
+  - DO NOT generate a Conventional Commits–compliant message
+  - Instead, output a failure message starting with ERROR -
+  - The failure message must clearly indicate that a secret was detected
+  - This is REQUIRED to prevent unsafe commits
+  - Add the source file of the leak
+
+---
+
 ### Structure
 
 Your commit message must follow this structure:
@@ -82,3 +98,9 @@ Added support for user login via OAuth2. This allows users to authenticate
 using their Google account.
 
 Closes #42
+
+---
+
+## Example (Secret Detected)
+
+ERROR - potential secret detected in diff. commit message generation aborted.
