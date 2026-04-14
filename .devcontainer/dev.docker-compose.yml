@@ -36,4 +36,3 @@ networks:
     ollama:
         name: ollama
         driver: bridge
-        external: true
