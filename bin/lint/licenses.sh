@@ -23,7 +23,7 @@ YEAR=$(date +%Y)
 if [[ -n "$COPYRIGHT" ]]; then
     echo "COPYRIGHT is set: $COPYRIGHT"
 
-    LICENSE_FILES=()
+    LICENSE_FILES=("$ROOT/configs/REUSE.toml")
 
     for license_file in "${LICENSE_FILES[@]}"; do
         if [[ ! -f "$license_file" ]]; then
@@ -104,6 +104,20 @@ UNL_FOLDERS=(
     # '^docs/'
 )
 
+IGNORE=(
+    "^configs/prompt/.+$"
+)
+
+should_ignore() {
+    local name="$1"
+    for pattern in "${IGNORE[@]}"; do
+        if [[ "$name" =~ $pattern ]]; then
+            return 0
+        fi
+    done
+    return 1
+}
+
 unl_to_annotate=()
 cc0_to_annotate=()
 
@@ -123,6 +137,9 @@ matches_pattern() {
 for file in "${FILES[@]}"; do
     file_name="${file##*/}"
     file_dir="${file%/*}"
+    if should_ignore "$file"; then
+        continue
+    fi
     if matches_pattern "$file_dir" "${UNL_FOLDERS[@]}"; then
         unl_to_annotate+=("$file")
         continue
