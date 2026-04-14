@@ -2,7 +2,6 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        "Continue.continue",
         "streetsidesoftware.code-spell-checker",
         "oderwat.indent-rainbow",
         "yzhang.markdown-all-in-one",
