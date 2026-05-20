@@ -81,29 +81,17 @@ pre-commit:
           - name: mixed-line-ending
             run: bin/install/wrap.sh mixed-line-ending -f auto -- {staged_files}
             exclude:
-              - '.*\.png'
-              - '.*\.jpg'
-              - '.*\.ico'
-              - '.*\.webp'
-              - '.*\.avif'
+              - '**/*.{png,jpg,jpeg,gif,svg,webp,ico}'
             stage_fixed: true
           - name: trailing-whitespace
             run: bin/install/wrap.sh trailing-whitespace-fixer --markdown-linebreak-ext=md -- {staged_files}
             exclude:
-              - '.*\.png'
-              - '.*\.jpg'
-              - '.*\.ico'
-              - '.*\.webp'
-              - '.*\.avif'
+              - '**/*.{png,jpg,jpeg,gif,svg,webp,ico}'
             stage_fixed: true
           - name: end-of-file
             exclude:
-              - '.*requirements(\..+)?.txt'
-              - '.*\.png'
-              - '.*\.jpg'
-              - '.*\.ico'
-              - '.*\.webp'
-              - '.*\.avif'
+              - '**/*.{png,jpg,jpeg,gif,svg,webp,ico}'
+              - '**/requirements*.txt'
             run: bin/install/wrap.sh end-of-file-fixer -- {staged_files}
             stage_fixed: true
 commit-msg:
