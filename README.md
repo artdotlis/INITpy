@@ -25,7 +25,7 @@ SPDX-License-Identifier: CC0-1.0
   * **Native Monorepo Support:** Built-in logic for managing multiple packages (`pkg1`, `shared_utils`).
   * **AI-Powered Commits:** Integration with **Ollama** to generate Conventional Commit messages based on your staged changes.
   * **Strict Consistency:** A Docker-based Dev Container ensures every contributor uses the exact same tool versions.
-  * **Robust CI/CD:** Ready-to-go workflows for testing, linting (`ruff`), and static analysis (`mypy`).
+  * **Robust CI/CD:** Ready-to-go workflows for testing, linting (`ruff`), and static analysis (`pyrefly`).
 
 -----
 
@@ -75,7 +75,7 @@ All commands must be run within the Dev Container or by passing `CONTAINER=conta
 | :--- | :--- | :--- |
 | **Setup** | `make dev` | Installs `uv`, Python, and git hooks. |
 | **Active** | `make runAct` | Enters the virtual environment shell. |
-| **Quality** | `make runChecks` | Runs `ruff`, `mypy`, and other pre-commit hooks. |
+| **Quality** | `make runChecks` | Runs `ruff`, `pyrefly`, and other pre-commit hooks. |
 | **Test** | `make runTests` | Runs the test suite via `tox`. |
 | **Docs** | `make serveDocs` | Previews documentation at `localhost:$DOC_PORT`. |
 | **Release** | `make runBump` | Bumps version and updates CHANGELOG. |
