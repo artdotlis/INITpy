@@ -4,6 +4,30 @@ SPDX-FileCopyrightText: 2026 Artur Lissin
 SPDX-License-Identifier: CC0-1.0
 -->
 
+## v0.8.0 (2026-05-22)
+
+### Feat
+
+- **prompt**: add mandatory security check for potential secrets
+- **lint**: expand docker env var detection and add package-level reverse checks
+- change home to home_main
+- remove socket env var
+- move to new structure
+
+### Fix
+
+- **lint**: allow digits in environment variable names
+- remove redundant step
+
+### Refactor
+
+- move to pyrefly and update project
+- **makefile**: swap order of prompt and git diff concatenation
+- **lint**: implement reuse-compliant licensing and restructure prompt
+- **lint**: move git add command to license lint script
+- update prompt generation in makefile
+- **config**: move ollama_model default to Makefile and clean .env
+
 ## v0.7.0 (2025-10-07)
 
 ### Feat
