@@ -74,7 +74,6 @@ runBump:
 	git add .
 	$(UVE) run cz version --project | xargs -i git commit -am "bump: release {}"
 
-
 runLock runUpdate: %: export_%
 # add all packages rquired to be build
 	$(UVE) export --package pkg1 --frozen --format requirements.txt > packages/pkg1/requirements.txt
