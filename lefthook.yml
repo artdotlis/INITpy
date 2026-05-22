@@ -22,7 +22,7 @@ pre-commit:
             glob: "packages/**/*.py"
             run: bin/install/wrap.sh pyrefly check -- {staged_files}
           - name: vulture
-            run: bin/install/wrap.sh vulture packages/
+            run: bin/install/wrap.sh vulture
           - name: shellcheck
             glob: "*.sh"
             run: bin/install/wrap.sh shellcheck --rcfile=$CONFIG_SHELL -- {staged_files}
