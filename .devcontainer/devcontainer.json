@@ -9,7 +9,8 @@
         "Gruntfuggly.todo-tree",
         "aaron-bond.better-comments",
         "tamasfe.even-better-toml",
-        "ms-python.python"
+        "ms-python.python",
+        "meta.pyrefly"
       ]
     }
   },
