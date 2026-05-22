@@ -18,9 +18,9 @@ pre-commit:
             run: bin/install/wrap.sh bash $BIN_RUN_ENV_LINT
           - name: lfs
             run: bin/install/wrap.sh bash $BIN_RUN_LFS_LINT
-          - name: mypy
+          - name: pyrefly
             glob: "*.py"
-            run: bin/install/wrap.sh mypy -- {staged_files}
+            run: bin/install/wrap.sh pyrefly check -- {staged_files}
           - name: vulture
             run: bin/install/wrap.sh vulture packages/
           - name: shellcheck
