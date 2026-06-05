@@ -54,11 +54,12 @@ make runAct
 
 ```text
 INITpy/
+├── bin/                # Tooling shell scripts
 ├── configs/            # Tooling & Linting configurations
+├── docs/               # Documentation configuration
 ├── packages/           # Your Python packages (Monorepo)
 │   ├── pkg1/
 │   └── shared_utils/
-├── public/docs/        # Static site output
 ├── pyproject.toml      # The heart of the project
 └── Makefile            # Command automation (requires CONTAINER=container)
 ```
@@ -85,7 +86,7 @@ All commands must be run within the Dev Container or by passing `CONTAINER=conta
 
 The `make commit` target checks if an Ollama server is reachable.
 
-  - **If Ollama is up:** It sends your `git diff` to the model (default: `gemma4:26b`), generates a message, and opens `vim` for you to edit.
+  - **If Ollama is up:** It sends your `git diff` to the model, generates a message, and opens `vim` for you to edit.
   - **If Ollama is down:** It falls back to standard `commitizen` prompts.
 
 -----
