@@ -61,7 +61,7 @@ runDocs:
 	$(UVE) run zensical build -f $(CONFIG_DOCS)
 
 serveDocs:
-	$(UVE) run zensical serve -f $(CONFIG_DOCS) -a localhost:8000
+	$(UVE) run zensical serve -f $(CONFIG_DOCS) -a 0.0.0.0:8000
 
 runTests:
 	$(UVE) run tox
