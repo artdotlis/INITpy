@@ -51,7 +51,7 @@ dev = [
 test = ["coverage ==7.14.0", "pytest ==9.0.3", "tox ==4.54.0"]
 docs = [
   "zensical ==0.0.44",
-  "mkdocstrings-python ==2.0.3",
+  "mkdocstrings-python ==2.0.4",
 ]
 
 [tool.codespell]
