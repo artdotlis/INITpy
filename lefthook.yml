@@ -105,3 +105,4 @@ pre-push:
   commands:
     tests:
       run: bin/install/wrap.sh tox
+      skip: false
