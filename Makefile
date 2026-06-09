@@ -109,7 +109,7 @@ recom recommit:
 message:
 	git diff --staged -- . ':(exclude)*requirements*.txt' | \
 		jq -Rs --rawfile prompt configs/prompt/commit.md \
-			'{"stream": false, "model": "$(OLLAMA_MODEL)", "prompt": ($$prompt + "<GIT_DIFF>" + . + "</GIT_DIFF>")}' | \
+			'{"stream": false, "model": "$(OLLAMA_MODEL)", "prompt": ("<GIT_DIFF>" + . + "</GIT_DIFF>" + $$prompt)}' | \
 		curl -s -X POST http://ollama:11434/api/generate \
 			-H "Content-Type: application/json" \
 			-d @- | \
