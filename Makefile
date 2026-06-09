@@ -75,7 +75,7 @@ runBump:
 	$(UVE) run cz version --project | xargs -i git commit -am "bump: release {}"
 
 runLock runUpdate: %: export_%
-# add all packages rquired to be build
+# add all packages required to be build
 	$(UVE) export --package pkg1 --frozen --format requirements.txt > packages/pkg1/requirements.txt
 	$(UVE) export --package shared_utils --frozen --format requirements.txt > packages/shared_utils/requirements.txt
 	$(UVE) export --frozen --only-group dev --format requirements.txt > configs/requirements/dev/requirements.txt
