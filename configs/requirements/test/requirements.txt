@@ -77,9 +77,9 @@ coverage==7.14.0 \
     --hash=sha256:f2bbb8254370eb4c628ff3d6fa8a7f74ddc40565394d4f7ab791d1fe568e37ef \
     --hash=sha256:f580f8c80acd94ac72e863efe2cab791d8c38d153e0b463b92dfa000d5c84cd1 \
     --hash=sha256:fb609b3658479e33f9516d46f1a89dbb9b6c261366e3a11844a96ec487533dae
-distlib==0.4.2 \
-    --hash=sha256:baeb401c90f27acd15c4861ae0847d1e731c27ac3dbf4210643ba61fa1e813db \
-    --hash=sha256:ca4cb11e5d746b5ec13c199cbf19ae27a241f89702b54e153a74332955446067
+distlib==0.4.1 \
+    --hash=sha256:9c2c552c68cbadc619f2d0ed3a69e27c351a3f4c9baa9ffb7df9e9cdc3d19a97 \
+    --hash=sha256:c3804d0d2d4b5fcd44036eb860cb6660485fcdf5c2aba53dc324d805837ea65b
     # via virtualenv
 filelock==3.29.1 \
     --hash=sha256:85199dfd706869641b72b2e8955d5416a4b2b7dc4b0e8e6d97b4cc1299a6983b \
