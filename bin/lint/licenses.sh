@@ -56,12 +56,30 @@ fi
 
 FILES=()
 
+IGNORE=(
+    '^configs/prompt/.+$'
+    '^bin/lint/licenses.sh'
+    '^bin/install/wrap.sh'
+    '^LICENSES/.+$'
+)
+
+should_ignore() {
+    local name="$1"
+    for pattern in "${IGNORE[@]}"; do
+        if [[ "$name" =~ $pattern ]]; then
+            return 0
+        fi
+    done
+    return 1
+}
+
 filter_and_collect() {
     local input_file
     while IFS= read -r input_file; do
         [[ -z "$input_file" ]] && continue
-        [[ "$input_file" == LICENSES/* ]] && continue
-        [[ "$input_file" == "bin/lint/licenses.sh" ]] && continue
+        if should_ignore "$input_file"; then
+            continue
+        fi
         if [[ -e "$input_file" ]]; then
             FILES+=("$input_file")
         fi
@@ -101,20 +119,6 @@ UNL_FOLDERS=(
     '^docs/'
 )
 
-IGNORE=(
-    "^configs/prompt/.+$"
-)
-
-should_ignore() {
-    local name="$1"
-    for pattern in "${IGNORE[@]}"; do
-        if [[ "$name" =~ $pattern ]]; then
-            return 0
-        fi
-    done
-    return 1
-}
-
 unl_to_annotate=()
 cc0_to_annotate=()
 
@@ -134,9 +138,6 @@ matches_pattern() {
 for file in "${FILES[@]}"; do
     file_name="${file##*/}"
     file_dir="${file%/*}"
-    if should_ignore "$file"; then
-        continue
-    fi
     if matches_pattern "$file_dir" "${UNL_FOLDERS[@]}"; then
         unl_to_annotate+=("$file")
         continue
