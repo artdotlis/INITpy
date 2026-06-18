@@ -78,13 +78,10 @@ fi
 SOFTWARE=(
     '\.py$'
     '\.sh$'
-    'Dockerfile$'
-    '\.conf$'
-    '\.template$'
 )
 
 CC0_FILES=(
-    '\.(jpg|png|ico|webp|avif|md|yaml|yml|json|toml|txt)$'
+    '\.(jpg|png|ico|webp|avif)$'
     '\.gitignore$'
     '\.gitattributes$'
     '\.env$'
@@ -92,16 +89,16 @@ CC0_FILES=(
     'uv\.lock$'
     '\.dockerignore$'
     'shellcheckrc$'
-    '\.(txt|yaml|yml|json|toml)$'
+    '\.(md|txt|yaml|yml|json|toml)$'
 )
 
 UNL_FILES=(
     'Makefile$'
+    'Dockerfile$'
 )
 
 UNL_FOLDERS=(
-    # example:
-    # '^docs/'
+    '^docs/'
 )
 
 IGNORE=(
