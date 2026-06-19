@@ -9,6 +9,11 @@ docs_dir = "docs"
 site_dir = "public/docs"
 use_directory_urls = true
 extra_css = []
+copyright = "Copyright &copy; 2026 Artur Lissin"
+language = "en"
+repo_name = "artdotlis/INITpy"
+repo_url = "https://github.com/artdotlis/INITpy"
+repo_license = "Unlicense"
 
 [project.theme]
 features = [
