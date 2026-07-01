@@ -14,7 +14,7 @@ pre-commit:
           piped: true
           jobs:
             - name: license
-              run: bin/install/wrap.sh $BIN_RUN_LICENSE_LINT
+              run: bin/install/wrap.sh make setupLicense
               stage_fixed: true
               skip: false
     - name: check

@@ -47,6 +47,16 @@ setup:
 	$(UVE) venv --python=$(PYV) --relocatable --link-mode=copy --seed
 	$(UVE) pip install --upgrade pip
 
+unstaged:
+	@if ! git diff --quiet --exit-code; then \
+		echo "ERROR: Unstaged changes found!"; \
+		exit 1; \
+	fi
+	@echo "No unstaged changes. Proceeding..."
+
+setupLicense: unstaged
+	bash $(BIN_RUN_LICENSE_LINT)
+	git add .
 
 RAN := $(shell awk 'BEGIN{srand();printf("%d", 65536*rand())}')
 
@@ -69,7 +79,7 @@ runTests:
 runBuild:
 	$(UVE) build
 
-runBump:
+runBump: unstaged
 	$(UVE) run cz bump --files-only --yes --changelog
 	git add .
 	$(UVE) run cz version --project | xargs -i git commit -am "bump: release {}"
