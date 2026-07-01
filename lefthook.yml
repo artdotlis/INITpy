@@ -94,6 +94,16 @@ pre-commit:
               - '**/*.{png,jpg,jpeg,gif,svg,webp,ico}'
             run: bin/install/wrap.sh end-of-file-fixer -- {staged_files} || true
             stage_fixed: true
+          - name: fix-all-addable-files
+            env:
+              ALL_FILES: $(find . -name "*.license" -type f)
+            run: |
+              if [ -n "$ALL_FILES" ]; then
+                bin/install/wrap.sh mixed-line-ending -f auto -- $ALL_FILES || true
+                bin/install/wrap.sh trailing-whitespace-fixer --markdown-linebreak-ext=md -- $ALL_FILES || true
+                bin/install/wrap.sh end-of-file-fixer -- $ALL_FILES || true
+              fi
+            stage_fixed: true
 commit-msg:
   piped: true
   commands:
