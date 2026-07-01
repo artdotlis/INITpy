@@ -4,6 +4,13 @@ SPDX-FileCopyrightText: 2026 Artur Lissin
 SPDX-License-Identifier: CC0-1.0
 -->
 
+## v0.8.1 (2026-07-01)
+
+### Fix
+
+- correct whitelist use in vulture
+- only check python inside packages
+
 ## v0.8.0 (2026-05-22)
 
 ### Feat
