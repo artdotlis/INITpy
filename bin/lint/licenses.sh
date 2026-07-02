@@ -51,11 +51,21 @@ else
     exit 1
 fi
 
-# For python projects
-if ! grep -q "$SOFTWARE_LIC" "$ROOT/pyproject.toml"; then
-    echo "License ($SOFTWARE_LIC) not be found in pyproject.toml"
-    exit 1
-fi
+LICENSE_SHORT_FILES=(
+    "$ROOT/pyproject.toml"
+)
+
+for file_path in "${LICENSE_SHORT_FILES[@]}"; do
+    if [ ! -f "$file_path" ]; then
+        echo "File not found: $file_path"
+        exit 1
+    fi
+
+    if ! grep -q "$SOFTWARE_LIC" "$file_path"; then
+        echo "License ($SOFTWARE_LIC) not found in $file_path"
+        exit 1
+    fi
+done
 
 FILES=()
 
