@@ -52,6 +52,7 @@ setupPnpm:
 unstaged:
 	@if ! git diff --quiet --exit-code; then \
 		echo "ERROR: Unstaged changes found!"; \
+		git diff; \
 		exit 1; \
 	fi
 	@echo "No unstaged changes. Proceeding..."
