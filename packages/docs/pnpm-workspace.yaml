@@ -5,3 +5,6 @@
 saveExact: true
 minimumReleaseAge: 4320
 minimumReleaseAgeStrict: true
+
+lockfile: true
+preferFrozenLockfile: true
