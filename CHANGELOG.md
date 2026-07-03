@@ -4,6 +4,12 @@ SPDX-FileCopyrightText: 2026 Artur Lissin
 SPDX-License-Identifier: CC0-1.0
 -->
 
+## v0.9.0 (2026-07-03)
+
+### Feat
+
+- **docs**: migrate documentation to monorepo package structure and integrate pnpm
+
 ## v0.8.1 (2026-07-01)
 
 ### Fix
