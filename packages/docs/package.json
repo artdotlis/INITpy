@@ -1,0 +1,18 @@
+{
+  "author": {
+    "email": "artdotlis@pm.me",
+    "name": "Artur Lissin"
+  },
+  "dependencies": {},
+  "description": "This package documents the whole project.",
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=11.0.0"
+  },
+  "name": "docs",
+  "private": true,
+  "scripts": {
+    "build": "pnpm list --depth 0 --parseable --lockfile-only | grep node_modules | xargs -I {} find {} -type f -name '*.min.js' |  xargs -I {} cp {} \"$EXTRA_JS\""
+  },
+  "version": "0.8.1"
+}
