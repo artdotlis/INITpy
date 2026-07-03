@@ -119,6 +119,7 @@ CC0_FILES=(
     '\.env$'
     'package\.env$'
     'uv\.lock$'
+    'pnpm-lock.yaml'
     '\.dockerignore$'
     'shellcheckrc$'
     '\.(md|txt|yaml|yml|json|toml)$'

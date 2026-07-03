@@ -5,10 +5,11 @@
 [project]
 variant = "classic"
 site_name = "INIT PY"
-docs_dir = "docs"
+docs_dir = "packages/docs/src"
 site_dir = "public/docs"
 use_directory_urls = true
 extra_css = []
+extra_javascript = []
 copyright = "Copyright &copy; 2026 Artur Lissin"
 language = "en"
 repo_name = "artdotlis/INITpy"

@@ -25,6 +25,10 @@ jobs:
       CU_HOME: /home/custom
     runs-on: ubuntu-latest
     steps:
+      - name: Set up Node 24
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
       - name: Set up Python 3.13
         uses: actions/setup-python@v6
         with:

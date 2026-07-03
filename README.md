@@ -56,8 +56,8 @@ make runAct
 INITpy/
 ├── bin/                # Tooling shell scripts
 ├── configs/            # Tooling & Linting configurations
-├── docs/               # Documentation configuration
 ├── packages/           # Your Python packages (Monorepo)
+│   ├── docs/           # Documentation configuration
 │   ├── pkg1/
 │   └── shared_utils/
 ├── pyproject.toml      # The heart of the project
@@ -74,7 +74,6 @@ All commands must be run within the Dev Container or by passing `CONTAINER=conta
 
 | Category | Command | Action |
 | :--- | :--- | :--- |
-| **Setup** | `make dev` | Installs `uv`, Python, and git hooks. |
 | **Active** | `make runAct` | Enters the virtual environment shell. |
 | **Quality** | `make runChecks` | Runs `ruff`, `pyrefly`, and other pre-commit hooks. |
 | **Test** | `make runTests` | Runs the test suite via `tox`. |
