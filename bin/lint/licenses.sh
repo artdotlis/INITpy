@@ -75,6 +75,8 @@ IGNORE=(
     '^bin/install/wrap.sh'
     '^LICENSES/.+$'
     '^configs/REUSE.toml'
+    'uv\.lock$'
+    'pnpm-lock.yaml'
 )
 
 should_ignore() {
@@ -118,8 +120,6 @@ CC0_FILES=(
     '\.gitattributes$'
     '\.env$'
     'package\.env$'
-    'uv\.lock$'
-    'pnpm-lock.yaml'
     '\.dockerignore$'
     'shellcheckrc$'
     '\.(md|txt|yaml|yml|json|toml)$'
