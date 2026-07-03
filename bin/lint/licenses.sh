@@ -70,11 +70,13 @@ done
 FILES=()
 
 IGNORE=(
-    '^configs/prompt/.+$'
     '^bin/lint/licenses.sh'
     '^bin/install/wrap.sh'
     '^LICENSES/.+$'
+    '^configs/prompt/.+$'
     '^configs/REUSE.toml'
+    '^packages/docs/REUSE.toml'
+    '^packages/docs/src/.+\.md$'
     'uv\.lock$'
     'pnpm-lock.yaml'
 )
@@ -130,9 +132,7 @@ UNL_FILES=(
     'Dockerfile$'
 )
 
-UNL_FOLDERS=(
-    '^docs/'
-)
+UNL_FOLDERS=()
 
 unl_to_annotate=()
 cc0_to_annotate=()
