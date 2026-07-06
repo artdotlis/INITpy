@@ -4,6 +4,7 @@
 #
 # SPDX-License-Identifier: Unlicense
 
+set -euo pipefail
 ROOT="$(dirname "$(realpath "$0")")/../.."
 
 ROOT_ENV="$ROOT/package.env"

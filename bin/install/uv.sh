@@ -3,9 +3,9 @@
 # SPDX-FileCopyrightText: 2026 Artur Lissin
 #
 # SPDX-License-Identifier: Unlicense
+set -euo pipefail
 
 ROOT="$(dirname "$(realpath "$0")")/../.."
-
 set -a
 
 source "$ROOT/package.env"

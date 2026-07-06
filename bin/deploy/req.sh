@@ -3,6 +3,7 @@
 # SPDX-FileCopyrightText: 2026 Artur Lissin
 #
 # SPDX-License-Identifier: Unlicense
+set -euo pipefail
 
 echo "update"
 dnf -y update
