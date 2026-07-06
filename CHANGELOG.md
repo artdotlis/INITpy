@@ -4,6 +4,12 @@ SPDX-FileCopyrightText: 2026 Artur Lissin
 SPDX-License-Identifier: CC0-1.0
 -->
 
+## v0.9.2 (2026-07-06)
+
+### Fix
+
+- improve bin shell scripts
+
 ## v0.9.1 (2026-07-03)
 
 ### Fix
