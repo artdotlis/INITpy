@@ -4,6 +4,12 @@ SPDX-FileCopyrightText: 2026 Artur Lissin
 SPDX-License-Identifier: CC0-1.0
 -->
 
+## v0.9.3 (2026-07-07)
+
+### Fix
+
+- **lint**: harden lint scripts with improved error handling and fallbacks
+
 ## v0.9.2 (2026-07-06)
 
 ### Fix

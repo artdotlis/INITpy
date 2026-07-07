@@ -293,7 +293,7 @@ wheels = [
 
 [[package]]
 name = "initpy"
-version = "0.9.2"
+version = "0.9.3"
 source = { virtual = "." }
 
 [package.dev-dependencies]
@@ -560,7 +560,7 @@ wheels = [
 
 [[package]]
 name = "pkg1"
-version = "0.9.2"
+version = "0.9.3"
 source = { editable = "packages/pkg1" }
 dependencies = [
     { name = "shared-utils" },
@@ -834,7 +834,7 @@ wheels = [
 
 [[package]]
 name = "shared-utils"
-version = "0.9.2"
+version = "0.9.3"
 source = { editable = "packages/shared_utils" }
 
 [[package]]
