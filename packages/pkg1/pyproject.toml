@@ -5,7 +5,7 @@
 [project]
 classifiers = ["Private :: Do Not Upload"]
 name = "pkg1"
-version = "0.9.2"
+version = "0.9.3"
 description = "One of the projects in the monorepo."
 readme = "README.md"
 authors = [
