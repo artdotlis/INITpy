@@ -83,7 +83,8 @@ runTests:
 	$(UVE) run tox
 
 runBuild:
-	$(UVE) build
+	$(UVE) build --package shared-utils
+	$(UVE) build --package pkg1
 
 runBump: unstaged
 	$(UVE) run cz bump --files-only --yes --changelog
