@@ -8,7 +8,7 @@ SPDX-License-Identifier: CC0-1.0
 
 ### A Bare-Bone Python Monorepo Template
 
-[![release: 0.9.3](https://img.shields.io/badge/rel-0.9.3-blue.svg?style=flat-square)](https://github.com/artdotlis/INITpy)
+[![release: 0.9.4](https://img.shields.io/badge/rel-0.9.4-blue.svg?style=flat-square)](https://github.com/artdotlis/INITpy)
 [![The Unlicense](https://img.shields.io/badge/License-Unlicense-brightgreen.svg?style=flat-square)](https://choosealicense.com/licenses/unlicense/)
 [![Documentation Status](https://img.shields.io/badge/docs-GitHub-blue.svg?style=flat-square)](https://artdotlis.github.io/INITpy/)
 
