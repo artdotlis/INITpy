@@ -34,7 +34,7 @@ exclude = [
 [dependency-groups]
 mono = [
   # local
-  "shared_utils",
+  "shared-utils",
   "pkg1",
 ]
 dev = [
