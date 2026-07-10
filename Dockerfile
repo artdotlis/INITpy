@@ -63,7 +63,8 @@ RUN chown ${USERNAME}:${USERNAME} -R /tmp/build
 
 USER ${USERNAME}
 
-RUN pip install --no-cache-dir *.whl
+RUN pip install --no-cache-dir shared_utils*.whl
+RUN pip install --no-cache-dir pkg1*.whl
 
 WORKDIR ${HOME_MAIN}
 
