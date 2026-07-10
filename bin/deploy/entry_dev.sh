@@ -5,4 +5,5 @@
 # SPDX-License-Identifier: Unlicense
 set -euo pipefail
 
+echo 'DEV'
 sleep infinity
