@@ -4,7 +4,7 @@
 
 [project]
 classifiers = ["Private :: Do Not Upload"]
-name = "shared_utils"
+name = "shared-utils"
 version = "0.9.4"
 description = "Shared library for packages."
 readme = "README.md"
