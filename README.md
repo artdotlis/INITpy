@@ -111,6 +111,6 @@ To prevent accidental execution on your host, this `Makefile` uses a mandatory `
 
 -----
 
-> [!NOTE]
+> ✏️ **Note**: 
 > This project uses AI tools for code generation, review, and documentation. 
 > All AI-generated content is human-reviewed. 
