@@ -18,27 +18,101 @@ repo_license = "Unlicense"
 
 [project.theme]
 features = [
-    "header.autohide"
+    "header.autohide",
+    "navigation.tabs",
+    "navigation.top",
+    "toc.integrate",
+    "navigation.prune",
+    "navigation.instant",
 ]
 font = false
+
+[project.theme.icon]
+repo = "fontawesome/brands/git-alt"
 
 [project.theme.palette]
 primary = "custom"
 accent = "custom"
 
 [project.markdown_extensions.pymdownx.snippets]
+
+[project.markdown_extensions.pymdownx.inlinehilite]
+
+[project.markdown_extensions.pymdownx.highlight]
+anchor_linenums = true
+
+[project.markdown_extensions.pymdownx.superfences]
+
+[project.markdown_extensions.abbr]
+
 [project.markdown_extensions.toc]
-toc_depth = 0
+toc_depth = 1
+permalink = "#"
+baselevel = 1
+separator = "_"
+
+[project.plugins.search]
+
+[project.plugins.autorefs]
+
+[project.plugins.literate_nav]
+nav_file = "README.md"
+implicit_index = true
 
 [project.plugins.mkdocstrings.handlers.python]
 inventories = ["https://docs.python.org/3/objects.inv"]
 paths = ["packages/pkg1/src", "packages/shared_utils/src"]
 
+
 [project.plugins.mkdocstrings.handlers.python.options]
-docstring_style = "google"
-inherited_members = true
-show_source = false
+heading_level = 2
+allow_inspection = true
+find_stubs_package = true
 show_submodules = true
+show_root_heading = false
+unwrap_annotated = true
+show_source = true
+show_signature = true
+show_signature_annotations = true
+show_signature_type_parameters = true
+show_attribute_values = true
+show_symbol_type_heading = true
+show_docstring_attributes = true
+show_docstring_functions = false
+show_docstring_classes = false
+show_docstring_type_aliases = false
+show_docstring_modules = false
+show_docstring_description = true
+show_docstring_examples = true
+show_docstring_other_parameters = false
+show_docstring_parameters = true
+show_docstring_raises = true
+show_docstring_receives = true
+show_docstring_returns = true
+show_docstring_type_parameters = true
+show_docstring_warns = true
+show_docstring_yields = true
+show_overloads = true
+show_bases = true
+show_labels = true
+show_if_no_docstring = false
+skip_local_inventory = false
+merge_init_into_class = true
+separate_signature = false
+signature_crossrefs = true
+modernize_annotations = true
+overloads_only = true
+annotations_path = "brief"
+parameter_headings = true
+type_parameter_headings = true
+group_by_category = true
+summary = false
+docstring_style = "google"
+docstring_section_style = "table"
+filters = [
+    "!^_",
+    "!^__",
+]
 
 [[project.nav]]
 Home = "index.md"
