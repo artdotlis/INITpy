@@ -108,3 +108,9 @@ Released into the public domain via the [Unlicense](https://choosealicense.com/l
 ### Why the `CONTAINER=container` guard?
 
 To prevent accidental execution on your host, this `Makefile` uses a mandatory `CONTAINER` constraint. This safety gate ensures the code runs exclusively in the intended containerized environment.
+
+-----
+
+> [!NOTE]
+> This project uses AI tools for code generation, review, and documentation. 
+> All AI-generated content is human-reviewed. 
