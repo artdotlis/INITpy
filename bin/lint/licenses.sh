@@ -36,15 +36,15 @@ for license_file in "${LICENSE_FILES[@]}"; do
         echo "License file $license_file does not exist"
         exit 1
     fi
-    if ! grep -Pv '^[^s]+\s*SPDX-' "$license_file" | grep -q "$COPYRIGHT" 2>/dev/null; then
+    if ! grep -Pv '^[^sS]+\s*SPDX-' "$license_file" | grep -q "$COPYRIGHT" 2>/dev/null; then
         echo "License file $license_file does not contain COPYRIGHT"
         exit 1
     fi
-    if ! grep -Pv '^[^s]+\s*SPDX-' "$license_file" | grep -q "$YEAR" 2>/dev/null; then
+    if ! grep -Pv '^[^sS]+\s*SPDX-' "$license_file" | grep -q "$YEAR" 2>/dev/null; then
         echo "Current year ($YEAR) could not be found in $license_file"
         exit 1
     fi
-    if ! grep -Pv '^[^s]+\s*SPDX-' "$license_file" | grep -q -e "$SOFTWARE_LIC" -e "$DATA_LIC" 2>/dev/null; then
+    if ! grep -Pv '^[^sS]+\s*SPDX-' "$license_file" | grep -q -e "$SOFTWARE_LIC" -e "$DATA_LIC" 2>/dev/null; then
         echo "Neither license ($SOFTWARE_LIC) nor ($DATA_LIC) found in $license_file"
         exit 1
     fi
@@ -68,15 +68,15 @@ done
 FILES=()
 
 IGNORE=(
-    '^bin/lint/licenses.sh'
-    '^bin/install/wrap.sh'
-    '^LICENSES/.+$'
-    '^configs/prompt/.+$'
-    '^configs/REUSE.toml'
-    '^packages/docs/REUSE.toml'
+    '^bin/lint/licenses\.sh$'
+    '^bin/install/wrap\.sh$'
+    '^LICENSES/'
+    '^configs/prompt/'
+    '^configs/REUSE\.toml$'
+    '^packages/docs/REUSE\.toml$'
     '^packages/docs/src/.+\.md$'
     'uv\.lock$'
-    'pnpm-lock.yaml'
+    'pnpm-lock\.yaml$'
 )
 
 should_ignore() {
