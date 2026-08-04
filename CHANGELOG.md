@@ -4,6 +4,16 @@ SPDX-FileCopyrightText: 2026 Artur Lissin
 SPDX-License-Identifier: CC0-1.0
 -->
 
+## v0.10.0 (2026-08-04)
+
+### Feat
+
+- update devcontainer and makefile to use agent service instead of ollama
+
+### Fix
+
+- add correct build steps
+
 ## v0.9.4 (2026-07-10)
 
 ### Refactor
