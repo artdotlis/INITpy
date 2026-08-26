@@ -112,7 +112,8 @@ commit-msg:
 
 pre-push:
   piped: true
-  commands:
-    tests:
+  jobs:
+    - name: tests
       run: bin/install/wrap.sh tox
-      skip: false
+    - name: lfs
+      run: command -v git-lfs >/dev/null 2>&1 && git lfs pre-push "$@" || true
