@@ -28,11 +28,6 @@ dev: setupUv setupPnpm
 	find .git/hooks -name "*.old" -delete
 	$(UVE) run lefthook uninstall 2>&1 || echo "not installed"
 	$(UVE) run lefthook install
-	@HOOK_FILE=.git/hooks/pre-push; \
-	if ! grep -q "git lfs pre-push" $$HOOK_FILE; then \
-		echo "command -v git-lfs >/dev/null && git lfs pre-push \"\$$@\"" >> $$HOOK_FILE; \
-		echo "added 'git lfs pre-push' to pre-push hook."; \
-	fi
 
 tests: setupUv
 	$(UVE) sync --frozen --group test
