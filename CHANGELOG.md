@@ -4,6 +4,16 @@ SPDX-FileCopyrightText: 2026 Artur Lissin
 SPDX-License-Identifier: CC0-1.0
 -->
 
+## v0.11.0 (2026-10-02)
+
+### Feat
+
+- remove AI commit generation and simplify commit process
+
+### Refactor
+
+- update prompt logic
+
 ## v0.10.0 (2026-08-04)
 
 ### Feat
