@@ -15,7 +15,6 @@ ALL_ENV=(
     "MAKEFILE_LIST"
     "HOME"
     "PATH"
-    "MAKE"
 )
 
 IGNORE_ENV=(

@@ -32,13 +32,5 @@ services:
       - ${SSH_AUTH_SOCK:-/dev/null}:/ssh-agent:ro
       - .:/workspace:cached
       - ${GITCONFIG_PATH:-${HOME}/.gitconfig}:/etc/gitconfig:ro
-    networks:
-      - agent
     ports:
       - ${DOC_PORT}:8000
-
-networks:
-    agent:
-        external: true
-        name: agent
-        driver: bridge
