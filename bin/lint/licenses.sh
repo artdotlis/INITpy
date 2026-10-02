@@ -27,7 +27,6 @@ fi
 echo "COPYRIGHT is set: $COPYRIGHT"
 
 LICENSE_FILES=(
-    "$ROOT/configs/REUSE.toml"
     "$ROOT/.zensical.toml"
 )
 

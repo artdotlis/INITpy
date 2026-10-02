@@ -97,36 +97,9 @@ export_runUpdate:
 	cd $(PKG_DOCS) && $(PNPME) update
 
 com commit:
-	@echo "" > .commit_msg
-	@if curl -sf --compressed -o /dev/null http://commit:8080; then \
-		$(MAKE) message || exit 1; \
+	@if [ -f .commit_msg ] && [ -s .commit_msg ]; then \
+		$$EDITOR .commit_msg; \
+		git commit -F .commit_msg && rm -f .commit_msg; \
 	else \
-		$(UVE) run cz commit || exit 1; \
+		$(UVE) run cz commit --write-message-to-file .commit_msg && rm -f .commit_msg; \
 	fi
-	@echo "" > .commit_msg
-
-recom recommit:
-	@if curl -sf --compressed -o /dev/null http://commit:8080; then \
-		[ -s .commit_msg ] || (echo "Missing commit message!" && exit 1); \
-		git commit -F .commit_msg || exit 1; \
-	else\
-		$(UVE) run cz commit --retry || exit 1; \
-	fi
-	@echo "" > .commit_msg
-
-message:
-	git diff --staged -U0 --no-prefix -- .  ':(exclude)uv.lock' ':(exclude)*pnpm-lock.yaml' | \
-		sed 's/  */ /g' | \
-		jq -Rs --rawfile prompt configs/prompt/commit.md \
-			'{"messages": [{ "role": "user", "content": ("<GIT_DIFF>" + . + "</GIT_DIFF>" + $$prompt)} ]}' | \
-		curl -f -s -X POST http://commit:8080/v1/chat/completions \
-			-H "Content-Type: application/json" \
-			-d @- | \
-		jq -r 'select(.choices[0].finish_reason == "stop") | .choices[0].message.content' > .commit_msg
-	vim .commit_msg
-	@if ! $(UVE) run cz check --commit-msg-file .commit_msg; then \
-		echo "Commit message failed cz check. Aborting."; \
-		echo "" > .commit_msg; \
-		exit 1; \
-	fi
-	git commit -F .commit_msg
