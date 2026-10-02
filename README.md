@@ -21,11 +21,12 @@ SPDX-License-Identifier: CC0-1.0
 
 ## ✨ Key Features
 
-  * **Single-Source Truth:** Tooling and dependencies are declared in one `pyproject.toml`.
+  * **Single-Source Truth:** Python dependencies managed via `uv` in `pyproject.toml`.
   * **Native Monorepo Support:** Built-in logic for managing multiple packages (`pkg1`, `shared_utils`).
-  * **AI-Powered Commits:** Integration with **Ollama** to generate Conventional Commit messages based on your staged changes.
+  * **Conventional Commits:** Uses `commitizen` with `vim` for editing commit messages.
   * **Strict Consistency:** A Docker-based Dev Container ensures every contributor uses the exact same tool versions.
   * **Robust CI/CD:** Ready-to-go workflows for testing, linting (`ruff`), and static analysis (`pyrefly`).
+  * **Documentation:** Built with `zensical` (Python) and deployed via GitHub Pages.
 
 -----
 
@@ -57,7 +58,7 @@ INITpy/
 ├── bin/                # Tooling shell scripts
 ├── configs/            # Tooling & Linting configurations
 ├── packages/           # Your Python packages (Monorepo)
-│   ├── docs/           # Documentation configuration
+│   ├── docs/  
 │   ├── pkg1/
 │   └── shared_utils/
 ├── pyproject.toml      # The heart of the project
@@ -74,19 +75,21 @@ All commands must be run within the Dev Container or by passing `CONTAINER=conta
 
 | Category | Command | Action |
 | :--- | :--- | :--- |
+| **Setup** | `make dev` | Installs lefthook, syncs all dependencies |
 | **Active** | `make runAct` | Enters the virtual environment shell. |
-| **Quality** | `make runChecks` | Runs `ruff`, `pyrefly`, and other pre-commit hooks. |
+| **Quality** | `make runChecks` | Runs `lefthook` pre-commit hooks (includes `ruff`, `pyrefly`) |
 | **Test** | `make runTests` | Runs the test suite via `tox`. |
-| **Docs** | `make serveDocs` | Previews documentation at `localhost:$DOC_PORT`. |
+| **Docs** | `make serveDocs` | Previews documentation at `http://localhost:8000` (configurable via `.env` - `DOC_PORT`). |
 | **Release** | `make runBump` | Bumps version and updates CHANGELOG. |
-| **Git** | `make commit` | Generates AI commit message (via Ollama) or opens `cz`. |
+| **Git** | `make commit`, `make com` | Generates commit message with `commitizen` or opens `vim` for editing, then commits. |
 
-### 🧠 Smart Commits
+### ✍️ Commit Messages
 
-The `make commit` target checks if an Ollama server is reachable.
+The `make commit`/`make com` target:
+- If `.commit_msg` exists and is non-empty: opens it in `vim` for editing, then commits
+- Else: runs `cz commit --write-message-to-file` to generate a commit message, commits using that message
 
-  - **If Ollama is up:** It sends your `git diff` to the model, generates a message, and opens `vim` for you to edit.
-  - **If Ollama is down:** It falls back to standard `commitizen` prompts.
+> **Note**: The Makefile removes `.commit_msg` after committing (temp file cleanup).
 
 -----
 
@@ -96,6 +99,7 @@ The API documentation is built with **Zensical**.
 
   - **Build:** `make runDocs`
   - **Serve:** `make serveDocs`
+  - **Port:** Configured via `DOC_PORT` in `.env` (default: `9191`)
 
 -----
 
@@ -107,7 +111,7 @@ Released into the public domain via the [Unlicense](https://choosealicense.com/l
 
 ### Why the `CONTAINER=container` guard?
 
-To prevent accidental execution on your host, this `Makefile` uses a mandatory `CONTAINER` constraint. This safety gate ensures the code runs exclusively in the intended containerized environment.
+To prevent accidental execution on your host, `Makefile` uses a mandatory `CONTAINER` constraint. This safety gate ensures the code runs exclusively in the intended containerized environment.
 
 -----
 
