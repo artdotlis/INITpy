@@ -18,10 +18,6 @@ ARG BIN_DEPLOY_PREP
 ARG BIN_DEPLOY_REQ
 ARG BIN_DEPLOY_ENTRY_DEV
 
-RUN groupadd --gid $USER_GID $USERNAME \
-    && useradd -m -d $HOME_MAIN \
-    --uid $USER_UID --gid $USER_GID $USERNAME
-
 COPY . /tmp/app
 
 WORKDIR /tmp/app
