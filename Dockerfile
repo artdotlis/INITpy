@@ -38,10 +38,10 @@ ARG NODE_VERSION
 
 RUN dnf clean all && dnf install -y bash
 
-RUN userdel -r ${USERNAME} 2>/dev/null || true
-RUN groupdel ${USERNAME} 2>/dev/null || true
-RUN groupadd --gid ${USER_GID} ${USERNAME}
-RUN useradd --uid ${USER_UID} --gid ${USER_GID} -m -d ${HOME_MAIN} ${USERNAME}
+RUN groupadd --force --gid ${USER_GID} ${USERNAME} && \
+    useradd --uid ${USER_UID} --gid ${USER_GID} -m -d ${HOME_MAIN} ${USERNAME} || \
+    usermod -u ${USER_UID} -g ${USER_GID} ${USERNAME}
+
 RUN mkdir -p "${HOME_MAIN}/.local/bin" \
     && chown ${USERNAME}:${USERNAME} -R ${HOME_MAIN}
 
