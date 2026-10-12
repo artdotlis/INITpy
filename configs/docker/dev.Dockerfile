@@ -31,15 +31,13 @@ WORKDIR /
 
 RUN rm -rf /tmp/app
 
-RUN userdel -r ${USERNAME} 2>/dev/null || true
-RUN groupdel ${USERNAME} 2>/dev/null || true
-RUN groupadd --gid ${USER_GID} ${USERNAME}
-RUN useradd --uid ${USER_UID} --gid ${USER_GID} -m -d ${HOME_MAIN} ${USERNAME}
+RUN groupadd --force --gid ${USER_GID} ${USERNAME} && \
+    useradd --uid ${USER_UID} --gid ${USER_GID} -m -d ${HOME_MAIN} ${USERNAME} || \
+    usermod -u ${USER_UID} -g ${USER_GID} ${USERNAME}
 
-RUN mkdir -p ${WORK_DIR} && mkdir -p /var/www &&\
+RUN mkdir -p ${WORK_DIR} && \
     chown ${USERNAME}:${USERNAME} -R ${WORK_DIR} && \
-    chown ${USERNAME}:${USERNAME} -R ${HOME_MAIN} && \
-    chown ${USERNAME}:${USERNAME} -R /var/www
+    chown ${USERNAME}:${USERNAME} -R ${HOME_MAIN}
 
 RUN git config --global --add safe.directory ${WORK_DIR}
 RUN dnf install -y openssh openssh-clients
