@@ -4,7 +4,7 @@
 #
 # SPDX-License-Identifier: Unlicense
 
-set -eux
+set -euo pipefail
 
 USERNAME="${USERNAME:-devu}"
 USER_UID="${USER_UID:-1000}"
