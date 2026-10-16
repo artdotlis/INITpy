@@ -70,6 +70,8 @@ tag_format = "v$version"
 update_changelog_on_bump = true
 version_files = [
   "README.md:^\\[!\\[release:",
+  "package.json",
+  "pyproject.toml",
   "packages/scaffolder/pyproject.toml",
   "packages/shared_utils/pyproject.toml",
   "packages/docs/package.json",
