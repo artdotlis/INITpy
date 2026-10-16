@@ -64,14 +64,14 @@ def init_git(project_path: Path) -> None:
 
 
 def update_package_imports(
-    package_dir: Path, package_name: str, old_name: str = "pkg1"
+    package_dir: Path, package_name: str, old_name: str = "scaffolder"
 ) -> None:
     """Update import statements in package files.
 
     Args:
         package_dir: Path to the package directory
         package_name: New package name to use
-        old_name: Old package name to replace (default: "pkg1")
+        old_name: Old package name to replace (default: "scaffolder")
     """
     if not package_dir.exists():
         return

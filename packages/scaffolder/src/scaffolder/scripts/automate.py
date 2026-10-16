@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+# SPDX-FileCopyrightText: 2026 Artur Lissin
+#
+# SPDX-License-Identifier: Unlicense
+
 """Comprehensive Project Automation Suite
 Handles project creation, CI/CD setup, and lifecycle management.
 """
@@ -110,7 +115,7 @@ class ProjectCreator:
 
         # Update package references
         content = re.sub(
-            r'"pkg1" = \{ workspace = true \}',
+            r'"scaffolder" = \{ workspace = true \}',
             f'"{package_name}" = {{ workspace = true }}',
             content,
         )
@@ -122,7 +127,7 @@ class ProjectCreator:
 
         # Update commitizen version files
         content = re.sub(
-            r'"packages/pkg1/pyproject\.toml"',
+            r'"packages/scaffolder/pyproject\.toml"',
             f'"packages/{package_name}/pyproject.toml"',
             content,
         )
@@ -134,7 +139,7 @@ class ProjectCreator:
 
         # Update pyrefly paths
         content = re.sub(
-            r'"packages/pkg1/src"', f'"packages/{package_name}/src"', content
+            r'"packages/scaffolder/src"', f'"packages/{package_name}/src"', content
         )
         content = re.sub(
             r'"packages/shared_utils/src"',
@@ -144,7 +149,7 @@ class ProjectCreator:
 
         # Update coverage paths
         content = re.sub(
-            r'"packages/pkg1/src/pkg1"',
+            r'"packages/scaffolder/src/scaffolder"',
             f'"packages/{package_name}/src/{package_name}"',
             content,
         )
@@ -167,7 +172,7 @@ class ProjectCreator:
         packages_dir = project_path / "packages"
 
         # Rename packages
-        (packages_dir / "pkg1").rename(packages_dir / package_name)
+        (packages_dir / "scaffolder").rename(packages_dir / package_name)
         (packages_dir / "shared_utils").rename(packages_dir / f"{package_name}_utils")
 
         # Update imports
@@ -262,13 +267,7 @@ class ProjectAutomator:
 
     def _get_ci_workflow(self) -> str:
         """Get CI workflow content."""
-        return """# SPDX-FileCopyrightText: 2026 Artur Lissin
-
-# SPDX-FileCopyrightText: 2026 Artur Lissin
-#
-# SPDX-License-Identifier: CC0-1.0
-# SPDX-License-Identifier: Unlicense
-
+        return """
 name: CI
 
 on:
@@ -313,9 +312,7 @@ jobs:
 
     def _get_docs_workflow(self) -> str:
         """Get docs deployment workflow."""
-        return """# SPDX-FileCopyrightText: 2026 Artur Lissin
-#
-# SPDX-License-Identifier: CC0-1.0
+        return """
 
 name: Deploy Documentation
 
@@ -358,9 +355,7 @@ jobs:
 
     def _get_release_workflow(self) -> str:
         """Get release workflow."""
-        return """# SPDX-FileCopyrightText: 2026 Artur Lissin
-#
-# SPDX-License-Identifier: CC0-1.0
+        return """
 
 name: Release
 

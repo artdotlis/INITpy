@@ -4,5 +4,5 @@
 #
 # SPDX-License-Identifier: Unlicense
 set -euo pipefail
-pkg1
+# ToDo should start build procedure and create an output
 sleep infinity

@@ -61,7 +61,7 @@ implicit_index = true
 
 [project.plugins.mkdocstrings.handlers.python]
 inventories = ["https://docs.python.org/3/objects.inv"]
-paths = ["packages/pkg1/src", "packages/shared_utils/src"]
+paths = ["packages/scaffolder/src", "packages/shared_utils/src"]
 
 
 [project.plugins.mkdocstrings.handlers.python.options]

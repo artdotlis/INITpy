@@ -79,7 +79,7 @@ def update_pyproject_toml(
 
     # Update package references in workspace
     content = re.sub(
-        r'"pkg1" = \{ workspace = true \}',
+        r'"scaffolder" = \{ workspace = true \}',
         f'"{package_name}" = {{ workspace = true }}',
         content,
     )
@@ -91,7 +91,7 @@ def update_pyproject_toml(
 
     # Update commitizen version_files
     content = re.sub(
-        r'"packages/pkg1/pyproject\.toml"',
+        r'"packages/scaffolder/pyproject\.toml"',
         f'"packages/{package_name}/pyproject.toml"',
         content,
     )
@@ -102,14 +102,16 @@ def update_pyproject_toml(
     )
 
     # Update project-includes in pyrefly
-    content = re.sub(r'"packages/pkg1/src"', f'"packages/{package_name}/src"', content)
+    content = re.sub(
+        r'"packages/scaffolder/src"', f'"packages/{package_name}/src"', content
+    )
     content = re.sub(
         r'"packages/shared_utils/src"', f'"packages/{package_name}_utils/src"', content
     )
 
     # Update source paths in coverage
     content = re.sub(
-        r'"packages/pkg1/src/pkg1"',
+        r'"packages/scaffolder/src/scaffolder"',
         f'"packages/{package_name}/src/{package_name}"',
         content,
     )
@@ -173,7 +175,9 @@ def create_project(
     common_update_readme(output_path / "README.md", project_name)
 
     # Rename package directories
-    (output_path / "packages" / "pkg1").rename(output_path / "packages" / package_name)
+    (output_path / "packages" / "scaffolder").rename(
+        output_path / "packages" / package_name
+    )
     (output_path / "packages" / "shared_utils").rename(
         output_path / "packages" / f"{package_name}_utils"
     )

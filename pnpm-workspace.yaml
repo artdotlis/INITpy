@@ -2,9 +2,13 @@
 #
 # SPDX-License-Identifier: CC0-1.0
 
+# Root level pnpm workspace configuration
 saveExact: true
 minimumReleaseAge: 4320
 minimumReleaseAgeStrict: true
 
 lockfile: true
 preferFrozenLockfile: true
+
+packages:
+  - "packages/docs"

@@ -1,0 +1,14 @@
+{
+  "author": {
+    "email": "artdotlis@pm.me",
+    "name": "Artur Lissin"
+  },
+  "dependencies": {},
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=11.0.0"
+  },
+  "name": "initpy",
+  "private": true,
+  "version": "0.11.0"
+}
