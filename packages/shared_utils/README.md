@@ -18,7 +18,7 @@ SPDX-License-Identifier: CC0-1.0
 
 ## 📚 Installation
 
-The library is automatically built and packaged when you run `make runBuild` from the repository root. There is no separate installation step required for consuming code in this mono‑repo.
+The library is automatically built and packaged when you run `make run-build` from the repository root. There is no separate installation step required for consuming code in this mono‑repo.
 
 If you need to add dependencies to the shared library, add them under the `[project.dependencies]` section of the root `pyproject.toml` or in this sub‑module’s `pyproject.toml`.
 

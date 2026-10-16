@@ -10,6 +10,7 @@ endif
 
 SHELL := /bin/bash
 ROOT_MAKEFILE := $(abspath $(patsubst %/, %, $(dir $(abspath $(lastword $(MAKEFILE_LIST))))))
+DISABLE_GIT_ADD ?= 0
 
 $(shell $(ROOT_MAKEFILE)/bin/install/env.sh $(ROOT_MAKEFILE)/package.env > .env.mk 2>/dev/null)
 -include .env.mk
@@ -23,25 +24,29 @@ $(eval PNPMEL := $(shell which pnpm && echo "true" || echo ""))
 UVE = $(if $(UVEL),uv,$(ROOT_MAKEFILE)/$(UV_INSTALL_DIR)/uv)
 PNPME = $(if $(PNPMEL),pnpm,$(ROOT_MAKEFILE)/$(PNPM_HOME)/bin/pnpm)
 
-dev: setupUv setupPnpm
+dev: setup-uv setup-pnpm
 	$(UVE) sync --frozen --all-groups
 	find .git/hooks -name "*.old" -delete
 	$(UVE) run lefthook uninstall 2>&1 || echo "not installed"
 	$(UVE) run lefthook install
 
-tests: setupUv
+dev-setup: setup-uv setup-pnpm
+	$(UVE) sync --frozen --all-groups
+	@echo "Dev dependencies synced (no .git modifications)"
+
+tests: setup-uv
 	$(UVE) sync --frozen --group test
 
-build: setupUv
+build: setup-uv
 	$(UVE) sync --frozen
 
-docs: setupUv setupPnpm
+docs: setup-uv setup-pnpm
 	$(UVE) sync --frozen --group docs
 
-setupUv:
+setup-uv:
 	bash $(ROOT_MAKEFILE)/$(BIN_INSTALL_UV)
 
-setupPnpm:
+setup-pnpm:
 	bash $(ROOT_MAKEFILE)/$(BIN_INSTALL_PNMP)
 
 unstaged:
@@ -52,47 +57,47 @@ unstaged:
 	fi
 	@echo "No unstaged changes. Proceeding..."
 
-setupLicense: unstaged
+setup-license: unstaged
 	bash $(BIN_RUN_LICENSE_LINT)
-	git add .
+	@if [ "$(DISABLE_GIT_ADD)" != "1" ]; then git add .; fi
 
 RAN := $(shell awk 'BEGIN{srand();printf("%d", 65536*rand())}')
 
-runAct:
+run-act:
 	@echo "source .venv/bin/activate; rm /tmp/$(RAN)" > /tmp/$(RAN)
 	bash --init-file /tmp/$(RAN)
 
-runChecks:
+run-checks:
 	$(UVE) run lefthook run pre-commit --all-files -f
 
-buildDocs:
+build-docs:
 	cd $(ROOT_MAKEFILE)/$(PKG_DOCS) && $(PNPME) run build
 
-runDocs: buildDocs
+run-docs: build-docs
 	$(UVE) run zensical build -f $(CONFIG_DOCS)
 
-serveDocs: buildDocs
+serve-docs: build-docs
 	$(UVE) run zensical serve -f $(CONFIG_DOCS) -a 0.0.0.0:8000
 
 runTests:
 	$(UVE) run tox
 
-runBuild:
+run-build:
 	$(UVE) build --package shared-utils
-	$(UVE) build --package pkg1
+	$(UVE) build --package scaffolder
 
-runBump: unstaged
+run-bump: unstaged
 	$(UVE) run cz bump --files-only --yes --changelog
 	git add .
 	$(UVE) run cz version --project | xargs -i git commit -am "bump: release {}"
 
-runLock runUpdate: %: export_%
+run-lock run-update: %: exp-%
 
-export_runLock:
+exp-run-lock:
 	$(UVE) lock
 	cd $(PKG_DOCS) && $(PNPME) install --lockfile-only
 
-export_runUpdate:
+exp-run-update:
 	$(UVE) lock -U
 	cd $(PKG_DOCS) && $(PNPME) update
 

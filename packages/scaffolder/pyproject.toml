@@ -4,9 +4,9 @@
 
 [project]
 classifiers = ["Private :: Do Not Upload"]
-name = "pkg1"
+name = "scaffolder"
 version = "0.11.0"
-description = "One of the projects in the monorepo."
+description = "Automation suite for INITpy-based projects."
 readme = "README.md"
 authors = [
     { name = "artdotlis", email = "artdotlis@pm.me" }
@@ -17,11 +17,11 @@ dependencies = [
 ]
 
 [project.scripts]
-pkg1 = "pkg1.main:run"
+scaffolder = "scaffolder.main:run"
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["pkg1"]
+include = ["scaffolder"]
 
 [build-system]
 requires = ["uv_build>=0.11.26,<0.12.0"]

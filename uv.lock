@@ -9,7 +9,7 @@ exclude-newer-span = "P3D"
 [manifest]
 members = [
     "initpy",
-    "pkg1",
+    "scaffolder",
     "shared-utils",
 ]
 
@@ -368,7 +368,7 @@ docs = [
     { name = "zensical" },
 ]
 mono = [
-    { name = "pkg1" },
+    { name = "scaffolder" },
     { name = "shared-utils" },
 ]
 test = [
@@ -396,7 +396,7 @@ docs = [
     { name = "zensical", specifier = "==0.0.46" },
 ]
 mono = [
-    { name = "pkg1", editable = "packages/pkg1" },
+    { name = "scaffolder", editable = "packages/scaffolder" },
     { name = "shared-utils", editable = "packages/shared_utils" },
 ]
 test = [
@@ -612,17 +612,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/5a/82/42f767fc1c1143d6f
 wheels = [
     { url = "https://files.pythonhosted.org/packages/f1/d9/7fb5aa316bc299258e68c73ba3bddbc499654a07f151cba08f6153988714/pathspec-1.1.1-py3-none-any.whl", hash = "sha256:a00ce642f577bf7f473932318056212bc4f8bfdf53128c78bbd5af0b9b20b189", size = 57328, upload-time = "2026-04-27T01:46:07.06Z" },
 ]
-
-[[package]]
-name = "pkg1"
-version = "0.11.0"
-source = { editable = "packages/pkg1" }
-dependencies = [
-    { name = "shared-utils" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "shared-utils", editable = "packages/shared_utils" }]
 
 [[package]]
 name = "platformdirs"
@@ -885,6 +874,17 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/fa/f0/fe47c501f9dea92a26d788ff98bb5d92ed4cb4c88792c5c88af6b697dc8e/ruff-0.15.20-py3-none-win_amd64.whl", hash = "sha256:a525c81c70fb0380344dd1d8745d8cc1c890b7fc94a58d5a07bd8eb9557b8415", size = 11993274, upload-time = "2026-06-25T17:20:31.871Z" },
     { url = "https://files.pythonhosted.org/packages/d7/2b/9555445e1201d92b3195f45cdb153a0b68f24e0a4273f6e3d5ab46e212bb/ruff-0.15.20-py3-none-win_arm64.whl", hash = "sha256:2f5b2a6d614e8700388806a14996c40fab2c47b819ef57d790a34878858ed9ca", size = 11343498, upload-time = "2026-06-25T17:20:35.03Z" },
 ]
+
+[[package]]
+name = "scaffolder"
+version = "0.11.0"
+source = { editable = "packages/scaffolder" }
+dependencies = [
+    { name = "shared-utils" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "shared-utils", editable = "packages/shared_utils" }]
 
 [[package]]
 name = "shared-utils"

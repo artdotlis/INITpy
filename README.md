@@ -22,7 +22,7 @@ SPDX-License-Identifier: CC0-1.0
 ## ✨ Key Features
 
   * **Single-Source Truth:** Python dependencies managed via `uv` in `pyproject.toml`.
-  * **Native Monorepo Support:** Built-in logic for managing multiple packages (`pkg1`, `shared_utils`).
+  * **Native Monorepo Support:** Built-in logic for managing multiple packages (`scaffolder`, `shared_utils`).
   * **Conventional Commits:** Uses `commitizen` with `vim` for editing commit messages.
   * **Strict Consistency:** A Docker-based Dev Container ensures every contributor uses the exact same tool versions.
   * **Robust CI/CD:** Ready-to-go workflows for testing, linting (`ruff`), and static analysis (`pyrefly`).
@@ -46,7 +46,7 @@ devcontainer exec --workspace-folder . bash
 
 # 3. Bootstrap the project (Inside the container)
 make dev
-make runAct
+make run-act
 ```
 
 -----
@@ -59,10 +59,10 @@ INITpy/
 ├── configs/            # Tooling & Linting configurations
 ├── packages/           # Your Python packages (Monorepo)
 │   ├── docs/  
-│   ├── pkg1/
+│   ├── scaffolder/
 │   └── shared_utils/
 ├── pyproject.toml      # The heart of the project
-└── Makefile            # Command automation (requires CONTAINER=container)
+└── Makefile            # Command scaffolder (requires CONTAINER=container)
 ```
 
 -----
@@ -76,11 +76,11 @@ All commands must be run within the Dev Container or by passing `CONTAINER=conta
 | Category | Command | Action |
 | :--- | :--- | :--- |
 | **Setup** | `make dev` | Installs lefthook, syncs all dependencies |
-| **Active** | `make runAct` | Enters the virtual environment shell. |
-| **Quality** | `make runChecks` | Runs `lefthook` pre-commit hooks (includes `ruff`, `pyrefly`) |
-| **Test** | `make runTests` | Runs the test suite via `tox`. |
-| **Docs** | `make serveDocs` | Previews documentation at `http://localhost:8000` (configurable via `.env` - `DOC_PORT`). |
-| **Release** | `make runBump` | Bumps version and updates CHANGELOG. |
+| **Active** | `make run-act` | Enters the virtual environment shell. |
+| **Quality** | `make run-checks` | Runs `lefthook` pre-commit hooks (includes `ruff`, `pyrefly`) |
+| **Test** | `make run-tests` | Runs the test suite via `tox`. |
+| **Docs** | `make serve-docs` | Previews documentation at `http://localhost:8000` (configurable via `.env` - `DOC_PORT`). |
+| **Release** | `make run-bump` | Bumps version and updates CHANGELOG. |
 | **Git** | `make commit`, `make com` | Generates commit message with `commitizen` or opens `vim` for editing, then commits. |
 
 ### ✍️ Commit Messages
@@ -97,8 +97,8 @@ The `make commit`/`make com` target:
 
 The API documentation is built with **Zensical**.
 
-  - **Build:** `make runDocs`
-  - **Serve:** `make serveDocs`
+  - **Build:** `make run-docs`
+  - **Serve:** `make serve-docs`
   - **Port:** Configured via `DOC_PORT` in `.env` (default: `9191`)
 
 -----

@@ -22,7 +22,7 @@ default-groups = ["mono"]
 py-modules = []
 
 [tool.uv.sources]
-pkg1 = { workspace = true }
+scaffolder = { workspace = true }
 shared_utils = { workspace = true }
 
 [tool.uv.workspace]
@@ -35,7 +35,7 @@ exclude = [
 mono = [
   # local
   "shared-utils",
-  "pkg1",
+  "scaffolder",
 ]
 dev = [
   "commitizen ==4.16.4",
@@ -61,7 +61,7 @@ docs = [
 count = ''
 ignore-words = "configs/lint/ignore.txt"
 quiet-level = 3
-skip = '.vscore,.tox,*~,*.cache,*.lock,venv,*ignore.txt'
+skip = '.vscore,.tox,*~,*.cache,*.lock,venv,*ignore.txt,./public/*'
 
 [tool.commitizen]
 major_version_zero = true
@@ -70,7 +70,7 @@ tag_format = "v$version"
 update_changelog_on_bump = true
 version_files = [
   "README.md:^\\[!\\[release:",
-  "packages/pkg1/pyproject.toml",
+  "packages/scaffolder/pyproject.toml",
   "packages/shared_utils/pyproject.toml",
   "packages/docs/package.json",
 ]
@@ -92,7 +92,7 @@ project-excludes = [
   "configs/**",
 ]
 search-path = [
-  "packages/pkg1/src",
+  "packages/scaffolder/src",
   "packages/shared_utils/src",
 ]
 python-version = "3.13"
@@ -204,7 +204,7 @@ requires = ["tox>=4.54"]
 
 [tool.tox.env_run_base]
 allowlist_externals = ["coverage"]
-set_env = { PYTHONPATH = "packages/pkg1/src:packages/shared_utils/src" }
+set_env = { PYTHONPATH = "packages/scaffolder/src:packages/shared_utils/src" }
 commands = [
   ["coverage", "erase"],
   #  [
@@ -226,7 +226,7 @@ commands = [
 ]
 
 [tool.coverage.run]
-source = ["packages/pkg1/src/pkg1", "packages/shared_utils/src/shared_utils"]
+source = ["packages/scaffolder/src/scaffolder", "packages/shared_utils/src/shared_utils"]
 parallel = true
 
 [tool.coverage.report]
@@ -237,7 +237,7 @@ fail_under = 30
 paths = ["configs/lint/whitelist.py", "packages"]
 exclude = ["packages/docs/"]
 ignore_decorators = ["@*"]
-ignore_names = ["model_config", "formatwarning"]
+ignore_names = ["model_config", "formatwarning", "skip_tests"]
 make_whitelist = true
 min_confidence = 60
 sort_by_size = true

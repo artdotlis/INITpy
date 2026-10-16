@@ -23,7 +23,7 @@ RUN --mount=type=secret,id=env_file,target=/run/secrets/env_file \
             if [[ ! \${key} =~ ^# && -n \${key} ]]; then \
                 export \${key}=\${value}; \
             fi; \
-        done < /run/secrets/env_file && make runBuild \
+        done < /run/secrets/env_file && make run-build \
     "
 
 FROM docker.io/almalinux:10 AS main

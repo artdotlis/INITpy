@@ -1,11 +1,11 @@
-# INIT - Python \[PKG1\]
+# INIT - Python \[SCAFFOLDER\]
 
-::: pkg1
+::: scaffolder
     options:
         show_submodules: true
 
 
-# INIT - Python \[shared\]
+# INIT - Python \[UTILS\]
 
 ::: shared_utils
     options:

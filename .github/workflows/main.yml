@@ -59,4 +59,4 @@ jobs:
       run: |
         export CONTAINER="container"
         make dev
-        make runChecks
+        make run-checks

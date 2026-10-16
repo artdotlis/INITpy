@@ -50,7 +50,7 @@ jobs:
         run: |
           export CONTAINER="container"
           make docs
-          make runDocs
+          make run-docs
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5
         with:
