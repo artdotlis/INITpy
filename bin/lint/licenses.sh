@@ -121,7 +121,7 @@ CC0_FILES=(
     'package\.env$'
     '\.dockerignore$'
     'shellcheckrc$'
-    '\.(md|txt|yaml|yml|json|toml|mjs)$'
+    '\.(md|txt|yaml|yml|json|toml)$'
 )
 
 UNL_FILES=(

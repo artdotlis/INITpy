@@ -1,8 +1,6 @@
 {
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "catalog:",
-    "@typescript-eslint/parser": "catalog:",
-    "eslint": "catalog:",
+    "oxlint": "catalog:",
     "prettier": "catalog:"
   },
   "name": "initpy",

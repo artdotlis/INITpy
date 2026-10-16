@@ -24,4 +24,3 @@ build-backend = "uv_build"
 
 [tool.uv]
 package = true
-default-groups = []

@@ -63,6 +63,9 @@ pre-commit:
           - name: check-shebang-scripts-are-executable
             glob: "*.sh"
             run: $BIN_INSTALL_WRAP check-shebang-scripts-are-executable -- {staged_files}
+          - name: oxlint
+            glob: "*.{js,jsx,ts,tsx,cjs,mjs,mts,cts}"
+            run: $BIN_INSTALL_WRAP oxlint -- {staged_files} || true
     - name: fix
       group:
         piped: true
@@ -90,9 +93,9 @@ pre-commit:
               - '**/*.{png,jpg,jpeg,gif,svg,webp,ico}'
             stage_fixed: true
           - name: end-of-file
+            run: $BIN_INSTALL_WRAP end-of-file-fixer -- {staged_files} || true
             exclude:
               - '**/*.{png,jpg,jpeg,gif,svg,webp,ico}'
-            run: $BIN_INSTALL_WRAP end-of-file-fixer -- {staged_files} || true
             stage_fixed: true
           - name: fix-all-addable-files
             env:
@@ -104,12 +107,8 @@ pre-commit:
                 $BIN_INSTALL_WRAP end-of-file-fixer -- $ALL_FILES || true
               fi
             stage_fixed: true
-          - name: eslint
-            glob: "*.{js,ts,jsx,tsx}"
-            run: $BIN_INSTALL_WRAP eslint --config $CONFIG_ESLINT --fix -- {staged_files} || true
-            stage_fixed: true
           - name: prettier
-            glob: "*.{js,ts,jsx,tsx,cjs,mjs,mts,cts,css,less,scss,html,vue,svelte,astro,md,mdx,json,json5,yaml,yml,graphql}"
+            glob: "*.{css,less,scss,html,vue,svelte,astro,md,mdx,json,json5,yaml,yml}"
             run: $BIN_INSTALL_WRAP prettier --write -- {staged_files} || true
             stage_fixed: true
 commit-msg:
@@ -122,6 +121,6 @@ pre-push:
   piped: true
   jobs:
     - name: tests
-      run: $BIN_INSTALL_WRAP tox
+      run: $BIN_INSTALL_WRAP make run-tests
     - name: lfs
       run: command -v git-lfs >/dev/null 2>&1 && git lfs pre-push "$@" || true

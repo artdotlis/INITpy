@@ -51,11 +51,11 @@ dev = [
   "lefthook ==2.1.9",
   # types
 ]
-test = ["coverage ==7.14.3", "pytest ==9.1.1", "tox ==4.56.1"]
 docs = [
   "zensical ==0.0.46",
   "mkdocstrings-python ==2.0.5",
 ]
+test = ["pytest ==9.1.1"]
 
 [tool.codespell]
 count = ''
@@ -201,42 +201,8 @@ max-args = 8
 [tool.ruff.lint.pydocstyle]
 convention = "google"
 
-[tool.tox]
-requires = ["tox>=4.54"]
-
-[tool.tox.env_run_base]
-allowlist_externals = ["coverage"]
-set_env = { PYTHONPATH = "packages/scaffolder/src:packages/shared_utils/src" }
-commands = [
-  ["coverage", "erase"],
-  #  [
-  #    "coverage",
-  #    "run",
-  #    "--parallel-mode",
-  #    "-m",
-  #    "pytest",
-  #    "{posargs}",
-  #  ],
-  #  [
-  #    "coverage",
-  #    "combine",
-  #  ],
-  #  [
-  #    "coverage",
-  #    "report",
-  #  ],
-]
-
-[tool.coverage.run]
-source = ["packages/scaffolder/src/scaffolder", "packages/shared_utils/src/shared_utils"]
-parallel = true
-
-[tool.coverage.report]
-show_missing = false
-fail_under = 30
-
 [tool.vulture]
-paths = ["configs/lint/whitelist.py", "packages"]
+paths = ["configs/lint/whitelist.py","packages/shared_utils/src", "packages/scaffolder/src"]
 exclude = ["packages/docs/"]
 ignore_decorators = ["@*"]
 ignore_names = ["model_config", "formatwarning", "skip_tests"]

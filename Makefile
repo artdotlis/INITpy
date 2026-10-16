@@ -90,7 +90,8 @@ serve-docs: build-docs
 	$(UVE) run zensical serve -f $(CONFIG_DOCS) -a 0.0.0.0:8000
 
 run-tests:
-	$(UVE) run tox
+	cd $(PKG_SHAR) && pytest
+	cd $(PKG_SCAF) && pytest
 
 run-build:
 	$(UVE) build --package shared-utils
