@@ -1,8 +1,4 @@
 {
-  "author": {
-    "email": "artdotlis@pm.me",
-    "name": "Artur Lissin"
-  },
   "dependencies": {},
   "engines": {
     "node": ">=22.0.0",
