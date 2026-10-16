@@ -26,13 +26,13 @@ PNPME = $(if $(PNPMEL),pnpm,$(ROOT_MAKEFILE)/$(PNPM_HOME)/bin/pnpm)
 
 dev: setup-uv setup-pnpm
 	$(UVE) sync --frozen --all-groups
-	find .git/hooks -name "*.old" -delete
-	$(UVE) run lefthook uninstall 2>&1 || echo "not installed"
-	$(UVE) run lefthook install
-
-dev-setup: setup-uv setup-pnpm
-	$(UVE) sync --frozen --all-groups
-	@echo "Dev dependencies synced (no .git modifications)"
+	@if [ "$(DISABLE_GIT_ADD)" = "1" ]; then \
+		echo "Skipping git operations (DISABLE_GIT_ADD=1)"; \
+	else \
+		find .git/hooks -name "*.old" -delete; \
+		$(UVE) run lefthook uninstall 2>&1 || echo "not installed"; \
+		$(UVE) run lefthook install; \
+	fi
 
 tests: setup-uv
 	$(UVE) sync --frozen --group test
@@ -50,12 +50,18 @@ setup-pnpm:
 	bash $(ROOT_MAKEFILE)/$(BIN_INSTALL_PNMP)
 
 unstaged:
-	@if ! git diff --quiet --exit-code; then \
-		echo "ERROR: Unstaged changes found!"; \
-		git diff; \
-		exit 1; \
+	@if [ "$(DISABLE_GIT_ADD)" = "1" ]; then \
+		echo "Skipping unstaged check (DISABLE_GIT_ADD=1)"; \
+	else \
+		if ! git diff --quiet --exit-code; then \
+			echo "ERROR: Unstaged changes found!"; \
+			git diff; \
+			exit 1; \
+		fi; \
 	fi
-	@echo "No unstaged changes. Proceeding..."
+	@if [ "$(DISABLE_GIT_ADD)" != "1" ]; then \
+		echo "No unstaged changes. Proceeding..."; \
+	fi
 
 setup-license: unstaged
 	bash $(BIN_RUN_LICENSE_LINT)
@@ -79,13 +85,14 @@ run-docs: build-docs
 serve-docs: build-docs
 	$(UVE) run zensical serve -f $(CONFIG_DOCS) -a 0.0.0.0:8000
 
-runTests:
+run-tests:
 	$(UVE) run tox
 
 run-build:
 	$(UVE) build --package shared-utils
 	$(UVE) build --package scaffolder
 
+run-bump: DISABLE_GIT_ADD = 0
 run-bump: unstaged
 	$(UVE) run cz bump --files-only --yes --changelog
 	git add .
