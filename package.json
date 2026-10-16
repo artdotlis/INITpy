@@ -1,10 +1,13 @@
 {
-  "dependencies": {},
-  "engines": {
-    "node": ">=22.0.0",
-    "pnpm": ">=11.0.0"
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "catalog:",
+    "@typescript-eslint/parser": "catalog:",
+    "eslint": "catalog:",
+    "prettier": "catalog:"
   },
   "name": "initpy",
-  "private": true,
+  "pnpm": {
+    "catalogMode": "strict"
+  },
   "version": "0.11.0"
 }

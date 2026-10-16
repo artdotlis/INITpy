@@ -12,3 +12,10 @@ preferFrozenLockfile: true
 
 packages:
   - "packages/docs"
+
+# Define catalog of dependency versions (source of truth)
+catalog:
+  eslint: "^9.21.0"
+  prettier: "^3.5.2"
+  "@typescript-eslint/parser": "^8.26.0"
+  "@typescript-eslint/eslint-plugin": "^8.26.0"

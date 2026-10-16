@@ -6,13 +6,19 @@
 
 set -euo pipefail
 
-cmd=()
-files=()
-found_sep=false
-
+# Activate Python virtual environment if present
 if [[ -f ".venv/bin/activate" ]]; then
   source .venv/bin/activate
 fi
+
+# Add pnpm bin to PATH if node_modules exists (for pnpm-installed tools)
+if [[ -d "node_modules/.bin" ]]; then
+  export PATH="node_modules/.bin:$PATH"
+fi
+
+cmd=()
+files=()
+found_sep=false
 
 for arg in "$@"; do
   if [[ "$arg" == "--" ]]; then

@@ -108,8 +108,9 @@ else
 fi
 
 SOFTWARE=(
-    '\.py$'
-    '\.sh$'
+    '^packages/.+\.py$'
+    '^packages/.+\.sh$'
+    '^packages/.+\.ts$'
 )
 
 CC0_FILES=(
@@ -120,7 +121,7 @@ CC0_FILES=(
     'package\.env$'
     '\.dockerignore$'
     'shellcheckrc$'
-    '\.(md|txt|yaml|yml|json|toml)$'
+    '\.(md|txt|yaml|yml|json|toml|mjs)$'
 )
 
 UNL_FILES=(

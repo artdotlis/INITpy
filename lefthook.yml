@@ -14,7 +14,7 @@ pre-commit:
           piped: true
           jobs:
             - name: license
-              run: bin/install/wrap.sh make setup-license
+              run: $BIN_INSTALL_WRAP make setup-license
               stage_fixed: true
               skip: false
     - name: check
@@ -22,98 +22,106 @@ pre-commit:
         parallel: true
         jobs:
           - name: env
-            run: bin/install/wrap.sh bash $BIN_RUN_ENV_LINT
+            run: $BIN_INSTALL_WRAP bash $BIN_RUN_ENV_LINT
           - name: lfs
-            run: bin/install/wrap.sh bash $BIN_RUN_LFS_LINT
+            run: $BIN_INSTALL_WRAP bash $BIN_RUN_LFS_LINT
           - name: pyrefly
             glob: "packages/**/*.py"
-            run: bin/install/wrap.sh pyrefly check -- {staged_files}
+            run: $BIN_INSTALL_WRAP pyrefly check -- {staged_files}
           - name: vulture
-            run: bin/install/wrap.sh vulture
+            run: $BIN_INSTALL_WRAP vulture
           - name: shellcheck
             glob: "*.sh"
-            run: bin/install/wrap.sh shellcheck --rcfile=$CONFIG_SHELL -- {staged_files}
+            run: $BIN_INSTALL_WRAP shellcheck --rcfile=$CONFIG_SHELL -- {staged_files}
           - name: codespell
             glob: "*.py"
-            run: bin/install/wrap.sh codespell -- {staged_files}
+            run: $BIN_INSTALL_WRAP codespell -- {staged_files}
           # pre-commit-hooks checks
           - name: check-ast
             glob: "*.py"
-            run: bin/install/wrap.sh check-ast -- {staged_files}
+            run: $BIN_INSTALL_WRAP check-ast -- {staged_files}
           - name: check-yaml
             glob: "*.{yaml,yml}"
-            run: bin/install/wrap.sh check-yaml -- {staged_files}
+            run: $BIN_INSTALL_WRAP check-yaml -- {staged_files}
           - name: check-json
             glob: "*.json"
-            run: bin/install/wrap.sh check-json -- {staged_files}
+            run: $BIN_INSTALL_WRAP check-json -- {staged_files}
           - name: check-toml
             glob: "*.{toml,tml}"
-            run: bin/install/wrap.sh check-toml -- {staged_files}
+            run: $BIN_INSTALL_WRAP check-toml -- {staged_files}
           - name: check-merge-conflict
-            run: bin/install/wrap.sh check-merge-conflict -- {staged_files}
+            run: $BIN_INSTALL_WRAP check-merge-conflict -- {staged_files}
           - name: detect-private-key
-            run: bin/install/wrap.sh detect-private-key -- {staged_files}
+            run: $BIN_INSTALL_WRAP detect-private-key -- {staged_files}
           - name: check-case-conflict
-            run: bin/install/wrap.sh check-case-conflict -- {staged_files}
+            run: $BIN_INSTALL_WRAP check-case-conflict -- {staged_files}
           - name: check-symlinks
-            run: bin/install/wrap.sh check-symlinks -- {staged_files}
+            run: $BIN_INSTALL_WRAP check-symlinks -- {staged_files}
           - name: check-executables-have-shebangs
             glob: "*.sh"
-            run: bin/install/wrap.sh check-executables-have-shebangs -- {staged_files}
+            run: $BIN_INSTALL_WRAP check-executables-have-shebangs -- {staged_files}
           - name: check-shebang-scripts-are-executable
             glob: "*.sh"
-            run: bin/install/wrap.sh check-shebang-scripts-are-executable -- {staged_files}
+            run: $BIN_INSTALL_WRAP check-shebang-scripts-are-executable -- {staged_files}
     - name: fix
       group:
         piped: true
         jobs:
           - name: ruff-check
             glob: "*.py"
-            run: bin/install/wrap.sh ruff check --fix -- {staged_files} || true
+            run: $BIN_INSTALL_WRAP ruff check --fix -- {staged_files} || true
             stage_fixed: true
           - name: ruff-format
             glob: "*.py"
-            run: bin/install/wrap.sh ruff format -- {staged_files} || true
+            run: $BIN_INSTALL_WRAP ruff format -- {staged_files} || true
             stage_fixed: true
           - name: pretty-format-json
             glob: "*.json"
-            run: bin/install/wrap.sh pretty-format-json --autofix -- {staged_files} || true
+            run: $BIN_INSTALL_WRAP pretty-format-json --autofix -- {staged_files} || true
             stage_fixed: true
           - name: mixed-line-ending
-            run: bin/install/wrap.sh mixed-line-ending -f auto -- {staged_files} || true
+            run: $BIN_INSTALL_WRAP mixed-line-ending -f auto -- {staged_files} || true
             exclude:
               - '**/*.{png,jpg,jpeg,gif,svg,webp,ico}'
             stage_fixed: true
           - name: trailing-whitespace
-            run: bin/install/wrap.sh trailing-whitespace-fixer --markdown-linebreak-ext=md -- {staged_files} || true
+            run: $BIN_INSTALL_WRAP trailing-whitespace-fixer --markdown-linebreak-ext=md -- {staged_files} || true
             exclude:
               - '**/*.{png,jpg,jpeg,gif,svg,webp,ico}'
             stage_fixed: true
           - name: end-of-file
             exclude:
               - '**/*.{png,jpg,jpeg,gif,svg,webp,ico}'
-            run: bin/install/wrap.sh end-of-file-fixer -- {staged_files} || true
+            run: $BIN_INSTALL_WRAP end-of-file-fixer -- {staged_files} || true
             stage_fixed: true
           - name: fix-all-addable-files
             env:
               ALL_FILES: $(find . -name "*.license" -type f)
             run: |
               if [ -n "$ALL_FILES" ]; then
-                bin/install/wrap.sh mixed-line-ending -f auto -- $ALL_FILES || true
-                bin/install/wrap.sh trailing-whitespace-fixer --markdown-linebreak-ext=md -- $ALL_FILES || true
-                bin/install/wrap.sh end-of-file-fixer -- $ALL_FILES || true
+                $BIN_INSTALL_WRAP mixed-line-ending -f auto -- $ALL_FILES || true
+                $BIN_INSTALL_WRAP trailing-whitespace-fixer --markdown-linebreak-ext=md -- $ALL_FILES || true
+                $BIN_INSTALL_WRAP end-of-file-fixer -- $ALL_FILES || true
               fi
+            stage_fixed: true
+          - name: eslint
+            glob: "*.{js,ts,jsx,tsx}"
+            run: $BIN_INSTALL_WRAP eslint --config $CONFIG_ESLINT --fix -- {staged_files} || true
+            stage_fixed: true
+          - name: prettier
+            glob: "*.{js,ts,jsx,tsx,cjs,mjs,mts,cts,css,less,scss,html,vue,svelte,astro,md,mdx,json,json5,yaml,yml,graphql}"
+            run: $BIN_INSTALL_WRAP prettier --write -- {staged_files} || true
             stage_fixed: true
 commit-msg:
   piped: true
   commands:
     commitizen:
-      run: bin/install/wrap.sh cz check --commit-msg-file -- {1}
+      run: $BIN_INSTALL_WRAP cz check --commit-msg-file -- {1}
 
 pre-push:
   piped: true
   jobs:
     - name: tests
-      run: bin/install/wrap.sh tox
+      run: $BIN_INSTALL_WRAP tox
     - name: lfs
       run: command -v git-lfs >/dev/null 2>&1 && git lfs pre-push "$@" || true
