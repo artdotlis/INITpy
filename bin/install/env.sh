@@ -7,6 +7,10 @@
 set -euo pipefail
 
 declare -A SEEN_FILES
+declare -A ENV_VARS
+
+ROOT="$(dirname "$(realpath "$0")")/../.."
+ENV_MK="$ROOT/.env.mk"
 
 load_env_file() {
     local env_file="$1"
@@ -40,6 +44,7 @@ load_env_file() {
             if [ -z "${!key+x}" ]; then
                 printf '%s := %s\n' "$key" "$value"
             fi
+            ENV_VARS["$key"]="$value"
 
             if [[ -f "$value" && "$value" =~ (^\.env|\.env$) && ! "$value" =~ license ]]; then
                 # shellcheck disable=SC2094
@@ -57,6 +62,23 @@ load_env_file() {
     done < "$env_file"
 }
 
-for env in "$@"; do
-    load_env_file "$env"
-done
+if [[ ! -f "$ENV_MK" ]]; then
+    load_env_file "$ROOT/package.env" > "$ENV_MK" 2>/dev/null || true
+    UV_INSTALL_DIR="${ENV_VARS[UV_INSTALL_DIR]:-}"
+    PNPM_HOME="${ENV_VARS[PNPM_HOME]:-}"
+
+    UVE="$ROOT/$UV_INSTALL_DIR/uv"
+    command -v uv &>/dev/null && UVE="uv"
+
+    PNPME="$ROOT/$PNPM_HOME/bin/pnpm"
+    command -v pnpm &>/dev/null && PNPME="pnpm"
+
+    {
+        printf 'PATH := %s:%s/%s/:%s/%s\n' "$PATH" "$ROOT" "$UV_INSTALL_DIR" "$ROOT" "$PNPM_HOME"
+        printf 'DISABLE_GIT_ADD := %s\n' "${ENV_VARS[DISABLE_GIT_ADD]:-0}"
+        printf 'PNPME := %s\n' "$PNPME"
+        printf 'UVE := %s\n' "$UVE"
+        printf 'SHELL := /bin/bash\n'
+    } >> "$ENV_MK" 2>/dev/null || true
+
+fi

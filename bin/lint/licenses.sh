@@ -192,3 +192,7 @@ if ! reuse lint; then
     echo "Linting failed!"
     exit 1
 fi
+
+if [ "${DISABLE_GIT_ADD:-0}" != "1" ]; then
+    git -C "$ROOT" add .
+fi
