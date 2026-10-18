@@ -154,7 +154,7 @@ for file in "${FILES[@]}"; do
         unl_to_annotate+=("$file")
         continue
     fi
-    if matches_pattern "$file_name" "${SOFTWARE[@]}"; then
+    if matches_pattern "$file" "${SOFTWARE[@]}"; then
         unl_to_annotate+=("$file")
         continue
     fi

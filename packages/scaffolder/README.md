@@ -17,8 +17,8 @@ It demonstrates how a standalone application can depend on the
 internal `shared_utils` library and expose a console script entry
 point (`scaffolder`).
 
-Because it is part of a monorepo, the package is **private** – it
-should not be published to PyPI – and is built along with the other
+Because it is part of a monorepo, the package is **private** - it
+should not be published to PyPI - and is built along with the other
 packages via the `uv` build system.
 
 ---
