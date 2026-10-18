@@ -1,7 +1,5 @@
 # INIT - Python
 
-Blank init project
-
 ## Documentation
 
 The full code documentation is available at [reference](ref/ref_m.md).

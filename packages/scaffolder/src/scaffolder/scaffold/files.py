@@ -4,58 +4,90 @@
 
 """File transformation functions for scaffolding."""
 
+from shared_utils.files import update_pyproject_dep_groups
+from shared_utils.files import update_pyproject_workspace
+from shared_utils.files import update_pyproject_description
+from shared_utils.files import update_package_devcon_name
+from shared_utils.files import update_pyproject_name
 from pathlib import Path
-
+from shared_utils.constants import VERSION
 from shared_utils.files import strip_spdx_headers
+import tomlkit
+
+
+def write_package_files(path: Path, package_name: str) -> None:
+    """Create empty files, add TODOs, and template test."""
+    pkg_dir = path / "packages" / package_name
+    src = pkg_dir / "src" / package_name
+
+    # create empty files
+    (src / "main.py").write_text("")
+    (src / "py.typed").touch()
+    (src / "__init__.py").write_text("__all__: list[str] = []")
+
+    # empty README.md and .env
+    (pkg_dir / "README.md").write_text("")
+    (pkg_dir / ".env").write_text("")
+
+    # main.py: add TODO comment
+    (src / "main.py").write_text(f"# TODO: Implement {package_name}\n")
+
+    # README.md: add package name header
+    (pkg_dir / "README.md").write_text(f"# {package_name}\n")
+
+    # template unit test with TODO
+    tests = pkg_dir / "tests" / "unit"
+    tests.mkdir(exist_ok=True)
+    (tests / f"test_{package_name}.py").write_text(
+        """
+def test_placeholder() -> None:
+    # TODO finish tests
+    assert False
+"""
+    )
 
 
 def amend_docs(path: Path, package_name: str, project_name: str) -> None:
-    """Step 9: update docs/README.md and .zensical.toml."""
-    (path / "packages" / "docs" / "README.md").write_text(
-        f'--8<-- "README.md"\n\n--8<-- "packages/{package_name}/README.md"\n'
-    )
+    """Update docs/README.md and .zensical.toml."""
     index = path / "packages" / "docs" / "src" / "index.md"
-    index.write_text(f"# {project_name}\n\nBlank init project\n")
+    text = index.read_text()
+    text = text.replace("# INIT - Python", f"# {project_name}", 1)
+    index.write_text(text)
+
+    ref_m = path / "packages" / "docs" / "src" / "ref" / "ref_m.md"
+    if ref_m.exists():
+        ref_m.write_text(
+            f"# {project_name} - {package_name}\n\n::: {package_name}\n    options:"
+            + "\n        show_submodules: true\n"
+        )
+
     zensical = path / ".zensical.toml"
-    text = zensical.read_text()
-    text = text.replace("INIT PY", project_name)
-    text = text.replace("artdotlis/INITpy", f"artdotlis/{project_name}")
-    zensical.write_text(text)
+    doc = tomlkit.parse(zensical.read_text())
+    doc["site_name"] = project_name
+    if "repo_name" in doc:
+        del doc["repo_name"]
+    if "repo_url" in doc:
+        del doc["repo_url"]
+    zensical.write_text(tomlkit.dumps(doc))
 
 
 def update_envs(path: Path, package_name: str) -> None:
-    """Step 10: update PKG_SCAF / PKG_SHAR in env files."""
-    _update_pkg_vars(path / "package.env", package_name)
+    """Update PKG_SCAF / PKG_SHAR in env files."""
+    package_env = path / "package.env"
+    content = package_env.read_text()
+    abr = package_name.upper()[0:3]
+    content = content.replace(
+        "PKG_SCAF=packages/scaffolder", f"PKG_{abr}=packages/{package_name}"
+    )
+    content = content.replace("PKG_SHAR=packages/shared_utils", "")
+    content = content.replace(
+        "SCAF_ENV=packages/scaffolder/.env", f"{abr}_ENV=packages/{package_name}"
+    )
+    package_env.write_text(content)
     lint_env = path / "bin" / "lint" / "lint_env.sh"
     content = lint_env.read_text()
-    content = content.replace(
-        "PKG_SCAF=packages/scaffolder", f"PKG_SCAF=packages/{package_name}"
-    )
-    content = content.replace(
-        "PKG_SHAR=packages/shared_utils", f"PKG_SHAR=packages/{package_name}"
-    )
+    content = content.replace("$SCAF_ENV", f"{abr}_ENV")
     lint_env.write_text(content)
-
-
-def replace_authors(path: Path, email: str) -> None:
-    """Step 12: replace author email in config files."""
-    for fpath in (path / "pyproject.toml", path / "package.env"):
-        if fpath.exists():
-            fpath.write_text(fpath.read_text().replace("artdotlis@pm.me", email))
-
-
-def replace_project_name(path: Path, name: str) -> None:
-    """Step 13: replace all INITpy references."""
-    for root, dirs, files in path.walk():
-        dirs[:] = [d for d in dirs if d not in (".git", "node_modules", "__pycache__")]
-        for fname in files:
-            if fname.endswith((".py", ".sh", ".toml", ".env", ".md", ".yml")):
-                fpath = root / fname
-                try:
-                    text = fpath.read_text().replace("INITpy", name)
-                    fpath.write_text(text)
-                except Exception:
-                    pass
 
 
 def strip_spdx(path: Path) -> None:
@@ -64,14 +96,12 @@ def strip_spdx(path: Path) -> None:
 
 
 def set_version(path: Path) -> None:
-    """Step 17: set version to 0.1.0 everywhere."""
+    """Set version to 0.1.0 in pyproject.toml and package.json files."""
     for fpath in path.rglob("*"):
-        if fpath.is_file() and fpath.suffix in (".py", ".sh", ".toml", ".md"):
+        if fpath.is_file() and fpath.name in ("pyproject.toml", "package.json"):
             text = fpath.read_text()
-            if "0.11.0" in text or "0.9.4" in text:
-                fpath.write_text(
-                    text.replace("0.11.0", "0.1.0").replace("0.9.4", "0.1.0")
-                )
+            text = text.replace(VERSION, "0.1.0")
+            fpath.write_text(text)
 
 
 def fix_licenses(path: Path, license_name: str) -> None:
@@ -112,13 +142,26 @@ def update_licenses_sh(path: Path) -> None:
     licenses_sh.write_text(text)
 
 
-def _update_pkg_vars(path: Path, package_name: str) -> None:
-    text = path.read_text()
-    text = "\n".join(
-        l
-        for l in text.splitlines()
-        if not l.startswith("PKG_SCAF=packages/scaffolder")
-        and not l.startswith("PKG_SHAR=packages/shared_utils")
-    )
-    text += f"\nPKG_SCAF=packages/{package_name}\nPKG_SHAR=packages/{package_name}\n"
-    path.write_text(text)
+def set_entry_pod(path: Path) -> None:
+    """Write entry_pod.sh."""
+    entry = path / "bin" / "deploy" / "entry_pod.sh"
+    entry.parent.mkdir(parents=True, exist_ok=True)
+    entry.write_text("#!/bin/bash\n\nset -euo pipefail\n\nsleep infinity\n")
+
+
+def clean_root_md(path: Path, project_name: str) -> None:
+    (path / "README.md").write_text(f"# {project_name}\n\n")
+    (path / "CHANGELOG.md").write_text("")
+    (path / "uv.lock").unlink(True)
+    (path / "pnpm-lock.yaml").unlink(True)
+
+
+def correct_core_project(
+    path: Path, project_name: str, package_name: str, dep_name: str, description: str
+) -> None:
+    update_pyproject_name(path / "pyproject.toml", project_name)
+    update_pyproject_workspace(path / "pyproject.toml", package_name)
+    update_pyproject_dep_groups(path / "pyproject.toml", dep_name)
+    update_pyproject_description(path / "pyproject.toml", description)
+    update_package_devcon_name(path / "package.json", project_name)
+    update_package_devcon_name(path / ".devcontainer" / "devcontainer.json", project_name)

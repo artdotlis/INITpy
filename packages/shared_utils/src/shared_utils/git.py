@@ -9,19 +9,26 @@ import subprocess
 from pathlib import Path
 
 
-def clone_template(template_url: str, temp_dir: Path) -> None:
-    """Clone a template repository.
-
-    Args:
-        template_url: URL of the template repository
-        temp_dir: Path where the template should be cloned
-
-    Raises:
-        subprocess.CalledProcessError: If git clone fails
-    """
-    if temp_dir.exists():
-        shutil.rmtree(temp_dir)
+def clone_git(path: Path, template_url: str) -> None:
+    path.mkdir(parents=True, exist_ok=True)
+    if path.exists():
+        shutil.rmtree(path)
 
     subprocess.run(
-        ["git", "clone", template_url, str(temp_dir)], check=True, capture_output=True
+        ["git", "clone", template_url, str(path)], check=True, capture_output=True
+    )
+
+
+def reset_git(path: Path) -> None:
+    shutil.rmtree(path / ".git")
+    subprocess.run(["git", "init"], cwd=path, check=True, capture_output=True)
+
+
+def first_commit(path: Path) -> None:
+    subprocess.run(["git", "add", "."], cwd=path, check=True, capture_output=True)
+    subprocess.run(
+        ["git", "commit", "-m", "init", "--no-verify"],
+        cwd=path,
+        check=True,
+        capture_output=True,
     )

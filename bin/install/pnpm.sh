@@ -8,7 +8,7 @@ set -euo pipefail
 ROOT="$(dirname "$(realpath "$0")")/../.."
 set -a
 
-source "$ROOT/package.env"
+source "$ROOT/bin/install/load_env_mk.sh"
 
 echo "$PNPM_HOME"
 echo "$PNPM_VERSION"

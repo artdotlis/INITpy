@@ -22,3 +22,11 @@ def sanitize_package_name(name: str) -> str:
     if sanitized and sanitized[0].isdigit():
         sanitized = "_" + sanitized
     return sanitized or "project"
+
+
+def sanitize_package_name_dep_group(name: str) -> str:
+    sanitized = name.lower().replace(" ", "-").replace("_", "-")
+    sanitized = re.sub(r"[^a-z0-9_]", "", sanitized)
+    if sanitized and sanitized[0].isdigit():
+        sanitized = "-" + sanitized
+    return sanitized or "project"

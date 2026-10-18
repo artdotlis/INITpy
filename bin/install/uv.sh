@@ -8,16 +8,7 @@ set -euo pipefail
 ROOT="$(dirname "$(realpath "$0")")/../.."
 set -a
 
-source "$ROOT/package.env"
-
-echo "$UV_CACHE_DIR"
-echo "$UV_INSTALL_DIR"
-echo "$UV_PYTHON_INSTALL_DIR"
-echo "$UV_PYTHON_BIN_DIR"
-echo "$UV_TOOL_DIR"
-echo "$UV_TOOL_BIN_DIR"
-echo "$UV_NO_MODIFY_PATH"
-echo "$UV_VERSION"
+source "$ROOT/bin/install/load_env_mk.sh"
 
 [[ -d "$UV_INSTALL_DIR" ]] || (curl -LsSf "https://astral.sh/uv/$UV_VERSION/install.sh" | sh)
 "$UVE" python install "$PYV" --force

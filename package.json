@@ -1,4 +1,8 @@
 {
+  "author": {
+    "email": "artdotlis@pm.me",
+    "name": "Artur Lissin"
+  },
   "devDependencies": {
     "oxlint": "catalog:",
     "prettier": "catalog:"

@@ -11,20 +11,10 @@ ENV_MK="$ROOT/.env.mk"
 
 # Ensure .env.mk exists (regenerates if missing)
 if [[ ! -f "$ENV_MK" ]]; then
-    "./env.sh" "$ROOT/package.env" > "$ENV_MK" 2>/dev/null || true
+    "./create_env_mk.sh" "$ROOT/package.env" > "$ENV_MK" 2>/dev/null || true
 fi
 
-while IFS= read -r line; do
-    [[ -z "$line" ]] && continue
-    # Match "KEY := value" (space before := optional)
-    if [[ "$line" =~ ^[[:space:]]*([A-Za-z_][A-Za-z0-9_]*)[[:space:]]*:?[[:space:]]*=[[:space:]]*(.+)[[:space:]]*$ ]]; then
-        key="${BASH_REMATCH[1]}"
-        value="${BASH_REMATCH[2]}"
-        value="${value%\"}"; value="${value#\"}"
-        value="${value%\'}"; value="${value#\'}"
-        export "$key"="$value"
-    fi
-done < "$ENV_MK"
+source "$ROOT/bin/install/load_env_mk.sh"
 
 # Activate Python virtual environment if present
 if [[ -d ".venv/bin" ]]; then

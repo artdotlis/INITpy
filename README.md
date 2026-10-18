@@ -55,14 +55,14 @@ make run-act
 
 ```text
 INITpy/
-├── bin/                # Tooling shell scripts
-├── configs/            # Tooling & Linting configurations
-├── packages/           # Your Python packages (Monorepo)
-│   ├── docs/  
-│   ├── scaffolder/
-│   └── shared_utils/
-├── pyproject.toml      # The heart of the project
-└── Makefile            # Command scaffolder (requires CONTAINER=container)
+├-- bin/                # Tooling shell scripts
+├-- configs/            # Tooling & Linting configurations
+├-- packages/           # Your Python packages (Monorepo)
+│   ├-- docs/  
+│   ├-- scaffolder/
+│   └-- shared_utils/
+├-- pyproject.toml      # The heart of the project
+└-- Makefile            # Command scaffolder (requires CONTAINER=container)
 ```
 
 -----

@@ -10,7 +10,7 @@ endif
 
 RAN := $(shell awk 'BEGIN{srand();printf("%d", 65536*rand())}')
 ROOT_MAKEFILE := $(abspath $(patsubst %/, %, $(dir $(abspath $(lastword $(MAKEFILE_LIST))))))
-$(shell $(ROOT_MAKEFILE)/bin/install/env.sh 2>/dev/null || true)
+$(shell $(ROOT_MAKEFILE)/bin/install/create_env_mk.sh 2>/dev/null || true)
 -include .env.mk
 
 dev: setup-uv setup-pnpm
