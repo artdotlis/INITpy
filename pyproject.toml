@@ -38,22 +38,22 @@ mono = [
   "scaffolder",
 ]
 dev = [
-  "commitizen ==4.16.4",
-  "pyrefly ==1.1.1",
-  "ruff ==0.15.20",
-  "codespell ==2.4.2",
+  "commitizen ==4.19.2",
+  "pyrefly ==1.4.0",
+  "ruff ==0.17.1",
+  "codespell ==2.4.3",
   "shellcheck-py ==0.11.0.1",
   "pre-commit-hooks ==6.0.0",
   "vulture ==2.16",
   # license
   "reuse ==6.2.0",
   # commit hooks
-  "lefthook ==2.1.9",
+  "lefthook ==2.2.2",
   # types
 ]
 docs = [
-  "zensical ==0.0.46",
-  "mkdocstrings-python ==2.0.5",
+  "zensical ==0.0.71",
+  "mkdocstrings-python ==2.0.10",
 ]
 test = ["pytest ==9.1.1"]
 
