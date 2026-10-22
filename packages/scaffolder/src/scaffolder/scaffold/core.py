@@ -4,27 +4,31 @@
 
 """Core scaffold orchestration and CLI."""
 
+from shared_utils.files import strip_spdx_headers
 from shared_utils.names import sanitize_package_name_dep_group
 from scaffolder.scaffold.files import correct_core_project
 from shared_utils.files import replace_authors
 from scaffolder.scaffold.files import clean_root_md
-from scaffolder.scaffold.files import set_entry_pod
+from scaffolder.scaffold.files import set_entry_prod
 from scaffolder.scaffold.files import write_package_files
-from shared_utils.git import first_commit
+from shared_utils.git import inti_and_commit
 from scaffolder.scaffold.package import create_package
 from shared_utils.git import reset_git
 from shared_utils.git import clone_git
 from pathlib import Path
+import random
 import sys
 
+from reuse.project import LICENSE_MAP
+
+
 from shared_utils.names import sanitize_package_name
+from shared_utils.files import configure_licenses
 from scaffolder.scaffold.files import (
     amend_docs,
     update_envs,
-    strip_spdx,
     update_licenses_sh,
     set_version,
-    fix_licenses,
 )
 
 
@@ -35,6 +39,7 @@ def run(
     author_email: str,
     license_name: str,
     description: str,
+    /,
 ) -> Path:
     """Execute the 19-step scaffold procedure.
 
@@ -77,20 +82,20 @@ def run(
     # version 0.1.0
     set_version(output_path)
 
-    # 14 - strip SPDX + .license
-    strip_spdx(output_path)
+    # strip SPDX + .license
+    strip_spdx_headers(output_path)
+
+    # LICENSES/ + LICENSE
+    configure_licenses(output_path, license_name)
 
     # entry_pod.sh
-    set_entry_pod(output_path)
+    set_entry_prod(output_path)
 
-    # 16 - licenses.sh
+    # licenses.sh
     update_licenses_sh(output_path)
 
-    # 18 - LICENSES/ + LICENSE
-    fix_licenses(output_path, license_name)
-
-    # 19 - commit
-    first_commit(output_path)
+    # init and commit
+    inti_and_commit(output_path)
 
     return output_path
 
@@ -100,48 +105,53 @@ def run_cli() -> None:
     print("📦 INITpy Project Scaffolder")
     print("─" * 40)
 
-    project_name = input("Project name: ").strip()
-    if len(project_name) < 3:
-        print(
-            "❌ Project name is required and must contain at least characters",
-            file=sys.stderr,
-        )
-        sys.exit(1)
+    while True:
+        project_name = input("Project name: ").strip()
+        if len(project_name) >= 3:
+            break
+        print("❌ Must be at least 3 characters", file=sys.stderr)
 
-    project_description = input("Project description: ").strip()
-    if not project_description:
-        print("❌ Project description is required", file=sys.stderr)
-        sys.exit(1)
+    while True:
+        project_description = input("Project description: ").strip()
+        if project_description:
+            break
+        print("❌ Cannot be empty", file=sys.stderr)
 
-    output_dir = input("Output directory: ").strip()
-    if not output_dir:
-        print("❌ Output directory is required", file=sys.stderr)
-        sys.exit(1)
+    while True:
+        output_dir = input("Output directory: ").strip()
+        if output_dir:
+            break
+        print("❌ Cannot be empty", file=sys.stderr)
 
-    author_name = input("Author name: ").strip()
-    if not author_name:
-        print("❌ Author name is required", file=sys.stderr)
-        sys.exit(1)
+    while True:
+        author_name = input("Author name: ").strip()
+        if author_name:
+            break
+        print("❌ Cannot be empty", file=sys.stderr)
 
-    author_email = input("Author email: ").strip()
-    if not author_email:
-        print("❌ Author email is required", file=sys.stderr)
-        sys.exit(1)
+    while True:
+        author_email = input("Author email: ").strip()
+        if author_email:
+            break
+        print("❌ Cannot be empty", file=sys.stderr)
 
-    print("\nAvailable licenses: Unlicense, MIT, Apache-2.0, GPL-3.0, CC0-1.0")
-    license_name = input("License: ").strip()
-    if not license_name:
-        print("❌ License is required", file=sys.stderr)
-        sys.exit(1)
+    examples = random.sample(list(LICENSE_MAP.keys()), 6)
+    print(f"\nAvailable licenses: {', '.join(examples)}, and more")
+    while True:
+        license_name = input("License: ").strip()
+        if license_name in LICENSE_MAP:
+            break
+        new_examples = random.sample(list(LICENSE_MAP.keys()), 6)
+        print(f"❌ Invalid. Examples: {', '.join(new_examples)}", file=sys.stderr)
 
     try:
         result = run(
             project_name,
-            output_dir=output_dir,
-            author_name=author_name,
-            author_email=author_email,
-            license_name=license_name,
-            description=project_description,
+            output_dir,
+            author_name,
+            author_email,
+            license_name,
+            project_description,
         )
         print(f"\n✅ '{project_name}' → {result.absolute()}")
     except Exception as exc:

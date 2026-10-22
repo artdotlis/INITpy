@@ -7,6 +7,7 @@
     "oxlint": "catalog:",
     "prettier": "catalog:"
   },
+  "license": "Unlicense",
   "name": "initpy",
   "pnpm": {
     "catalogMode": "strict"

@@ -51,6 +51,7 @@ done
 
 LICENSE_SHORT_FILES=(
     "$ROOT/pyproject.toml"
+    "$ROOT/package.json"
 )
 
 for file_path in "${LICENSE_SHORT_FILES[@]}"; do

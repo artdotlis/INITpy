@@ -7,7 +7,7 @@
 import re
 
 
-def sanitize_package_name(name: str) -> str:
+def sanitize_package_name(name: str, /) -> str:
     """Convert project name to valid Python package name.
 
     Args:
@@ -24,7 +24,7 @@ def sanitize_package_name(name: str) -> str:
     return sanitized or "project"
 
 
-def sanitize_package_name_dep_group(name: str) -> str:
+def sanitize_package_name_dep_group(name: str, /) -> str:
     sanitized = name.lower().replace(" ", "-").replace("_", "-")
     sanitized = re.sub(r"[^a-z0-9_]", "", sanitized)
     if sanitized and sanitized[0].isdigit():

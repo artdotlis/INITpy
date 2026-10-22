@@ -13,7 +13,7 @@ import shutil
 from pathlib import Path
 
 
-def create_package(path: Path, package_name: str, description: str) -> None:
+def create_package(path: Path, package_name: str, description: str, /) -> None:
     """Create new package, copy pyproject.toml, clean packages/."""
     pkg_dir = path / "packages" / package_name
     (pkg_dir / "src" / package_name).mkdir(parents=True, exist_ok=True)

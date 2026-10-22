@@ -4,33 +4,72 @@
 
 """File manipulation utilities."""
 
+from reuse.comment import CommentStyle
 from pathlib import Path
-import tomlkit
 import json
+import tomlkit
+
+from reuse.comment import get_comment_style
+from reuse.download import put_license_in_file
+from reuse.header import contains_reuse_info
+from reuse.project import LICENSE_MAP
 
 
-def strip_spdx_headers(path: Path) -> None:
+def _find_spdx_block(
+    text: str, style_cls: type[CommentStyle], /
+) -> tuple[int, str] | None:
+    """Find the first SPDX comment block in *text*.
+
+    Scans every newline boundary so it works even when the file starts
+    with a shebang or other non-comment content (the same approach
+    reuse's internal ``_find_first_spdx_comment`` uses).
+    """
+    if style_cls is None:
+        return None
+    start = 0
+    while start < len(text):
+        try:
+            comment = style_cls.comment_at_first_character(text[start:])
+        except Exception:
+            nxt = text.find("\n", start)
+            start = (nxt + 1) if nxt != -1 else len(text)
+            continue
+        if contains_reuse_info(comment):
+            return start, comment
+        nxt = text.find("\n", start)
+        if nxt == -1:
+            break
+        start = nxt + 1
+    return None
+
+
+def strip_spdx_headers(path: Path, /) -> None:
     """Remove SPDX headers and .license files from a directory tree.
+
+    Uses reuse's CommentStyle to find and remove the first SPDX comment
+    block. Handles shebangs and preprocessor directives correctly by
+    scanning every newline boundary.
 
     Args:
         path: Root directory to scan
     """
-    for root, dirs, files in path.walk():
-        dirs[:] = [d for d in dirs if d not in (".git", "node_modules", "__pycache__")]
-        for fname in files:
-            fpath = root / fname
-            if fname.endswith(".license"):
-                fpath.unlink()
-            elif fpath.is_file() and "SPDX" in fpath.read_text():
-                lines = [
-                    l
-                    for l in fpath.read_text().splitlines()
-                    if "SPDX" not in l and l.strip() in ("", "--")
-                ]
-                fpath.write_text("\n".join(lines))
+    for fpath in path.rglob("*"):
+        if fpath.is_file() and fpath.name.endswith(".license"):
+            fpath.unlink()
+        elif fpath.is_file() and "SPDX" in (text := fpath.read_text()):
+            style_cls = get_comment_style(fpath)
+            if style_cls is None:
+                continue
+            found = _find_spdx_block(text, style_cls)
+            if found is None:
+                continue
+            start, comment_block = found
+            before = text[:start]
+            after = text[start + len(comment_block) :].lstrip()
+            fpath.write_text(before + after)
 
 
-def update_pyproject_authors(path: Path, author_name: str, author_email: str) -> None:
+def update_pyproject_authors(path: Path, author_name: str, author_email: str, /) -> None:
     """Replace author info in a pyproject.toml file.
 
     Args:
@@ -48,6 +87,7 @@ def update_pyproject_authors(path: Path, author_name: str, author_email: str) ->
 def update_pyproject_name(
     path: Path,
     name: str,
+    /,
 ) -> None:
     doc = tomlkit.parse(path.read_text())
     if "project" in doc and "name" in doc["project"]:
@@ -59,6 +99,7 @@ def update_pyproject_name(
 def update_pyproject_description(
     path: Path,
     desc: str,
+    /,
 ) -> None:
     doc = tomlkit.parse(path.read_text())
     if "project" in doc and "description" in doc["project"]:
@@ -70,6 +111,7 @@ def update_pyproject_description(
 def update_pyproject_workspace(
     path: Path,
     package_name: str,
+    /,
 ) -> None:
     doc = tomlkit.parse(path.read_text())
     tool = "tool.uv.sources"
@@ -77,12 +119,6 @@ def update_pyproject_workspace(
         del doc[tool]
     doc[tool] = {package_name: {"workspace": True}}
     path.write_text(tomlkit.dumps(doc))
-
-
-def update_pyproject_workspace(
-    path: Path,
-    package_name: str,
-) -> None:
     doc = tomlkit.parse(path.read_text())
     tool = "tool.uv.sources"
     if tool in doc:
@@ -94,6 +130,7 @@ def update_pyproject_workspace(
 def update_pyproject_dep_groups(
     path: Path,
     package_name: str,
+    /,
 ) -> None:
     doc = tomlkit.parse(path.read_text())
     group = "dependency-groups"
@@ -103,7 +140,7 @@ def update_pyproject_dep_groups(
     path.write_text(tomlkit.dumps(doc))
 
 
-def clean_pyproject_dependencies(path: Path) -> None:
+def clean_pyproject_dependencies(path: Path, /) -> None:
     doc = tomlkit.parse(path.read_text())
     if "project" in doc and "dependencies" in doc["project"]:
         del doc["project"]["dependencies"]
@@ -115,6 +152,7 @@ def clean_pyproject_dependencies(path: Path) -> None:
 def update_pyproject_path(
     path: Path,
     package_name: str,
+    /,
 ) -> None:
     doc = tomlkit.parse(path.read_text())
     tool = "tool.setuptools.packages.find"
@@ -124,7 +162,7 @@ def update_pyproject_path(
     path.write_text(tomlkit.dumps(doc))
 
 
-def update_package_authors(path: Path, author_name: str, author_email: str) -> None:
+def update_package_authors(path: Path, author_name: str, author_email: str, /) -> None:
     """Replace author info in a package.json file.
 
     Args:
@@ -139,7 +177,7 @@ def update_package_authors(path: Path, author_name: str, author_email: str) -> N
     path.write_text(json.dumps(data, indent=2) + "\n")
 
 
-def update_package_devcon_name(path: Path, name: str) -> None:
+def update_package_devcon_name(path: Path, name: str, /) -> None:
     data = json.loads(path.read_text())
     if "name" in data:
         del data["name"]
@@ -147,7 +185,7 @@ def update_package_devcon_name(path: Path, name: str) -> None:
     path.write_text(json.dumps(data, indent=2) + "\n")
 
 
-def replace_authors(path: Path, email: str, name: str | None = None) -> None:
+def replace_authors(path: Path, email: str, name: str | None = None, /) -> None:
     """Replace author info in all pyproject.toml and package.json files."""
     author_name = name or ""
     for fpath in path.rglob("*"):
@@ -157,3 +195,49 @@ def replace_authors(path: Path, email: str, name: str | None = None) -> None:
             update_pyproject_authors(fpath, author_name, email)
         elif fpath.name == "package.json":
             update_package_authors(fpath, author_name, email)
+
+
+def clear_licenses_dir(path: Path, /) -> None:
+    """Remove all files from the LICENSES/ directory."""
+    lic_dir = path / "LICENSES"
+    if lic_dir.is_dir():
+        for file in lic_dir.iterdir():
+            if file.is_file():
+                file.unlink()
+
+
+def write_license(path: Path, license_name: str, /) -> None:
+    """Download and write the SPDX license text to the LICENSE file."""
+    put_license_in_file(license_name, path)
+
+
+def set_license_pyproject(path: Path, license_name: str, /) -> None:
+    """Set the license field in pyproject.toml."""
+    doc = tomlkit.parse(path.read_text())
+    doc["project"]["license"] = license_name
+    path.write_text(tomlkit.dumps(doc))
+
+
+def set_license_package_json(path: Path, license_name: str, /) -> None:
+    """Set the license field in package.json."""
+    data = json.loads(path.read_text())
+    data["license"] = license_name
+    path.write_text(json.dumps(data, indent=2) + "\n")
+
+
+def configure_licenses(path: Path, license_name: str, /) -> None:
+    """Clear LICENSES/, download LICENSE, and set license in pyproject.toml and package.json."""
+    _validate_license(license_name)
+    clear_licenses_dir(path)
+    write_license(path / "LICENSE", license_name)
+    set_license_pyproject(path / "pyproject.toml", license_name)
+    set_license_package_json(path / "package.json", license_name)
+
+
+def _validate_license(license_name: str, /) -> None:
+    """Validate that *license_name* is a known SPDX license identifier."""
+    if license_name not in LICENSE_MAP:
+        raise ValueError(
+            f"Unknown SPDX license: {license_name!r}. "
+            f"Run `reuse fetch` to see supported licenses."
+        )

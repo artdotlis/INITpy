@@ -4,6 +4,7 @@
 
 """File transformation functions for scaffolding."""
 
+import tomlkit
 from shared_utils.files import update_pyproject_dep_groups
 from shared_utils.files import update_pyproject_workspace
 from shared_utils.files import update_pyproject_description
@@ -11,11 +12,9 @@ from shared_utils.files import update_package_devcon_name
 from shared_utils.files import update_pyproject_name
 from pathlib import Path
 from shared_utils.constants import VERSION
-from shared_utils.files import strip_spdx_headers
-import tomlkit
 
 
-def write_package_files(path: Path, package_name: str) -> None:
+def write_package_files(path: Path, package_name: str, /) -> None:
     """Create empty files, add TODOs, and template test."""
     pkg_dir = path / "packages" / package_name
     src = pkg_dir / "src" / package_name
@@ -47,7 +46,7 @@ def test_placeholder() -> None:
     )
 
 
-def amend_docs(path: Path, package_name: str, project_name: str) -> None:
+def amend_docs(path: Path, package_name: str, project_name: str, /) -> None:
     """Update docs/README.md and .zensical.toml."""
     index = path / "packages" / "docs" / "src" / "index.md"
     text = index.read_text()
@@ -71,7 +70,7 @@ def amend_docs(path: Path, package_name: str, project_name: str) -> None:
     zensical.write_text(tomlkit.dumps(doc))
 
 
-def update_envs(path: Path, package_name: str) -> None:
+def update_envs(path: Path, package_name: str, /) -> None:
     """Update PKG_SCAF / PKG_SHAR in env files."""
     package_env = path / "package.env"
     content = package_env.read_text()
@@ -90,12 +89,7 @@ def update_envs(path: Path, package_name: str) -> None:
     lint_env.write_text(content)
 
 
-def strip_spdx(path: Path) -> None:
-    """Step 14: remove SPDX headers and .license files."""
-    strip_spdx_headers(path)
-
-
-def set_version(path: Path) -> None:
+def set_version(path: Path, /) -> None:
     """Set version to 0.1.0 in pyproject.toml and package.json files."""
     for fpath in path.rglob("*"):
         if fpath.is_file() and fpath.name in ("pyproject.toml", "package.json"):
@@ -104,52 +98,32 @@ def set_version(path: Path) -> None:
             fpath.write_text(text)
 
 
-def fix_licenses(path: Path, license_name: str) -> None:
-    """Step 18: clear LICENSES/ and write LICENSE."""
-    lic_dir = path / "LICENSES"
-    if lic_dir.is_dir():
-        for f in lic_dir.iterdir():
-            if f.is_file():
-                f.unlink()
-
-    path.joinpath("LICENSE").write_text(f"# TODO finish: {license_name}\n\n")
-
-    pyproject = path / "pyproject.toml"
-    if pyproject.exists():
-        text = pyproject.read_text()
-        text = "\n".join(
-            f'license = "{license_name}"'
-            if line.strip().startswith("license =")
-            else line
-            for line in text.splitlines()
-        )
-        pyproject.write_text(text)
-
-
-def update_licenses_sh(path: Path) -> None:
-    """Step 16: add leading error exit to licenses.sh."""
+def update_licenses_sh(path: Path, /) -> None:
+    """Add leading error exit to licenses.sh."""
     licenses_sh = path / "bin" / "lint" / "licenses.sh"
     if not licenses_sh.exists():
-        return
+        raise FileNotFoundError(f"Missing required file: {licenses_sh}")
     text = licenses_sh.read_text()
-    # Insert warning after shebang
-    warning = """# TODO: Complete license implementation before use.
-# This script will fail until licenses are properly configured.\n\n"""
+    # Insert exit after shebang
+    exit_block = """# TODO: Complete license implementation before use.
+# This script should fail until licenses are properly configured.
+echo "Licenses are not configured. Complete license implementation before use." >&2
+exit 1\n\n"""
     # Insert after the shebang line
     if text.startswith("#!"):
         first_newline = text.index("\n")
-        text = text[: first_newline + 1] + warning + text[first_newline + 1 :]
+        text = text[: first_newline + 1] + exit_block + text[first_newline + 1 :]
     licenses_sh.write_text(text)
 
 
-def set_entry_pod(path: Path) -> None:
-    """Write entry_pod.sh."""
-    entry = path / "bin" / "deploy" / "entry_pod.sh"
+def set_entry_prod(path: Path, /) -> None:
+    """Write entry_prod.sh."""
+    entry = path / "bin" / "deploy" / "entry_prod.sh"
     entry.parent.mkdir(parents=True, exist_ok=True)
     entry.write_text("#!/bin/bash\n\nset -euo pipefail\n\nsleep infinity\n")
 
 
-def clean_root_md(path: Path, project_name: str) -> None:
+def clean_root_md(path: Path, project_name: str, /) -> None:
     (path / "README.md").write_text(f"# {project_name}\n\n")
     (path / "CHANGELOG.md").write_text("")
     (path / "uv.lock").unlink(True)
@@ -157,7 +131,12 @@ def clean_root_md(path: Path, project_name: str) -> None:
 
 
 def correct_core_project(
-    path: Path, project_name: str, package_name: str, dep_name: str, description: str
+    path: Path,
+    project_name: str,
+    package_name: str,
+    dep_name: str,
+    description: str,
+    /,
 ) -> None:
     update_pyproject_name(path / "pyproject.toml", project_name)
     update_pyproject_workspace(path / "pyproject.toml", package_name)
