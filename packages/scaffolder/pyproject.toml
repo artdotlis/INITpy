@@ -19,7 +19,7 @@ dependencies = [
 ]
 
 [project.scripts]
-scaffolder = "scaffolder.main:run"
+scaffolder = "scaffolder.main:run_cli"
 
 [tool.setuptools.packages.find]
 where = ["src"]
