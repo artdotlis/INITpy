@@ -43,8 +43,8 @@ def run(
     Path
         Path to the created project directory.
     """
-    package_name = sanitize_package_name(project_name)
-    dep_name = sanitize_package_name_dep_group(project_name)
+    package_name = f"{sanitize_package_name(project_name)}_pkg"
+    dep_name = sanitize_package_name_dep_group(package_name)
     output_path = Path(output_dir) / project_name
 
     # clone INITpy

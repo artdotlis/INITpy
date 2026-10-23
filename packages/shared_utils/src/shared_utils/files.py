@@ -114,13 +114,10 @@ def update_pyproject_workspace(
     /,
 ) -> None:
     doc = tomlkit.parse(path.read_text())
-    tool = "tool.uv.sources"
-    doc[tool] = {package_name: {"workspace": True}}
+    sources = doc.setdefault("tool", tomlkit.table()).setdefault("uv", tomlkit.table())
+    sources["sources"] = {package_name: {"workspace": True}}
     path.write_text(tomlkit.dumps(doc))
     doc = tomlkit.parse(path.read_text())
-    tool = "tool.uv.sources"
-    doc[tool] = {package_name: {"workspace": True}}
-    path.write_text(tomlkit.dumps(doc))
 
 
 def update_pyproject_dep_groups(
@@ -129,10 +126,9 @@ def update_pyproject_dep_groups(
     /,
 ) -> None:
     doc = tomlkit.parse(path.read_text())
-    group = "dependency-groups"
-    if group not in doc:
-        doc[group] = {}
-    doc[group]["mono"] = [package_name]
+    if "dependency-groups" not in doc:
+        doc["dependency-groups"] = {}
+    doc["dependency-groups"]["mono"] = [package_name]
     path.write_text(tomlkit.dumps(doc))
 
 
@@ -151,10 +147,12 @@ def update_pyproject_path(
     /,
 ) -> None:
     doc = tomlkit.parse(path.read_text())
-    tool = "tool.setuptools.packages.find"
-    if tool not in doc:
-        doc[tool] = {}
-    doc[tool]["include"] = [package_name]
+    packages = (
+        doc.setdefault("tool", tomlkit.table())
+        .setdefault("setuptools", tomlkit.table())
+        .setdefault("packages", tomlkit.table())
+    )
+    packages["find"]["include"] = [package_name]
     path.write_text(tomlkit.dumps(doc))
 
 
