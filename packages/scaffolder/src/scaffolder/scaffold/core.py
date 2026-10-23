@@ -36,7 +36,7 @@ def run(
     description: str,
     /,
 ) -> Path:
-    """Execute the 19-step scaffold procedure.
+    """Execute the multi step scaffold procedure.
 
     Returns:
     -------
