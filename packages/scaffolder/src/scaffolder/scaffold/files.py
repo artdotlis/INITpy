@@ -36,7 +36,7 @@ def write_package_files(path: Path, package_name: str, /) -> None:
 
     # template unit test with TODO
     tests = pkg_dir / "tests" / "unit"
-    tests.mkdir(exist_ok=True)
+    tests.mkdir(parents=True, exist_ok=True)
     (tests / f"test_{package_name}.py").write_text(
         """
 def test_placeholder() -> None:

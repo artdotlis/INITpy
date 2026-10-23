@@ -67,7 +67,7 @@ def run_cli() -> None:
         print(f"\n✅ '{project_name}' → {result.absolute()}")
     except Exception as exc:
         print(f"❌ {exc}", file=sys.stderr)
-        sys.exit(1)
+        raise
 
 
 if __name__ == "__main__":

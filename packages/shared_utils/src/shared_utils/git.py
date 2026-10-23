@@ -15,7 +15,9 @@ def clone_git(path: Path, template_url: str, /) -> None:
         shutil.rmtree(path)
 
     subprocess.run(
-        ["git", "clone", template_url, str(path)], check=True, capture_output=True
+        ["git", "clone", "--branch", "dev", template_url, str(path)],
+        check=True,
+        capture_output=True,
     )
 
 

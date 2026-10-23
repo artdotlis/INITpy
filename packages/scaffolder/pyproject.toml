@@ -13,7 +13,7 @@ authors = [
 ]
 requires-python = ">=3.13,<4"
 dependencies = [
-    "shared_utils",
+  "shared_utils",
   "reuse ==6.2.0",
   "tomlkit ==0.15.1"
 ]

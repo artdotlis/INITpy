@@ -78,8 +78,8 @@ def update_pyproject_authors(path: Path, author_name: str, author_email: str, /)
         author_email: New author email
     """
     doc = tomlkit.parse(path.read_text())
-    if "project" in doc and "authors" in doc["project"]:
-        del doc["project"]["authors"]
+    if "project" not in doc:
+        doc["project"] = {}
     doc["project"]["authors"] = [{"name": author_name, "email": author_email}]
     path.write_text(tomlkit.dumps(doc))
 
@@ -90,8 +90,8 @@ def update_pyproject_name(
     /,
 ) -> None:
     doc = tomlkit.parse(path.read_text())
-    if "project" in doc and "name" in doc["project"]:
-        del doc["project"]["name"]
+    if "project" not in doc:
+        doc["project"] = {}
     doc["project"]["name"] = name
     path.write_text(tomlkit.dumps(doc))
 
@@ -102,8 +102,8 @@ def update_pyproject_description(
     /,
 ) -> None:
     doc = tomlkit.parse(path.read_text())
-    if "project" in doc and "description" in doc["project"]:
-        del doc["project"]["description"]
+    if "project" not in doc:
+        doc["project"] = {}
     doc["project"]["description"] = desc
     path.write_text(tomlkit.dumps(doc))
 
@@ -115,14 +115,10 @@ def update_pyproject_workspace(
 ) -> None:
     doc = tomlkit.parse(path.read_text())
     tool = "tool.uv.sources"
-    if tool in doc:
-        del doc[tool]
     doc[tool] = {package_name: {"workspace": True}}
     path.write_text(tomlkit.dumps(doc))
     doc = tomlkit.parse(path.read_text())
     tool = "tool.uv.sources"
-    if tool in doc:
-        del doc[tool]
     doc[tool] = {package_name: {"workspace": True}}
     path.write_text(tomlkit.dumps(doc))
 
@@ -134,17 +130,17 @@ def update_pyproject_dep_groups(
 ) -> None:
     doc = tomlkit.parse(path.read_text())
     group = "dependency-groups"
-    if group in doc and "mono" in doc[group]:
-        del doc[group]["mono"]
+    if group not in doc:
+        doc[group] = {}
     doc[group]["mono"] = [package_name]
     path.write_text(tomlkit.dumps(doc))
 
 
 def clean_pyproject_dependencies(path: Path, /) -> None:
     doc = tomlkit.parse(path.read_text())
-    if "project" in doc and "dependencies" in doc["project"]:
-        del doc["project"]["dependencies"]
     dep: list[str] = []
+    if "project" not in doc:
+        doc["project"] = {}
     doc["project"]["dependencies"] = dep
     path.write_text(tomlkit.dumps(doc))
 
@@ -156,8 +152,8 @@ def update_pyproject_path(
 ) -> None:
     doc = tomlkit.parse(path.read_text())
     tool = "tool.setuptools.packages.find"
-    if tool in doc and "include" in doc[tool]:
-        del doc[tool]["include"]
+    if tool not in doc:
+        doc[tool] = {}
     doc[tool]["include"] = [package_name]
     path.write_text(tomlkit.dumps(doc))
 
@@ -171,16 +167,12 @@ def update_package_authors(path: Path, author_name: str, author_email: str, /) -
         author_email: New author email
     """
     data = json.loads(path.read_text())
-    if "author" in data:
-        del data["authors"]
     data["author"] = {"email": author_email, "name": author_name}
     path.write_text(json.dumps(data, indent=2) + "\n")
 
 
 def update_package_devcon_name(path: Path, name: str, /) -> None:
     data = json.loads(path.read_text())
-    if "name" in data:
-        del data["name"]
     data["name"] = name
     path.write_text(json.dumps(data, indent=2) + "\n")
 
@@ -206,14 +198,17 @@ def clear_licenses_dir(path: Path, /) -> None:
                 file.unlink()
 
 
-def write_license(path: Path, license_name: str, /) -> None:
+def _write_license(path: Path, license_name: str, /) -> None:
     """Download and write the SPDX license text to the LICENSE file."""
+    path.unlink()
     put_license_in_file(license_name, path)
 
 
 def set_license_pyproject(path: Path, license_name: str, /) -> None:
     """Set the license field in pyproject.toml."""
     doc = tomlkit.parse(path.read_text())
+    if "project" not in doc:
+        doc["project"] = {}
     doc["project"]["license"] = license_name
     path.write_text(tomlkit.dumps(doc))
 
@@ -229,7 +224,7 @@ def configure_licenses(path: Path, license_name: str, /) -> None:
     """Clear LICENSES/, download LICENSE, and set license in pyproject.toml and package.json."""
     _validate_license(license_name)
     clear_licenses_dir(path)
-    write_license(path / "LICENSE", license_name)
+    _write_license(path / "LICENSE", license_name)
     set_license_pyproject(path / "pyproject.toml", license_name)
     set_license_package_json(path / "package.json", license_name)
 
