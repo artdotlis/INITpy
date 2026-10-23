@@ -9,9 +9,9 @@ ARG BIN_DEPLOY_REQ
 ARG CONTAINER="container"
 ARG NODE_VERSION
 
-COPY . /tmp/app
+COPY . /app
 
-WORKDIR /tmp/app
+WORKDIR /app
 
 RUN dnf clean all && dnf install -y bash
 RUN bash "./${BIN_DEPLOY_PREP}" && bash "./${BIN_DEPLOY_REQ}"
@@ -46,18 +46,18 @@ COPY ./${BIN_DEPLOY_PREP} /prep.sh
 COPY ./${BIN_DEPLOY_REQ} /req.sh
 COPY ./${BIN_DEPLOY_USER} /user.sh
 
-COPY --from=appbuilder /tmp/app/dist /tmp/build
+COPY --from=appbuilder /app/dist /build
 COPY ./${BIN_DEPLOY_ENTRY_PROD} /entry.sh
 COPY ./${BIN_DEPLOY_HEALTH} /health.sh
 
-WORKDIR /tmp/build
+WORKDIR /build
 RUN bash /prep.sh && rm /prep.sh
 RUN bash /req.sh && rm /req.sh
 RUN bash /user.sh && rm /user.sh
 
 HEALTHCHECK --interval=5m --timeout=3s CMD /health.sh
 
-RUN chown ${USERNAME}:${USERNAME} -R /tmp/build
+RUN chown ${USERNAME}:${USERNAME} -R /build
 
 USER ${USERNAME}
 
@@ -66,7 +66,7 @@ RUN pip install --no-cache-dir scaffolder*.whl
 
 WORKDIR ${HOME_MAIN}
 
-RUN rm -rf  /tmp/build
+RUN rm -rf  /build
 
 ENV PATH="${HOME_MAIN}/.local/bin:${PATH}"
 

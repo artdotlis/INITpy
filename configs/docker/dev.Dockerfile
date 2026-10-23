@@ -20,9 +20,9 @@ ARG BIN_DEPLOY_REQ
 ARG BIN_DEPLOY_USER
 ARG BIN_DEPLOY_ENTRY_DEV
 
-COPY . /tmp/app
+COPY . /app
 
-WORKDIR /tmp/app
+WORKDIR /app
 
 COPY ./${BIN_DEPLOY_ENTRY_DEV} /entry_dev.sh
 
@@ -31,7 +31,7 @@ RUN bash "./${BIN_DEPLOY_PREP}" && bash "./${BIN_DEPLOY_REQ}" && bash "./${BIN_D
 
 WORKDIR /
 
-RUN rm -rf /tmp/app
+RUN rm -rf /app
 
 RUN mkdir -p ${WORK_DIR} && \
     chown ${USERNAME}:${USERNAME} -R ${WORK_DIR}
