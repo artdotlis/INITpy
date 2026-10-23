@@ -4,7 +4,7 @@
 
 """Core scaffold orchestration and CLI."""
 
-from packages.shared_utils.src.shared_utils.make import lock_project
+from shared_utils.make import lock_project
 from shared_utils.files import strip_spdx_headers
 from shared_utils.names import sanitize_package_name_dep_group
 from scaffolder.scaffold.files import correct_core_project
