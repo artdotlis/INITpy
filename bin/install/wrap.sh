@@ -14,6 +14,7 @@ if [[ ! -f "$ENV_MK" ]]; then
     "./create_env_mk.sh" "$ROOT/package.env" > "$ENV_MK" 2>/dev/null || true
 fi
 
+set -a
 source "$ROOT/bin/install/load_env_mk.sh"
 
 # Activate Python virtual environment if present
@@ -43,11 +44,13 @@ for arg in "$@"; do
   fi
 done
 
-if [[ "$found_sep" == "false" ]]; then
-  "${cmd[@]}"
+if [[ "$found_sep" == false ]]; then
+  eval "${cmd[@]}"
 else
   if [[ "${#files[@]}" -eq 0 ]]; then
     exit 0
   fi
-  "${cmd[@]}" "${files[@]}"
+  eval "${cmd[@]}" "${files[@]}"
 fi
+
+set +a

@@ -42,6 +42,7 @@ norecursedirs = ["__pycache__", ".pytest_cache"]
 [tool.coverage.run]
 source = ["scaffolder"]
 omit = ["tests/*"]
+data_file = ".coverage.scaffolder"
 
 [tool.coverage.report]
 show_missing = true

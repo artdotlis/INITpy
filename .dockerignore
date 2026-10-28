@@ -20,7 +20,7 @@
 !uv.lock
 
 # Packages specific
-.coverage
+.coverage.*
 .pytest_cache
 
 node_modules

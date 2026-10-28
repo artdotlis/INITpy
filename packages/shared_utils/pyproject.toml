@@ -33,6 +33,7 @@ norecursedirs = ["__pycache__", ".pytest_cache"]
 [tool.coverage.run]
 source = ["shared_utils"]
 omit = ["tests/*"]
+data_file = ".coverage.shared_utils"
 
 [tool.coverage.report]
 show_missing = true

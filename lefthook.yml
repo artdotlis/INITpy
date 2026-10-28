@@ -14,7 +14,7 @@ pre-commit:
         piped: true
         jobs:
           - name: license
-            run: bin/install/wrap.sh bash $BIN_RUN_LICENSE_LINT
+            run: bin/install/wrap.sh bash '$BIN_RUN_LICENSE_LINT'
             stage_fixed: true
             skip: false
     - name: check
@@ -22,9 +22,9 @@ pre-commit:
         parallel: true
         jobs:
           - name: env
-            run: bin/install/wrap.sh bash $BIN_RUN_ENV_LINT
+            run: bin/install/wrap.sh bash '$BIN_RUN_ENV_LINT'
           - name: lfs
-            run: bin/install/wrap.sh bash $BIN_RUN_LFS_LINT
+            run: bin/install/wrap.sh bash '$BIN_RUN_LFS_LINT'
           - name: pyrefly
             glob: "packages/**/*.py"
             run: bin/install/wrap.sh pyrefly check -- {staged_files}
@@ -32,7 +32,7 @@ pre-commit:
             run: bin/install/wrap.sh vulture
           - name: shellcheck
             glob: "*.sh"
-            run: bin/install/wrap.sh shellcheck --rcfile=$CONFIG_SHELL -- {staged_files}
+            run: bin/install/wrap.sh shellcheck --rcfile='$CONFIG_SHELL' -- {staged_files}
           - name: codespell
             glob: "*.py"
             run: bin/install/wrap.sh codespell -- {staged_files}
@@ -129,6 +129,6 @@ tests:
   parallel: true
   jobs:
     - name: scaffolder
-      run: bin/install/wrap.sh cd $PKG_SHAR && coverage run -m pytest
+      run: bin/install/wrap.sh 'cd $PKG_SHAR && coverage run -m pytest'
     - name: shared-utils
-      run: bin/install/wrap.sh cd $PKG_SCAF && coverage run -m pytest
+      run: bin/install/wrap.sh 'cd $PKG_SCAF && coverage run -m pytest'

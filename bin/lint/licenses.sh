@@ -6,6 +6,7 @@
 
 set -euo pipefail
 ROOT="$(dirname "$(realpath "$0")")/../.."
+set -a
 source "$ROOT/package.env" || { echo "Failed to source $ROOT/package.env"; exit 1; }
 
 while IFS= read -r -d '' license || [[ -n "$license" ]]; do
@@ -197,3 +198,5 @@ fi
 if [ "${DISABLE_GIT_ADD:-0}" != "1" ]; then
     git -C "$ROOT" add .
 fi
+
+set +a
