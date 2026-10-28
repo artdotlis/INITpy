@@ -45,11 +45,13 @@ for arg in "$@"; do
 done
 
 if [[ "$found_sep" == false ]]; then
+  # shellcheck disable=SC2294
   eval "${cmd[@]}"
 else
   if [[ "${#files[@]}" -eq 0 ]]; then
     exit 0
   fi
+  # shellcheck disable=SC2294
   eval "${cmd[@]}" "${files[@]}"
 fi
 
