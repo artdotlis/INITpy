@@ -65,6 +65,7 @@ load_env_file() {
 if [[ ! -f "$ENV_MK" ]]; then
     load_env_file "$ROOT/package.env" > "$ENV_MK" 2>/dev/null || true
     UV_INSTALL_DIR="${ENV_VARS[UV_INSTALL_DIR]:-}"
+    UV_PYTHON_BIN_DIR="${ENV_VARS[UV_PYTHON_BIN_DIR]:-}"
     PNPM_HOME="${ENV_VARS[PNPM_HOME]:-}"
 
     UVE="$ROOT/$UV_INSTALL_DIR/uv"
@@ -74,7 +75,7 @@ if [[ ! -f "$ENV_MK" ]]; then
     command -v pnpm &>/dev/null && PNPME="pnpm"
 
     {
-        printf 'PATH := %s:%s/%s/:%s/%s\n' "$PATH" "$ROOT" "$UV_INSTALL_DIR" "$ROOT" "$PNPM_HOME"
+        printf 'PATH := %s:%s/%s:%s/%s:%s/%s\n' "$PATH" "$ROOT" "$UV_PYTHON_BIN_DIR" "$ROOT" "$UV_INSTALL_DIR" "$ROOT" "$PNPM_HOME"
         printf 'DISABLE_GIT_ADD := %s\n' "${ENV_VARS[DISABLE_GIT_ADD]:-0}"
         printf 'PNPME := %s\n' "$PNPME"
         printf 'UVE := %s\n' "$UVE"

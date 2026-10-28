@@ -18,3 +18,11 @@
 !package.env
 !pyproject.toml
 !uv.lock
+
+# Packages specific
+.coverage
+.pytest_cache
+
+node_modules
+.pnpm
+.pnpm-store

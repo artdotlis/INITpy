@@ -63,6 +63,6 @@ from scaffolder.main import run
 
 ## 📚 Modules
 
-| Module | Description |
-|--------|-------------|
+| Module            | Description                                                                                                                     |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | `scaffolder.main` | The application's main entry point; it coordinates the work performed by `scaffolder` and pulls in helpers from `shared_utils`. |

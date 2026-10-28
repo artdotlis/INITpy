@@ -35,8 +35,8 @@ from shared_utils import init_git, update_package_imports, update_readme
 
 ### Modules
 
-| Module | Functions |
-|--------|-----------|
-| `names` | `sanitize_package_name` |
-| `git` | `clone_template`, `init_git` |
+| Module  | Functions                                 |
+| ------- | ----------------------------------------- |
+| `names` | `sanitize_package_name`                   |
+| `git`   | `clone_template`, `init_git`              |
 | `files` | `update_package_imports`, `update_readme` |

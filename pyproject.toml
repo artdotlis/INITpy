@@ -55,7 +55,7 @@ docs = [
   "zensical ==0.0.71",
   "mkdocstrings-python ==2.0.10",
 ]
-test = ["pytest ==9.1.1"]
+test = ["pytest ==9.1.1", "coverage ==7.17.0"]
 
 [tool.codespell]
 count = ''

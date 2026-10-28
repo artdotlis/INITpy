@@ -22,5 +22,5 @@ services:
         BIN_DEPLOY_ENTRY_PROD: ${BIN_DEPLOY_ENTRY_PROD}
 
 secrets:
-    env_file:
-        file: ./.env
+  env_file:
+    file: ./.env

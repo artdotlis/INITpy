@@ -19,6 +19,7 @@ def write_package_files(path: Path, package_name: str, /) -> None:
     pkg_dir = path / "packages" / package_name
     src = pkg_dir / "src" / package_name
 
+    src.mkdir(parents=True, exist_ok=True)
     # create empty files
     (src / "main.py").write_text("")
     (src / "py.typed").touch()

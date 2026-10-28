@@ -14,21 +14,20 @@ SPDX-License-Identifier: CC0-1.0
 
 [![main](https://github.com/artdotlis/INITpy/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/artdotlis/INITpy/actions/workflows/main.yml)
 
-
 **INITpy** is a minimal, opinionated project layout designed for modern Python development. It leverages `uv` for lightning-fast environment management, `tox` for testing, and `zensical` for documentation.
 
------
+---
 
 ## ✨ Key Features
 
-  * **Single-Source Truth:** Python dependencies managed via `uv` in `pyproject.toml`.
-  * **Native Monorepo Support:** Built-in logic for managing multiple packages (`scaffolder`, `shared_utils`).
-  * **Conventional Commits:** Uses `commitizen` with `vim` for editing commit messages.
-  * **Strict Consistency:** A Docker-based Dev Container ensures every contributor uses the exact same tool versions.
-  * **Robust CI/CD:** Ready-to-go workflows for testing, linting (`ruff`), and static analysis (`pyrefly`).
-  * **Documentation:** Built with `zensical` (Python) and deployed via GitHub Pages.
+- **Single-Source Truth:** Python dependencies managed via `uv` in `pyproject.toml`.
+- **Native Monorepo Support:** Built-in logic for managing multiple packages (`scaffolder`, `shared_utils`).
+- **Conventional Commits:** Uses `commitizen` with `vim` for editing commit messages.
+- **Strict Consistency:** A Docker-based Dev Container ensures every contributor uses the exact same tool versions.
+- **Robust CI/CD:** Ready-to-go workflows for testing, linting (`ruff`), and static analysis (`pyrefly`).
+- **Documentation:** Built with `zensical` (Python) and deployed via GitHub Pages.
 
------
+---
 
 ## 🚀 Quick Start
 
@@ -49,7 +48,7 @@ make dev
 make run-act
 ```
 
------
+---
 
 ## 🏗️ Project Structure
 
@@ -58,14 +57,14 @@ INITpy/
 ├-- bin/                # Tooling shell scripts
 ├-- configs/            # Tooling & Linting configurations
 ├-- packages/           # Your Python packages (Monorepo)
-│   ├-- docs/  
+│   ├-- docs/
 │   ├-- scaffolder/
 │   └-- shared_utils/
 ├-- pyproject.toml      # The heart of the project
 └-- Makefile            # Command scaffolder (requires CONTAINER=container)
 ```
 
------
+---
 
 ## 🛠️ Development Workflow
 
@@ -73,47 +72,48 @@ INITpy/
 
 All commands must be run within the Dev Container or by passing `CONTAINER=container`.
 
-| Category | Command | Action |
-| :--- | :--- | :--- |
-| **Setup** | `make dev` | Installs lefthook, syncs all dependencies |
-| **Active** | `make run-act` | Enters the virtual environment shell. |
-| **Quality** | `make run-checks` | Runs `lefthook` pre-commit hooks (includes `ruff`, `pyrefly`) |
-| **Test** | `make run-tests` | Runs the test suite via `tox`. |
-| **Docs** | `make serve-docs` | Previews documentation at `http://localhost:8000` (configurable via `.env` - `DOC_PORT`). |
-| **Release** | `make run-bump` | Bumps version and updates CHANGELOG. |
-| **Git** | `make commit`, `make com` | Generates commit message with `commitizen` or opens `vim` for editing, then commits. |
+| Category    | Command                   | Action                                                                                    |
+| :---------- | :------------------------ | :---------------------------------------------------------------------------------------- |
+| **Setup**   | `make dev`                | Installs lefthook, syncs all dependencies                                                 |
+| **Active**  | `make run-act`            | Enters the virtual environment shell.                                                     |
+| **Quality** | `make run-checks`         | Runs `lefthook` pre-commit hooks (includes `ruff`, `pyrefly`)                             |
+| **Test**    | `make run-tests`          | Runs the test suite via `tox`.                                                            |
+| **Docs**    | `make serve-docs`         | Previews documentation at `http://localhost:8000` (configurable via `.env` - `DOC_PORT`). |
+| **Release** | `make run-bump`           | Bumps version and updates CHANGELOG.                                                      |
+| **Git**     | `make commit`, `make com` | Generates commit message with `commitizen` or opens `vim` for editing, then commits.      |
 
 ### ✍️ Commit Messages
 
 The `make commit`/`make com` target:
+
 - If `.commit_msg` exists and is non-empty: opens it in `vim` for editing, then commits
 - Else: runs `cz commit --write-message-to-file` to generate a commit message, commits using that message
 
 > **Note**: The Makefile removes `.commit_msg` after committing (temp file cleanup).
 
------
+---
 
 ## 📚 Documentation
 
 The API documentation is built with **Zensical**.
 
-  - **Build:** `make run-docs`
-  - **Serve:** `make serve-docs`
-  - **Port:** Configured via `DOC_PORT` in `.env` (default: `9191`)
+- **Build:** `make run-docs`
+- **Serve:** `make serve-docs`
+- **Port:** Configured via `DOC_PORT` in `.env` (default: `9191`)
 
------
+---
 
 ## 📜 License
 
 Released into the public domain via the [Unlicense](https://choosealicense.com/licenses/unlicense/). No strings attached.
 
------
+---
 
 ### Why the `CONTAINER=container` guard?
 
 To prevent accidental execution on your host, `Makefile` uses a mandatory `CONTAINER` constraint. This safety gate ensures the code runs exclusively in the intended containerized environment.
 
------
+---
 
 > ✏️ **Note**:
 > This project uses AI tools for code generation, review, and documentation.

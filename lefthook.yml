@@ -3,20 +3,20 @@
 # SPDX-License-Identifier: CC0-1.0
 
 output:
-- summary
-- execution_info
+  - summary
+  - execution_info
 
 pre-commit:
   piped: true
   jobs:
     - name: add
       group:
-          piped: true
-          jobs:
-            - name: license
-              run: bin/install/wrap.sh bash $BIN_RUN_LICENSE_LINT
-              stage_fixed: true
-              skip: false
+        piped: true
+        jobs:
+          - name: license
+            run: bin/install/wrap.sh bash $BIN_RUN_LICENSE_LINT
+            stage_fixed: true
+            skip: false
     - name: check
       group:
         parallel: true
@@ -85,17 +85,17 @@ pre-commit:
           - name: mixed-line-ending
             run: bin/install/wrap.sh mixed-line-ending -f auto -- {staged_files} || true
             exclude:
-              - '**/*.{png,jpg,jpeg,gif,svg,webp,ico}'
+              - "**/*.{png,jpg,jpeg,gif,svg,webp,ico}"
             stage_fixed: true
           - name: trailing-whitespace
             run: bin/install/wrap.sh trailing-whitespace-fixer --markdown-linebreak-ext=md -- {staged_files} || true
             exclude:
-              - '**/*.{png,jpg,jpeg,gif,svg,webp,ico}'
+              - "**/*.{png,jpg,jpeg,gif,svg,webp,ico}"
             stage_fixed: true
           - name: end-of-file
             run: bin/install/wrap.sh end-of-file-fixer -- {staged_files} || true
             exclude:
-              - '**/*.{png,jpg,jpeg,gif,svg,webp,ico}'
+              - "**/*.{png,jpg,jpeg,gif,svg,webp,ico}"
             stage_fixed: true
           - name: fix-all-addable-files
             env:
@@ -129,6 +129,6 @@ tests:
   parallel: true
   jobs:
     - name: scaffolder
-      run: bin/install/wrap.sh cd $PKG_SHAR && pytest
+      run: bin/install/wrap.sh cd $PKG_SHAR && coverage run -m pytest
     - name: shared-utils
-      run: bin/install/wrap.sh cd $PKG_SCAF && pytest
+      run: bin/install/wrap.sh cd $PKG_SCAF && coverage run -m pytest

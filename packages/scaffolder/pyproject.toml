@@ -26,7 +26,7 @@ where = ["src"]
 include = ["scaffolder"]
 
 [build-system]
-requires = ["uv_build>=0.11.26,<0.12.0"]
+requires = ["uv_build>=0.11.26,<0.14.0"]
 build-backend = "uv_build"
 
 [tool.uv.sources]
@@ -34,3 +34,16 @@ shared_utils = {  workspace = true }
 
 [tool.uv]
 package = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+norecursedirs = ["__pycache__", ".pytest_cache"]
+
+[tool.coverage.run]
+source = ["scaffolder"]
+omit = ["tests/*"]
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
+fail_under = 90
