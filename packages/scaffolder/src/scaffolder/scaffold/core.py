@@ -25,6 +25,7 @@ from scaffolder.scaffold.files import (
     update_envs,
     update_licenses_sh,
     set_version,
+    update_tests,
 )
 
 
@@ -65,6 +66,9 @@ def run(
 
     # update env vars
     update_envs(output_path, package_name)
+
+    # single package test wiring in lefthook + CI
+    update_tests(output_path, package_name)
 
     # clean root README and CHANGELOG
     clean_root_md(output_path, project_name)

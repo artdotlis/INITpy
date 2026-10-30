@@ -76,7 +76,6 @@ if [[ ! -f "$ENV_MK" ]]; then
 
     {
         printf 'PATH := %s:%s/%s:%s/%s:%s/%s\n' "$PATH" "$ROOT" "$UV_PYTHON_BIN_DIR" "$ROOT" "$UV_INSTALL_DIR" "$ROOT" "$PNPM_HOME"
-        printf 'DISABLE_GIT_ADD := %s\n' "${ENV_VARS[DISABLE_GIT_ADD]:-0}"
         printf 'PNPME := %s\n' "$PNPME"
         printf 'UVE := %s\n' "$UVE"
         printf 'SHELL := /bin/bash\n'

@@ -13,6 +13,10 @@ ROOT_MAKEFILE := $(abspath $(patsubst %/, %, $(dir $(abspath $(lastword $(MAKEFI
 $(shell $(ROOT_MAKEFILE)/bin/install/create_env_mk.sh 2>/dev/null || true)
 -include .env.mk
 
+# Default to 0 if not set in .env.mk or environment
+DISABLE_GIT_ADD ?= 0
+export DISABLE_GIT_ADD
+
 dev: setup-uv setup-pnpm
 	$(UVE) sync --frozen --all-groups
 	$(PNPME) install --frozen-lockfile
@@ -47,7 +51,11 @@ run-act:
 	bash --init-file /tmp/$(RAN)
 
 run-checks:
-	$(UVE) run lefthook run pre-commit --all-files -f
+	@if [ "${DISABLE_GIT_ADD}" = "1" ]; then \
+		$(UVE) run lefthook run pre-commit --all-files -f --no-stage-fixed; \
+	else \
+		$(UVE) run lefthook run pre-commit --all-files -f; \
+	fi
 
 build-docs:
 	cd $(ROOT_MAKEFILE)/$(PKG_DOCS) && $(PNPME) run build

@@ -30,3 +30,15 @@ def sanitize_package_name_dep_group(name: str, /) -> str:
     if sanitized and sanitized[0].isdigit():
         sanitized = "-" + sanitized
     return sanitized or "project"
+
+
+def package_abbrev(package_name: str, /) -> str:
+    return package_name.upper()[0:3]
+
+
+def package_env_var(package_name: str, /) -> str:
+    return f"PKG_{package_abbrev(package_name)}"
+
+
+def package_env_file(package_name: str, /) -> str:
+    return f"{package_abbrev(package_name)}_ENV"

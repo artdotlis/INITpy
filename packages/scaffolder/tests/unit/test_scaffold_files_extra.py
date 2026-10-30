@@ -17,6 +17,7 @@ from scaffolder.scaffold.files import (
     set_version,
     update_envs,
     update_licenses_sh,
+    update_tests,
 )
 from shared_utils.constants import VERSION
 
@@ -82,6 +83,63 @@ class TestUpdateEnvs:
         update_envs(tmp_path, "my_pkg")
         assert "$SCAF_ENV" not in lint_env.read_text()
         assert "MY__ENV" in lint_env.read_text()
+
+
+class TestUpdateTests:
+    LEFTHOOK = """\
+tests:
+  parallel: true
+  jobs:
+    - name: scaffolder
+      run: bin/install/wrap.sh 'cd $PKG_SHAR && coverage run -m pytest'
+    - name: shared-utils
+      run: bin/install/wrap.sh 'cd $PKG_SCAF && coverage run -m pytest'
+"""
+
+    MAIN = """\
+name: main
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Run shared_utils tests
+        working-directory: packages/shared_utils
+        run: uv run coverage run -m pytest
+      - name: Run scaffolder tests
+        working-directory: packages/scaffolder
+        run: uv run coverage run -m pytest
+"""
+
+    def _write(self, tmp_path: Path) -> None:
+        (tmp_path / "lefthook.yml").write_text(self.LEFTHOOK)
+        main = tmp_path / ".github" / "workflows" / "main.yml"
+        main.parent.mkdir(parents=True)
+        main.write_text(self.MAIN)
+
+    def test_collapses_lefthook_tests(self, tmp_path: Path) -> None:
+        self._write(tmp_path)
+        update_tests(tmp_path, "my_pkg")
+        content = tmp_path.joinpath("lefthook.yml").read_text()
+        assert "$PKG_SHAR" not in content
+        assert "$PKG_SCAF" not in content
+        assert "- name: my_pkg" in content
+        assert "cd $PKG_MY_ && coverage run -m pytest" in content
+
+    def test_collapses_ci_tests(self, tmp_path: Path) -> None:
+        self._write(tmp_path)
+        update_tests(tmp_path, "my_pkg")
+        content = tmp_path.joinpath(".github", "workflows", "main.yml").read_text()
+        assert "packages/shared_utils" not in content
+        assert "packages/scaffolder" not in content
+        assert "- name: Run my_pkg tests" in content
+        assert "working-directory: packages/my_pkg" in content
 
 
 class TestSetVersion:

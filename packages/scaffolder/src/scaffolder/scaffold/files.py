@@ -5,11 +5,14 @@
 """File transformation functions for scaffolding."""
 
 import tomlkit
+from ruamel.yaml import YAML
 from shared_utils.files import update_pyproject_dep_groups
 from shared_utils.files import update_pyproject_workspace
 from shared_utils.files import update_pyproject_description
 from shared_utils.files import update_package_devcon_name
 from shared_utils.files import update_pyproject_name
+from shared_utils.names import package_env_file
+from shared_utils.names import package_env_var
 from pathlib import Path
 from shared_utils.constants import VERSION
 
@@ -75,19 +78,71 @@ def update_envs(path: Path, package_name: str, /) -> None:
     """Update PKG_SCAF / PKG_SHAR in env files."""
     package_env = path / "package.env"
     content = package_env.read_text()
-    abr = package_name.upper()[0:3]
     content = content.replace(
-        "PKG_SCAF=packages/scaffolder", f"PKG_{abr}=packages/{package_name}"
+        "PKG_SCAF=packages/scaffolder",
+        f"{package_env_var(package_name)}=packages/{package_name}",
     )
     content = content.replace("PKG_SHAR=packages/shared_utils", "")
     content = content.replace(
-        "SCAF_ENV=packages/scaffolder/.env", f"{abr}_ENV=packages/{package_name}"
+        "SCAF_ENV=packages/scaffolder/.env",
+        f"{package_env_file(package_name)}=packages/{package_name}",
     )
     package_env.write_text(content)
     lint_env = path / "bin" / "lint" / "lint_env.sh"
     content = lint_env.read_text()
-    content = content.replace("$SCAF_ENV", f"{abr}_ENV")
+    content = content.replace("$SCAF_ENV", package_env_file(package_name))
     lint_env.write_text(content)
+
+
+def _round_trip_yaml() -> YAML:
+    yaml = YAML()
+    yaml.preserve_quotes = True  # noqa: Vulture
+    yaml.indent(mapping=2, sequence=4, offset=2)
+    yaml.width = 2**31  # noqa: Vulture
+    return yaml
+
+
+def update_tests(path: Path, package_name: str, /) -> None:
+    _update_lefthook_tests(path, package_name)
+    _update_ci_tests(path, package_name)
+
+
+def _update_lefthook_tests(path: Path, package_name: str, /) -> None:
+    """Replace lefthook.yml test jobs with the single scaffolded package."""
+    abbr = package_env_var(package_name)
+    run_cmd = f"bin/install/wrap.sh 'cd ${abbr} && coverage run -m pytest'"
+    lefthook = path / "lefthook.yml"
+    yaml = _round_trip_yaml()
+    doc = yaml.load(lefthook.read_text())
+    doc["tests"]["jobs"] = [{"name": package_name, "run": run_cmd}]
+    with lefthook.open("w") as stream:
+        yaml.dump(doc, stream)
+
+
+def _update_ci_tests(path: Path, package_name: str, /) -> None:
+    """Collapse CI test steps to the single scaffolded package."""
+    main = path / ".github" / "workflows" / "main.yml"
+    yaml = _round_trip_yaml()
+    doc = yaml.load(main.read_text())
+    for job in doc.get("jobs", {}).values():
+        steps = job.get("steps")
+        if not isinstance(steps, list):
+            continue
+        # Drop any step that runs pytest (from a prior scaffold)
+        steps[:] = [
+            step
+            for step in steps
+            if isinstance(step, dict) and "pytest" not in step.get("run", "")
+        ]
+        steps.append(
+            {
+                "name": f"Run {package_name} tests",
+                "working-directory": f"packages/{package_name}",
+                "run": "uv run coverage run -m pytest",
+            }
+        )
+    with main.open("w") as stream:
+        yaml.dump(doc, stream)
 
 
 def set_version(path: Path, /) -> None:
