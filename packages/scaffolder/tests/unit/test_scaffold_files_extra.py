@@ -4,19 +4,21 @@
 
 """Unit tests for scaffolder.scaffold.files (remaining functions)."""
 
-from pathlib import Path
-import tomlkit
 import json
+from pathlib import Path
 
+import pytest
+import tomlkit
 from scaffolder.scaffold.files import (
     amend_docs,
-    update_envs,
-    set_version,
-    update_licenses_sh,
-    set_entry_prod,
     clean_root_md,
     correct_core_project,
+    set_entry_prod,
+    set_version,
+    update_envs,
+    update_licenses_sh,
 )
+from shared_utils.constants import VERSION
 
 
 class TestAmendDocs:
@@ -85,7 +87,6 @@ class TestUpdateEnvs:
 class TestSetVersion:
     def test_replaces_version_in_pyproject(self, tmp_path: Path) -> None:
         p = tmp_path / "pyproject.toml"
-        from shared_utils.constants import VERSION
 
         p.write_text(f'[project]\nversion = "{VERSION}"\n')
         set_version(tmp_path)
@@ -94,7 +95,6 @@ class TestSetVersion:
 
     def test_replaces_version_in_package_json(self, tmp_path: Path) -> None:
         p = tmp_path / "package.json"
-        from shared_utils.constants import VERSION
 
         p.write_text(f'{{"version": "{VERSION}"}}\n')
         set_version(tmp_path)
@@ -112,8 +112,6 @@ class TestUpdateLicensesSh:
         assert content.startswith("#!/bin/bash")
 
     def test_raises_when_file_missing(self, tmp_path: Path) -> None:
-        import pytest
-
         with pytest.raises(FileNotFoundError):
             update_licenses_sh(tmp_path)
 

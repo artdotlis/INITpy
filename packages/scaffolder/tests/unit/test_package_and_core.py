@@ -6,6 +6,7 @@
 
 from pathlib import Path
 
+import tomlkit
 from scaffolder.scaffold.package import create_package
 
 
@@ -21,16 +22,12 @@ class TestCreatePackage:
     def test_creates_pyproject_with_correct_name(self, tmp_path: Path) -> None:
         create_package(tmp_path, "my_pkg", "A package")
         pyproject = tmp_path / "packages" / "my_pkg" / "pyproject.toml"
-        import tomlkit
-
         doc = tomlkit.parse(pyproject.read_text())
         assert doc["project"]["name"] == "my_pkg"
 
     def test_updates_pyproject_description(self, tmp_path: Path) -> None:
         create_package(tmp_path, "my_pkg", "A package desc")
         pyproject = tmp_path / "packages" / "my_pkg" / "pyproject.toml"
-        import tomlkit
-
         doc = tomlkit.parse(pyproject.read_text())
         assert doc["project"]["description"] == "A package desc"
 
@@ -52,15 +49,11 @@ class TestCreatePackage:
     def test_cleans_pyproject_dependencies(self, tmp_path: Path) -> None:
         create_package(tmp_path, "my_pkg", "A package")
         pyproject = tmp_path / "packages" / "my_pkg" / "pyproject.toml"
-        import tomlkit
-
         doc = tomlkit.parse(pyproject.read_text())
         assert doc["project"]["dependencies"] == []
 
     def test_updates_pyproject_path(self, tmp_path: Path) -> None:
         create_package(tmp_path, "my_pkg", "A package")
         pyproject = tmp_path / "packages" / "my_pkg" / "pyproject.toml"
-        import tomlkit
-
         doc = tomlkit.parse(pyproject.read_text())
         assert doc["tool"]["setuptools"]["packages"]["find"]["include"] == ["my_pkg"]

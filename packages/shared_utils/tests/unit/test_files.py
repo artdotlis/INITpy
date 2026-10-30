@@ -4,42 +4,41 @@
 
 """Unit tests for shared_utils.files."""
 
+import json
 from pathlib import Path
 from unittest.mock import patch
-import tomlkit
 
+import pytest
+import tomlkit
+from reuse.comment import PythonCommentStyle
 from shared_utils.files import (
     _find_spdx_block,
-    strip_spdx_headers,
-    update_pyproject_authors,
-    update_pyproject_name,
-    update_pyproject_description,
-    update_pyproject_workspace,
-    update_pyproject_dep_groups,
+    _validate_license,
+    _write_license,
     clean_pyproject_dependencies,
-    update_pyproject_path,
+    clear_licenses_dir,
+    configure_licenses,
+    replace_authors,
+    set_license_package_json,
+    set_license_pyproject,
+    strip_spdx_headers,
     update_package_authors,
     update_package_devcon_name,
-    replace_authors,
-    clear_licenses_dir,
-    _write_license,
-    set_license_pyproject,
-    set_license_package_json,
-    configure_licenses,
-    _validate_license,
+    update_pyproject_authors,
+    update_pyproject_dep_groups,
+    update_pyproject_description,
+    update_pyproject_name,
+    update_pyproject_path,
+    update_pyproject_workspace,
 )
 
 
 class TestFindSpdxBlock:
     def test_returns_none_when_no_spdx(self) -> None:
-        from reuse.comment import PythonCommentStyle
-
         result = _find_spdx_block("# hello world", PythonCommentStyle)
         assert result is None
 
     def test_returns_block_when_spdx_exists(self) -> None:
-        from reuse.comment import PythonCommentStyle
-
         # REUSE-IgnoreStart
         text = "# SPDX-License-Identifier: MIT"
         # REUSE-IgnoreEnd
@@ -50,8 +49,6 @@ class TestFindSpdxBlock:
         assert "SPDX" in block
 
     def test_skips_lines_without_spdx(self) -> None:
-        from reuse.comment import PythonCommentStyle
-
         # REUSE-IgnoreStart
         text = "# no spdx\n# SPDX-License-Identifier: CC0-1.0"
         # REUSE-IgnoreEnd
@@ -61,15 +58,11 @@ class TestFindSpdxBlock:
         assert "SPDX" in block
 
     def test_iterates_when_no_spdx_found(self) -> None:
-        from reuse.comment import PythonCommentStyle
-
         text = "# line1\n# line2\n# line3\n" * 10 + "end"
         result = _find_spdx_block(text, PythonCommentStyle)
         assert result is None
 
     def test_handles_first_line_only(self) -> None:
-        from reuse.comment import PythonCommentStyle
-
         # Single line with no newline triggers the `nxt == -1` break
         text = "# no SPDX here"
         result = _find_spdx_block(text, PythonCommentStyle)
@@ -178,8 +171,6 @@ class TestUpdatePackageAuthors:
         p = tmp_path / "package.json"
         p.write_text('{"name": "x"}\n')
         update_package_authors(p, "New Name", "new@mail.com")
-        import json
-
         data = json.loads(p.read_text())
         assert data["author"] == {"email": "new@mail.com", "name": "New Name"}
 
@@ -189,8 +180,6 @@ class TestUpdatePackageDevconName:
         p = tmp_path / "package.json"
         p.write_text('{"name": "old"}\n')
         update_package_devcon_name(p, "new_name")
-        import json
-
         data = json.loads(p.read_text())
         assert data["name"] == "new_name"
 
@@ -205,8 +194,6 @@ class TestReplaceAuthors:
     def test_replaces_in_package_json(self, tmp_path: Path) -> None:
         (tmp_path / "package.json").write_text('{"name": "x"}\n')
         replace_authors(tmp_path, "a@b.com", "Name")
-        import json
-
         data = json.loads((tmp_path / "package.json").read_text())
         assert data["author"]["email"] == "a@b.com"
 
@@ -292,8 +279,6 @@ class TestSetLicensePackageJson:
         p = tmp_path / "package.json"
         p.write_text('{"name": "x"}\n')
         set_license_package_json(p, "MIT")
-        import json
-
         data = json.loads(p.read_text())
         assert data["license"] == "MIT"
 
@@ -303,8 +288,6 @@ class TestValidateLicense:
         _validate_license("MIT")  # should not raise
 
     def test_unknown_license_raises(self) -> None:
-        import pytest
-
         with pytest.raises(ValueError, match="Unknown SPDX license"):
             _validate_license("NONEXISTENT_LICENSE_XYZ")
 
@@ -341,8 +324,6 @@ class TestConfigureLicenses:
 
         pydoc = tomlkit.parse(pyproject.read_text())
         assert pydoc["project"]["license"] == "MIT"
-
-        import json
 
         pkg_data = json.loads(pkg_json.read_text())
         assert pkg_data["license"] == "MIT"
