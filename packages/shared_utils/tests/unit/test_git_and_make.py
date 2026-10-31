@@ -31,12 +31,19 @@ class TestIntiAndCommit:
         # Mock subprocess to avoid real git
         with patch("subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(returncode=0)
-            inti_and_commit(tmp_path)
+            inti_and_commit(tmp_path, "Author", "a@b.com")
             assert mock_run.call_count == 3
             args_list = [c[0][0] for c in mock_run.call_args_list]
             assert args_list[0] == ["git", "init"]
-            assert args_list[1][0] == "git"
-            assert args_list[2][0] == "git"
+            assert args_list[1] == ["git", "add", "."]
+            assert args_list[2][:5] == [
+                "git",
+                "-c",
+                "user.name=Author",
+                "-c",
+                "user.email=a@b.com",
+            ]
+            assert args_list[2][5:] == ["commit", "-m", "init", "--no-verify"]
 
 
 class TestLockProject:

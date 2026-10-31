@@ -142,7 +142,7 @@ def run(
 
     # init and commit
     print("[scaffolder] committing generated project ...")
-    inti_and_commit(output_path)
+    inti_and_commit(output_path, author_name, author_email)
 
     print(f"[scaffolder] done: {output_path}")
     return output_path

@@ -40,19 +40,32 @@ def reset_git(path: Path, /) -> None:
     shutil.rmtree(path / ".git")
 
 
-def inti_and_commit(path: Path, /) -> None:
+def inti_and_commit(path: Path, author_name: str, author_email: str, /) -> None:
     """Initialize a git repository in `path` and create the initial commit.
 
     Runs ``git init``, stages all files, and commits with the message
-    ``init`` while skipping pre-commit hooks.
+    ``init`` while skipping pre-commit hooks. A local author identity is
+    supplied so the commit works without a global git config.
 
     Args:
         path: The project directory to commit.
+        author_name: Name for the commit author.
+        author_email: Email for the commit author.
     """
     subprocess.run(["git", "init"], cwd=path, check=True, capture_output=True)
     subprocess.run(["git", "add", "."], cwd=path, check=True, capture_output=True)
     subprocess.run(
-        ["git", "commit", "-m", "init", "--no-verify"],
+        [
+            "git",
+            "-c",
+            f"user.name={author_name}",
+            "-c",
+            f"user.email={author_email}",
+            "commit",
+            "-m",
+            "init",
+            "--no-verify",
+        ],
         cwd=path,
         check=True,
         capture_output=True,
