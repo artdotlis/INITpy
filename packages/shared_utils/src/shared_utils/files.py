@@ -143,7 +143,6 @@ def update_pyproject_workspace(
     sources = doc.setdefault("tool", tomlkit.table()).setdefault("uv", tomlkit.table())
     sources["sources"] = {package_name: {"workspace": True}}
     path.write_text(tomlkit.dumps(doc))
-    doc = tomlkit.parse(path.read_text())
 
 
 def update_pyproject_dep_groups(

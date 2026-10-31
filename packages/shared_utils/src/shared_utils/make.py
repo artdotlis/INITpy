@@ -9,13 +9,13 @@ from pathlib import Path
 
 
 def lock_project(path: Path, /) -> None:
-    """Run the ``make ryn-lock`` target in `path`.
+    """Run the ``make run-lock`` target in `path`.
 
     Args:
         path: Directory containing the Makefile to run.
     """
     subprocess.run(
-        ["make", "ryn-lock"],
+        ["make", "run-lock"],
         cwd=path,
         check=True,
         capture_output=True,

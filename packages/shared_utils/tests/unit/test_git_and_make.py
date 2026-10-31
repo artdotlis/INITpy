@@ -48,7 +48,7 @@ class TestLockProject:
             mock_run.return_value = MagicMock(returncode=0)
             lock_project(Path("/tmp"))
             mock_run.assert_called_once()
-            assert mock_run.call_args[0][0] == ["make", "ryn-lock"]
+            assert mock_run.call_args[0][0] == ["make", "run-lock"]
 
 
 class TestCloneGit:
