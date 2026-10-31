@@ -31,7 +31,10 @@ FROM docker.io/almalinux:10 AS main
 ARG USERNAME=runner
 ARG USER_UID=1001
 ARG USER_GID=1001
-ARG HOME_MAIN="/home/runner"
+ENV HOME_MAIN="/home/${USERNAME}"
+ENV HOME="${HOME_MAIN}"
+ENV PATH="${HOME_MAIN}/.local/bin:${PATH}"
+ENV CONTAINER="container"
 ARG BIN_DEPLOY_ENTRY_PROD
 ARG BIN_DEPLOY_HEALTH
 ARG NODE_VERSION
@@ -57,17 +60,16 @@ RUN bash /user.sh && rm /user.sh
 
 HEALTHCHECK --interval=5m --timeout=3s CMD /health.sh
 
-RUN chown ${USERNAME}:${USERNAME} -R /build
+# stage wheels into the user's home, then drop to the user exactly once
+RUN mkdir -p "${HOME_MAIN}/wheels" && \
+    cp /build/*.whl "${HOME_MAIN}/wheels/" && \
+    chown -R "${USERNAME}:${USERNAME}" "${HOME_MAIN}" && \
+    rm -rf /build
 
 USER ${USERNAME}
 
-RUN pip install --no-cache-dir shared_utils*.whl
-RUN pip install --no-cache-dir scaffolder*.whl
+RUN pip install --no-cache-dir "${HOME_MAIN}"/wheels/*.whl && rm -rf "${HOME_MAIN}/wheels"
 
 WORKDIR ${HOME_MAIN}
-
-RUN rm -rf  /build
-
-ENV PATH="${HOME_MAIN}/.local/bin:${PATH}"
 
 ENTRYPOINT ["/bin/sh", "/entry.sh"]

@@ -1,0 +1,8 @@
+# SPDX-FileCopyrightText: 2026 Artur Lissin
+#
+# SPDX-License-Identifier: CC0-1.0
+
+# Scaffolder output lives here (SCAF_OUTPUT_DIR default). Keep this folder
+# so the deploy container can mount it without manual creation.
+*
+!.gitignore

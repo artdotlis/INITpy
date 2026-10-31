@@ -10,9 +10,9 @@ services:
       secrets:
         - env_file
       args:
-        USERNAME: devu
-        USER_UID: 1000
-        USER_GID: 1000
+        USERNAME: runner
+        USER_UID: ${USER_UID:-1000}
+        USER_GID: ${USER_GID:-1000}
         WORK_DIR: "/workspace"
         NODE_VERSION: ${NODE_VERSION}
         BIN_DEPLOY_PREP: ${BIN_DEPLOY_PREP}
@@ -20,6 +20,12 @@ services:
         BIN_DEPLOY_USER: ${BIN_DEPLOY_USER}
         BIN_DEPLOY_HEALTH: ${BIN_DEPLOY_HEALTH}
         BIN_DEPLOY_ENTRY_PROD: ${BIN_DEPLOY_ENTRY_PROD}
+    environment:
+      SCAF_OUTPUT_DIR: /scaf
+    volumes:
+      - ${SCAF_OUTPUT_DIR:-./PROJECTS}:/scaf
+    stdin_open: true
+    tty: true
 
 secrets:
   env_file:

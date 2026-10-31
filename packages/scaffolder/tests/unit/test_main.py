@@ -37,6 +37,24 @@ class TestRunCli:
             assert call_kwargs[1] == "/tmp/output"
             assert call_kwargs[4] == "MIT"
 
+    def test_scaf_output_prefix_skips_prompt(self) -> None:
+        """When SCAF_OUTPUT_DIR is set it is used as the output prefix."""
+        inputs = (
+            "test_proj\n"  # project name
+            "A description\n"  # description
+            "Test Author\n"  # author name
+            "test@example.com\n"  # author email
+            "MIT\n"  # valid license
+        )
+        with (
+            patch("builtins.input", side_effect=inputs.splitlines()),
+            patch("scaffolder.main.run") as mock_run,
+            patch.dict("os.environ", {"SCAF_OUTPUT_DIR": "/scaf"}),
+        ):
+            mock_run.return_value = Path("/scaf/test_proj")
+            run_cli()
+            assert mock_run.call_args[0][1] == "/scaf"
+
     def test_short_name_rejected(self) -> None:
         """Test that project names <3 chars are rejected."""
         inputs = (

@@ -9,8 +9,8 @@ import subprocess
 from pathlib import Path
 
 
-def clone_git(path: Path, template_url: str, /) -> None:
-    """Clone `template_url` into `path` from its ``dev`` branch.
+def clone_git(path: Path, template_url: str, ref: str = "dev", /) -> None:
+    """Clone `template_url` into `path` from the given `ref` (branch or tag).
 
     Removes `path` first if it already exists, and creates parent
     directories as needed.
@@ -18,13 +18,14 @@ def clone_git(path: Path, template_url: str, /) -> None:
     Args:
         path: Destination directory for the clone.
         template_url: Git repository URL to clone.
+        ref: Branch or tag to clone. Defaults to ``dev``.
     """
     path.mkdir(parents=True, exist_ok=True)
     if path.exists():
         shutil.rmtree(path)
 
     subprocess.run(
-        ["git", "clone", "--branch", "dev", template_url, str(path)],
+        ["git", "clone", "--branch", ref, template_url, str(path)],
         check=True,
         capture_output=True,
     )

@@ -43,12 +43,29 @@ class TestLockProject:
     """Tests for lock_project."""
 
     def test_runs_make_cmd(self) -> None:
-        """Invoke the make command that locks the project dependencies."""
-        with patch("subprocess.run") as mock_run:
+        """Run ``make run-lock`` inheriting CONTAINER from the env."""
+        with (
+            patch("subprocess.run") as mock_run,
+            patch("shared_utils.make._tools_available", return_value=True),
+            patch.dict("os.environ", {"CONTAINER": "container"}),
+        ):
             mock_run.return_value = MagicMock(returncode=0)
             lock_project(Path("/tmp"))
             mock_run.assert_called_once()
+            kwargs = mock_run.call_args.kwargs
             assert mock_run.call_args[0][0] == ["make", "run-lock"]
+            assert kwargs["env"]["CONTAINER"] == "container"
+
+    def test_runs_setup_before_lock(self) -> None:
+        """Run ``make setup`` first when uv or pnpm are missing."""
+        with (
+            patch("subprocess.run") as mock_run,
+            patch("shared_utils.make._tools_available", return_value=False),
+        ):
+            mock_run.return_value = MagicMock(returncode=0)
+            lock_project(Path("/tmp"))
+            args = [call[0][0] for call in mock_run.call_args_list]
+            assert args == [["make", "setup"], ["make", "run-lock"]]
 
 
 class TestCloneGit:

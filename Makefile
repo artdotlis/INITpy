@@ -17,7 +17,11 @@ $(shell $(ROOT_MAKEFILE)/bin/install/create_env_mk.sh 2>/dev/null || true)
 DISABLE_GIT_ADD ?= 0
 export DISABLE_GIT_ADD
 
-dev: setup-uv setup-pnpm
+setup:
+	bash $(ROOT_MAKEFILE)/$(BIN_INSTALL_UV)
+	bash $(ROOT_MAKEFILE)/$(BIN_INSTALL_PNMP)
+
+dev: setup
 	$(UVE) sync --frozen --all-groups
 	$(PNPME) install --frozen-lockfile
 	@if [ "$(DISABLE_GIT_ADD)" = "1" ]; then \
@@ -28,23 +32,17 @@ dev: setup-uv setup-pnpm
 		$(UVE) run lefthook install; \
 	fi
 
-tests: setup-uv
+tests: setup
 	$(UVE) sync --frozen --group test
 	$(PNPME) install --frozen-lockfile
 
-build: setup-uv
+build: setup
 	$(UVE) sync --frozen
 	$(PNPME) install --frozen-lockfile --prod
 
-docs: setup-uv setup-pnpm
+docs: setup
 	$(UVE) sync --frozen --group docs
 	$(PNPME) install --frozen-lockfile
-
-setup-uv:
-	bash $(ROOT_MAKEFILE)/$(BIN_INSTALL_UV)
-
-setup-pnpm:
-	bash $(ROOT_MAKEFILE)/$(BIN_INSTALL_PNMP)
 
 run-act:
 	@echo "source .venv/bin/activate; rm /tmp/$(RAN)" > /tmp/$(RAN)

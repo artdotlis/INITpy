@@ -5,6 +5,7 @@
 """Scaffolder CLI - generate INITpy-based projects."""
 
 from scaffolder.scaffold.core import run
+import os
 import random
 import sys
 
@@ -28,11 +29,15 @@ def run_cli() -> None:
             break
         print("❌ Cannot be empty", file=sys.stderr)
 
-    while True:
-        output_dir = input("Output directory: ").strip()
-        if output_dir:
-            break
-        print("❌ Cannot be empty", file=sys.stderr)
+    env_output = (os.environ.get("SCAF_OUTPUT_DIR") or "").strip()
+    if env_output:
+        output_dir = env_output
+    else:
+        while True:
+            output_dir = input("Output directory: ").strip()
+            if output_dir:
+                break
+            print("❌ Cannot be empty", file=sys.stderr)
 
     while True:
         author_name = input("Author name: ").strip()

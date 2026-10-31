@@ -28,9 +28,7 @@ def create_package(path: Path, package_name: str, description: str, /) -> None:
     pkg_dir = path / "packages" / package_name
     (pkg_dir / "src" / package_name).mkdir(parents=True, exist_ok=True)
     shutil.copy2(
-        Path(__file__).resolve().parent.parent.parent.parent.parent
-        / "shared_utils"
-        / "pyproject.toml",
+        path / "packages" / "shared_utils" / "pyproject.toml",
         pkg_dir / "pyproject.toml",
     )
     update_pyproject_name(pkg_dir / "pyproject.toml", package_name)

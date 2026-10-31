@@ -32,3 +32,20 @@ The package is built alongside the rest of the repository when you run `make run
 ## ⚙️ Usage
 
 The package exposes a console script named `scaffolder`. Its entry point is `scaffolder.main:run_cli`, which launches an interactive CLI.
+
+### Local (in the dev container)
+
+```bash
+scaffolder
+```
+
+### In the production container
+
+The root `docker-compose.yml` `deploy` service mounts `${SCAF_OUTPUT_DIR}` (default `./PROJECTS`) at `/scaf` and exposes it to the CLI as `SCAF_OUTPUT_DIR`. The CLI uses it as a fixed prefix: the output-directory prompt is skipped and the project name is appended.
+
+```bash
+docker compose up -d
+docker compose exec -it deploy scaffolder
+```
+
+Projects land at `SCAF_OUTPUT_DIR/<project-name>` (default `./PROJECTS/<project-name>`).

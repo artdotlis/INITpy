@@ -60,6 +60,7 @@ INITpy/
 │   ├-- docs/
 │   ├-- scaffolder/
 │   └-- shared_utils/
+├-- PROJECTS/           # Default scaffolder output (kept via inner .gitignore)
 ├-- pyproject.toml      # The heart of the project
 └-- Makefile            # Command scaffolder (requires CONTAINER=container)
 ```
@@ -72,16 +73,16 @@ INITpy/
 
 All commands must be run within the Dev Container or by passing `CONTAINER=container`.
 
-| Category    | Command                   | Action                                                                                    |
-| :---------- | :------------------------ | :---------------------------------------------------------------------------------------- |
-| **Setup**   | `make dev`                | Installs lefthook, syncs all dependencies                                                 |
-| **Active**  | `make run-act`            | Enters the virtual environment shell.                                                     |
-| **Build**   | `make run-build`          | Builds all packages as wheels via `uv`.                                                   |
-| **Quality** | `make run-checks`         | Runs `lefthook` pre-commit hooks (lint + static analysis)                                 |
-| **Test**    | `make run-tests`          | Runs the pytest test suite (incl. coverage) for all packages via `lefthook`.              |
-| **Docs**    | `make run-docs`, `serve-docs` | Builds or serves the `zensical` documentation.                                        |
-| **Release** | `make run-bump`           | Bumps version and updates CHANGELOG.                                                      |
-| **Git**     | `make commit`, `make com` | Generates commit message with `commitizen` or opens `vim` for editing, then commits.      |
+| Category    | Command                       | Action                                                                               |
+| :---------- | :---------------------------- | :----------------------------------------------------------------------------------- |
+| **Setup**   | `make dev`                    | Installs lefthook, syncs all dependencies                                            |
+| **Active**  | `make run-act`                | Enters the virtual environment shell.                                                |
+| **Build**   | `make run-build`              | Builds all packages as wheels via `uv`.                                              |
+| **Quality** | `make run-checks`             | Runs `lefthook` pre-commit hooks (lint + static analysis)                            |
+| **Test**    | `make run-tests`              | Runs the pytest test suite (incl. coverage) for all packages via `lefthook`.         |
+| **Docs**    | `make run-docs`, `serve-docs` | Builds or serves the `zensical` documentation.                                       |
+| **Release** | `make run-bump`               | Bumps version and updates CHANGELOG.                                                 |
+| **Git**     | `make commit`, `make com`     | Generates commit message with `commitizen` or opens `vim` for editing, then commits. |
 
 ### ✍️ Commit Messages
 
@@ -91,6 +92,24 @@ The `make commit`/`make com` target:
 - Else: runs `cz commit --write-message-to-file` to generate a commit message, commits using that message
 
 > **Note**: The Makefile removes `.commit_msg` after committing (temp file cleanup).
+
+---
+
+## 🪄 Running the Scaffolder (Production)
+
+The `deploy` service provides a **production** container with the interactive `scaffolder` CLI, and mounts a host folder at `/scaf` (exposed to the CLI as `SCAF_OUTPUT_DIR`).
+
+- **Host folder:** `SCAF_OUTPUT_DIR`, set at `docker compose up` time (default `./PROJECTS`).
+- **Mount:** `${SCAF_OUTPUT_DIR}:/scaf`; inside the container `SCAF_OUTPUT_DIR=/scaf`.
+- The CLI treats `SCAF_OUTPUT_DIR` as a fixed prefix: the output-directory prompt is skipped and the project name is appended to it.
+
+```bash
+USER_UID=$(id -u) USER_GID=$(id -g) SCAF_OUTPUT_DIR=/some/host/folder docker compose up -d
+
+docker compose exec -it deploy scaffolder
+```
+
+Projects land at `SCAF_OUTPUT_DIR/<project-name>` on the host (default `./PROJECTS/<project-name>`).
 
 ---
 

@@ -4,6 +4,7 @@
 
 """Core scaffold orchestration and CLI."""
 
+from shared_utils.constants import VERSION
 from shared_utils.make import lock_project
 from shared_utils.files import strip_spdx_headers
 from shared_utils.names import sanitize_package_name_dep_group
@@ -18,6 +19,8 @@ from shared_utils.git import reset_git
 from shared_utils.git import clone_git
 from pathlib import Path
 
+import os
+
 from shared_utils.names import sanitize_package_name
 from shared_utils.files import configure_licenses
 from scaffolder.scaffold.files import (
@@ -27,6 +30,17 @@ from scaffolder.scaffold.files import (
     set_version,
     update_tests,
 )
+
+
+def clone_ref() -> str:
+    """Return the INITpy ref to clone.
+
+    Clones the ``dev`` branch in dev mode (``SCAF_DEV`` set), otherwise
+    the tag matching this scaffolder's release.
+    """
+    if os.environ.get("SCAF_DEV"):
+        return "dev"
+    return f"v{VERSION}"
 
 
 def run(
@@ -57,9 +71,10 @@ def run(
     package_name = f"{sanitize_package_name(project_name)}_pkg"
     dep_name = sanitize_package_name_dep_group(package_name)
     output_path = Path(output_dir) / project_name
+    output_path.mkdir(parents=True, exist_ok=True)
 
-    # clone INITpy
-    clone_git(output_path, "https://github.com/artdotlis/INITpy.git")
+    # clone INITpy at the tag matching this scaffolder's release
+    clone_git(output_path, "https://github.com/artdotlis/INITpy.git", clone_ref())
 
     # reset git
     reset_git(output_path)
