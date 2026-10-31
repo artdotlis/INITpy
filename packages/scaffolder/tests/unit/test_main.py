@@ -28,6 +28,7 @@ class TestRunCli:
             patch("builtins.input", side_effect=inputs.splitlines()),
             patch("scaffolder.main.run") as mock_run,
             patch("sys.stdout", new=io.StringIO()) as mock_stdout,
+            patch.dict("os.environ", {"SCAF_OUTPUT_DIR": ""}),
         ):
             mock_run.return_value = Path("/tmp/output/test_proj")
             run_cli()
@@ -69,6 +70,7 @@ class TestRunCli:
         with (
             patch("builtins.input", side_effect=inputs.splitlines()),
             patch("scaffolder.main.run") as mock_run,
+            patch.dict("os.environ", {"SCAF_OUTPUT_DIR": ""}),
         ):
             mock_run.return_value = Path("/tmp/out/valid_name")
             run_cli()
@@ -88,6 +90,7 @@ class TestRunCli:
         with (
             patch("builtins.input", side_effect=inputs.splitlines()),
             patch("scaffolder.main.run") as mock_run,
+            patch.dict("os.environ", {"SCAF_OUTPUT_DIR": ""}),
         ):
             mock_run.return_value = Path("/tmp/out/proj")
             run_cli()
@@ -107,6 +110,7 @@ class TestRunCli:
         with (
             patch("builtins.input", side_effect=inputs.splitlines()),
             patch("scaffolder.main.run") as mock_run,
+            patch.dict("os.environ", {"SCAF_OUTPUT_DIR": ""}),
         ):
             mock_run.return_value = Path("/tmp/out/proj")
             run_cli()
@@ -126,6 +130,7 @@ class TestRunCli:
         with (
             patch("builtins.input", side_effect=inputs.splitlines()),
             patch("scaffolder.main.run") as mock_run,
+            patch.dict("os.environ", {"SCAF_OUTPUT_DIR": ""}),
         ):
             mock_run.return_value = Path("/tmp/out/proj")
             run_cli()
@@ -145,6 +150,7 @@ class TestRunCli:
         with (
             patch("builtins.input", side_effect=inputs.splitlines()),
             patch("scaffolder.main.run") as mock_run,
+            patch.dict("os.environ", {"SCAF_OUTPUT_DIR": ""}),
         ):
             mock_run.return_value = Path("/tmp/out/proj")
             run_cli()
@@ -164,6 +170,7 @@ class TestRunCli:
         with (
             patch("builtins.input", side_effect=inputs.splitlines()),
             patch("scaffolder.main.run") as mock_run,
+            patch.dict("os.environ", {"SCAF_OUTPUT_DIR": ""}),
         ):
             mock_run.return_value = Path("/tmp/out/proj")
             run_cli()
@@ -175,6 +182,7 @@ class TestRunCli:
         with (
             patch("builtins.input", side_effect=inputs.splitlines()),
             patch("scaffolder.main.run") as mock_run,
+            patch.dict("os.environ", {"SCAF_OUTPUT_DIR": ""}),
         ):
             mock_run.side_effect = RuntimeError("test error")
             try:

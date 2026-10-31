@@ -281,4 +281,3 @@ def remove_projects_output_folder(path: Path, /) -> None:
     output_path = path / "PROJECTS"
     if output_path.exists():
         shutil.rmtree(output_path) if output_path.is_dir() else output_path.unlink()
-
