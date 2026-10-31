@@ -38,11 +38,20 @@ def run(
     description: str,
     /,
 ) -> Path:
-    """Execute the multi step scaffold procedure.
+    """Execute the multi-step scaffolding procedure.
+
+    Clones the INITpy template, creates and wires a single package,
+    applies project metadata, and resets version, licenses, and git state.
+
+    Args:
+        project_name: Name of the new project.
+        output_dir: Parent directory where the project is created.
+        author_name: Name used for author fields.
+        author_email: Email used for author fields.
+        license_name: SPDX license identifier to configure.
+        description: Short description of the new project.
 
     Returns:
-    -------
-    Path
         Path to the created project directory.
     """
     package_name = f"{sanitize_package_name(project_name)}_pkg"

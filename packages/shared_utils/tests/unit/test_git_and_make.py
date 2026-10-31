@@ -12,7 +12,10 @@ from shared_utils.make import lock_project
 
 
 class TestResetGit:
+    """Tests for reset_git."""
+
     def test_removes_git_dir(self, tmp_path: Path) -> None:
+        """Delete the .git directory in the target path."""
         git_dir = tmp_path / ".git"
         git_dir.mkdir()
         (git_dir / "config").write_text("[core]")
@@ -21,7 +24,10 @@ class TestResetGit:
 
 
 class TestIntiAndCommit:
+    """Tests for inti_and_commit."""
+
     def test_initializes_repo_and_commits(self, tmp_path: Path) -> None:
+        """Initialize a repo, stage files, and create the initial commit."""
         # Mock subprocess to avoid real git
         with patch("subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(returncode=0)
@@ -34,7 +40,10 @@ class TestIntiAndCommit:
 
 
 class TestLockProject:
+    """Tests for lock_project."""
+
     def test_runs_make_cmd(self) -> None:
+        """Invoke the make command that locks the project dependencies."""
         with patch("subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(returncode=0)
             lock_project(Path("/tmp"))
@@ -43,7 +52,10 @@ class TestLockProject:
 
 
 class TestCloneGit:
+    """Tests for clone_git."""
+
     def test_creates_and_clones(self, tmp_path: Path) -> None:
+        """Create the target directory and clone the dev branch."""
         target = tmp_path / "repo"
         with patch("subprocess.run") as mock_run, patch("shutil.rmtree") as mock_rmtree:
             mock_run.return_value = MagicMock(returncode=0)

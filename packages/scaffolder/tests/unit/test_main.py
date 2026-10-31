@@ -12,6 +12,8 @@ from scaffolder.main import run_cli
 
 
 class TestRunCli:
+    """Tests for the interactive run_cli entry point."""
+
     def test_successful_flow(self) -> None:
         """Test the happy-path interactive CLI flow."""
         inputs = (

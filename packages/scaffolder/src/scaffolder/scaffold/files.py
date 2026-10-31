@@ -18,7 +18,12 @@ from shared_utils.constants import VERSION
 
 
 def write_package_files(path: Path, package_name: str, /) -> None:
-    """Create empty files, add TODOs, and template test."""
+    """Create empty files, add TODOs, and a placeholder test.
+
+    Args:
+        path: Root of the generated project.
+        package_name: The package being scaffolded.
+    """
     pkg_dir = path / "packages" / package_name
     src = pkg_dir / "src" / package_name
 
@@ -51,7 +56,13 @@ def test_placeholder() -> None:
 
 
 def amend_docs(path: Path, package_name: str, project_name: str, /) -> None:
-    """Update docs/README.md and .zensical.toml."""
+    """Update the docs index, module reference, and ``.zensical.toml``.
+
+    Args:
+        path: Root of the generated project.
+        package_name: The package being scaffolded.
+        project_name: The new project name.
+    """
     index = path / "packages" / "docs" / "src" / "index.md"
     text = index.read_text()
     text = text.replace("# INIT - Python", f"# {project_name}", 1)
@@ -75,7 +86,12 @@ def amend_docs(path: Path, package_name: str, project_name: str, /) -> None:
 
 
 def update_envs(path: Path, package_name: str, /) -> None:
-    """Update PKG_SCAF / PKG_SHAR in env files."""
+    """Point package env variables at the new package.
+
+    Args:
+        path: Root of the generated project.
+        package_name: The package being scaffolded.
+    """
     package_env = path / "package.env"
     content = package_env.read_text()
     content = content.replace(
@@ -103,6 +119,12 @@ def _round_trip_yaml() -> YAML:
 
 
 def update_tests(path: Path, package_name: str, /) -> None:
+    """Wire the scaffolded package into lefthook and CI test config.
+
+    Args:
+        path: Root of the generated project.
+        package_name: The package being scaffolded.
+    """
     _update_lefthook_tests(path, package_name)
     _update_ci_tests(path, package_name)
 
@@ -146,7 +168,11 @@ def _update_ci_tests(path: Path, package_name: str, /) -> None:
 
 
 def set_version(path: Path, /) -> None:
-    """Set version to 0.1.0 in pyproject.toml and package.json files."""
+    """Set the version to ``0.1.0`` in pyproject and package.json files.
+
+    Args:
+        path: Root of the generated project.
+    """
     for fpath in path.rglob("*"):
         if fpath.is_file() and fpath.name in ("pyproject.toml", "package.json"):
             text = fpath.read_text()
@@ -155,7 +181,14 @@ def set_version(path: Path, /) -> None:
 
 
 def update_licenses_sh(path: Path, /) -> None:
-    """Add leading error exit to licenses.sh."""
+    """Add a leading error exit to ``licenses.sh``.
+
+    Args:
+        path: Root of the generated project.
+
+    Raises:
+        FileNotFoundError: If ``bin/lint/licenses.sh`` is missing.
+    """
     licenses_sh = path / "bin" / "lint" / "licenses.sh"
     if not licenses_sh.exists():
         raise FileNotFoundError(f"Missing required file: {licenses_sh}")
@@ -173,13 +206,23 @@ exit 1\n\n"""
 
 
 def set_entry_prod(path: Path, /) -> None:
-    """Write entry_prod.sh."""
+    """Write the production entry script.
+
+    Args:
+        path: Root of the generated project.
+    """
     entry = path / "bin" / "deploy" / "entry_prod.sh"
     entry.parent.mkdir(parents=True, exist_ok=True)
     entry.write_text("#!/bin/bash\n\nset -euo pipefail\n\nsleep infinity\n")
 
 
 def clean_root_md(path: Path, project_name: str, /) -> None:
+    """Reset root README, CHANGELOG, and lockfiles for the new project.
+
+    Args:
+        path: Root of the generated project.
+        project_name: The new project name.
+    """
     (path / "README.md").write_text(f"# {project_name}\n\n")
     (path / "CHANGELOG.md").write_text("")
     (path / "uv.lock").unlink(True)
@@ -194,6 +237,19 @@ def correct_core_project(
     description: str,
     /,
 ) -> None:
+    """Apply project metadata to root config files.
+
+    Updates the root ``pyproject.toml`` and ``package.json`` files with
+    the project name, workspace dependency, description, and the
+    ``mono`` dependency group.
+
+    Args:
+        path: Root of the generated project.
+        project_name: The new project name.
+        package_name: The workspace package name.
+        dep_name: Name used for the ``mono`` dependency group.
+        description: Short description of the new project.
+    """
     update_pyproject_name(path / "pyproject.toml", project_name)
     update_pyproject_workspace(path / "pyproject.toml", package_name)
     update_pyproject_dep_groups(path / "pyproject.toml", dep_name)

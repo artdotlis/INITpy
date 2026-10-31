@@ -23,7 +23,10 @@ from shared_utils.constants import VERSION
 
 
 class TestAmendDocs:
+    """Tests for amend_docs."""
+
     def test_updates_index_title(self, tmp_path: Path) -> None:
+        """Retitle the docs index with the project name."""
         zensical = tmp_path / ".zensical.toml"
         zensical.write_text('site_name = "old"\n')
         index = tmp_path / "packages" / "docs" / "src" / "index.md"
@@ -33,6 +36,7 @@ class TestAmendDocs:
         assert index.read_text().startswith("# NewProject")
 
     def test_updates_zensical_site_name(self, tmp_path: Path) -> None:
+        """Update the site name and drop repo references in zensical."""
         zensical = tmp_path / ".zensical.toml"
         zensical.write_text('site_name = "old"\nrepo_name = "x"\nrepo_url = "y"\n')
         # Need index.md for amend_docs to not fail
@@ -46,6 +50,7 @@ class TestAmendDocs:
         assert "repo_url" not in doc
 
     def test_updates_ref_m_when_exists(self, tmp_path: Path) -> None:
+        """Rewrite the module reference doc when it exists."""
         ref_m = tmp_path / "packages" / "docs" / "src" / "ref" / "ref_m.md"
         ref_m.parent.mkdir(parents=True)
         ref_m.write_text("# old content\n")
@@ -59,7 +64,10 @@ class TestAmendDocs:
 
 
 class TestUpdateEnvs:
+    """Tests for update_envs."""
+
     def test_updates_package_env(self, tmp_path: Path) -> None:
+        """Repoint the package env variables at the new package."""
         pkg_env = tmp_path / "package.env"
         pkg_env.write_text(
             "PKG_SCAF=packages/scaffolder\nPKG_SHAR=packages/shared_utils\nSCAF_ENV=packages/scaffolder/.env\n"
@@ -73,6 +81,7 @@ class TestUpdateEnvs:
         assert "PKG_SHAR" not in content
 
     def test_updates_lint_env(self, tmp_path: Path) -> None:
+        """Repoint the lint script's env variable at the new package."""
         pkg_env = tmp_path / "package.env"
         pkg_env.write_text(
             "PKG_SCAF=packages/scaffolder\nPKG_SHAR=packages/shared_utils\nSCAF_ENV=packages/scaffolder/.env\n"
@@ -86,6 +95,8 @@ class TestUpdateEnvs:
 
 
 class TestUpdateTests:
+    """Tests for update_tests."""
+
     LEFTHOOK = """\
 tests:
   parallel: true
@@ -124,6 +135,7 @@ jobs:
         main.write_text(self.MAIN)
 
     def test_collapses_lefthook_tests(self, tmp_path: Path) -> None:
+        """Collapse the lefthook test jobs to the single package."""
         self._write(tmp_path)
         update_tests(tmp_path, "my_pkg")
         content = tmp_path.joinpath("lefthook.yml").read_text()
@@ -133,6 +145,7 @@ jobs:
         assert "cd $PKG_MY_ && coverage run -m pytest" in content
 
     def test_collapses_ci_tests(self, tmp_path: Path) -> None:
+        """Collapse the CI test steps to the single package."""
         self._write(tmp_path)
         update_tests(tmp_path, "my_pkg")
         content = tmp_path.joinpath(".github", "workflows", "main.yml").read_text()
@@ -143,7 +156,10 @@ jobs:
 
 
 class TestSetVersion:
+    """Tests for set_version."""
+
     def test_replaces_version_in_pyproject(self, tmp_path: Path) -> None:
+        """Replace the template version in a pyproject.toml."""
         p = tmp_path / "pyproject.toml"
 
         p.write_text(f'[project]\nversion = "{VERSION}"\n')
@@ -152,6 +168,7 @@ class TestSetVersion:
         assert "0.1.0" in p.read_text()
 
     def test_replaces_version_in_package_json(self, tmp_path: Path) -> None:
+        """Replace the template version in a package.json."""
         p = tmp_path / "package.json"
 
         p.write_text(f'{{"version": "{VERSION}"}}\n')
@@ -160,7 +177,10 @@ class TestSetVersion:
 
 
 class TestUpdateLicensesSh:
+    """Tests for update_licenses_sh."""
+
     def test_adds_exit_on_failure(self, tmp_path: Path) -> None:
+        """Insert an early error exit after the shebang."""
         sh = tmp_path / "bin" / "lint" / "licenses.sh"
         sh.parent.mkdir(parents=True)
         sh.write_text("#!/bin/bash\necho hello\n")
@@ -170,27 +190,36 @@ class TestUpdateLicensesSh:
         assert content.startswith("#!/bin/bash")
 
     def test_raises_when_file_missing(self, tmp_path: Path) -> None:
+        """Raise FileNotFoundError when licenses.sh is absent."""
         with pytest.raises(FileNotFoundError):
             update_licenses_sh(tmp_path)
 
 
 class TestSetEntryProd:
+    """Tests for set_entry_prod."""
+
     def test_creates_entry_prod_sh(self, tmp_path: Path) -> None:
+        """Write the production entry script with a sleeping loop."""
         set_entry_prod(tmp_path)
         entry = tmp_path / "bin" / "deploy" / "entry_prod.sh"
         assert entry.read_text() == "#!/bin/bash\n\nset -euo pipefail\n\nsleep infinity\n"
 
 
 class TestCleanRootMd:
+    """Tests for clean_root_md."""
+
     def test_updates_readme(self, tmp_path: Path) -> None:
+        """Reset the root README to a project header."""
         clean_root_md(tmp_path, "NewProject")
         assert (tmp_path / "README.md").read_text() == "# NewProject\n\n"
 
     def test_clears_changelog(self, tmp_path: Path) -> None:
+        """Empty the CHANGELOG file."""
         clean_root_md(tmp_path, "Proj")
         assert (tmp_path / "CHANGELOG.md").read_text() == ""
 
     def test_removes_lock_files(self, tmp_path: Path) -> None:
+        """Delete the uv and pnpm lockfiles."""
         (tmp_path / "uv.lock").write_text("x")
         (tmp_path / "pnpm-lock.yaml").write_text("y")
         clean_root_md(tmp_path, "Proj")
@@ -199,7 +228,10 @@ class TestCleanRootMd:
 
 
 class TestCorrectCoreProject:
+    """Tests for correct_core_project."""
+
     def test_updates_all_files(self, tmp_path: Path) -> None:
+        """Apply project metadata to the root config files."""
         pyproject = tmp_path / "pyproject.toml"
         pyproject.write_text('[project]\nname = "old"\ndependencies = ["x"]\n')
         pkg_json = tmp_path / "package.json"

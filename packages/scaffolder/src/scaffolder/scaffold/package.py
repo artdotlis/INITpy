@@ -14,7 +14,17 @@ from pathlib import Path
 
 
 def create_package(path: Path, package_name: str, description: str, /) -> None:
-    """Create new package, copy pyproject.toml, clean packages/."""
+    """Create a new package, copy its pyproject, and clean ``packages/``.
+
+    Creates the package source tree, seeds ``pyproject.toml`` from
+    ``shared_utils``, and removes every other top-level package except
+    the new one and ``docs``.
+
+    Args:
+        path: Root of the generated project.
+        package_name: Name of the package to create.
+        description: Description written to the package's pyproject.toml.
+    """
     pkg_dir = path / "packages" / package_name
     (pkg_dir / "src" / package_name).mkdir(parents=True, exist_ok=True)
     shutil.copy2(

@@ -18,11 +18,19 @@ from reuse.project import LICENSE_MAP
 def _find_spdx_block(
     text: str, style_cls: type[CommentStyle], /
 ) -> tuple[int, str] | None:
-    """Find the first SPDX comment block in *text*.
+    """Find the first SPDX comment block in `text`.
 
     Scans every newline boundary so it works even when the file starts
     with a shebang or other non-comment content (the same approach
     reuse's internal ``_find_first_spdx_comment`` uses).
+
+    Args:
+        text: File content to scan.
+        style_cls: Comment style to match against.
+
+    Returns:
+        A tuple of the block start offset and the comment block, or
+        ``None`` if no SPDX block is found.
     """
     if style_cls is None:
         return None
@@ -89,6 +97,12 @@ def update_pyproject_name(
     name: str,
     /,
 ) -> None:
+    """Set the project name in a pyproject.toml file.
+
+    Args:
+        path: Path to pyproject.toml.
+        name: New project name.
+    """
     doc = tomlkit.parse(path.read_text())
     if "project" not in doc:
         doc["project"] = {}
@@ -101,6 +115,12 @@ def update_pyproject_description(
     desc: str,
     /,
 ) -> None:
+    """Set the project description in a pyproject.toml file.
+
+    Args:
+        path: Path to pyproject.toml.
+        desc: New project description.
+    """
     doc = tomlkit.parse(path.read_text())
     if "project" not in doc:
         doc["project"] = {}
@@ -113,6 +133,12 @@ def update_pyproject_workspace(
     package_name: str,
     /,
 ) -> None:
+    """Declare `package_name` as a workspace dependency in pyproject.toml.
+
+    Args:
+        path: Path to the root pyproject.toml.
+        package_name: The workspace package name.
+    """
     doc = tomlkit.parse(path.read_text())
     sources = doc.setdefault("tool", tomlkit.table()).setdefault("uv", tomlkit.table())
     sources["sources"] = {package_name: {"workspace": True}}
@@ -125,6 +151,12 @@ def update_pyproject_dep_groups(
     package_name: str,
     /,
 ) -> None:
+    """Add `package_name` to the ``mono`` dependency group.
+
+    Args:
+        path: Path to pyproject.toml.
+        package_name: The package to add.
+    """
     doc = tomlkit.parse(path.read_text())
     if "dependency-groups" not in doc:
         doc["dependency-groups"] = {}
@@ -133,6 +165,11 @@ def update_pyproject_dep_groups(
 
 
 def clean_pyproject_dependencies(path: Path, /) -> None:
+    """Clear the project dependencies list in pyproject.toml.
+
+    Args:
+        path: Path to pyproject.toml.
+    """
     doc = tomlkit.parse(path.read_text())
     dep: list[str] = []
     if "project" not in doc:
@@ -146,6 +183,12 @@ def update_pyproject_path(
     package_name: str,
     /,
 ) -> None:
+    """Set setuptools package discovery to include `package_name`.
+
+    Args:
+        path: Path to pyproject.toml.
+        package_name: The package to include.
+    """
     doc = tomlkit.parse(path.read_text())
     packages = (
         doc.setdefault("tool", tomlkit.table())
@@ -170,13 +213,25 @@ def update_package_authors(path: Path, author_name: str, author_email: str, /) -
 
 
 def update_package_devcon_name(path: Path, name: str, /) -> None:
+    """Set the ``name`` field in a package.json file.
+
+    Args:
+        path: Path to package.json.
+        name: New name value.
+    """
     data = json.loads(path.read_text())
     data["name"] = name
     path.write_text(json.dumps(data, indent=2) + "\n")
 
 
 def replace_authors(path: Path, email: str, name: str | None = None, /) -> None:
-    """Replace author info in all pyproject.toml and package.json files."""
+    """Replace author info in all pyproject.toml and package.json files.
+
+    Args:
+        path: Root directory to scan recursively.
+        email: New author email.
+        name: New author name (defaults to an empty string).
+    """
     author_name = name or ""
     for fpath in path.rglob("*"):
         if not fpath.is_file():
@@ -188,7 +243,11 @@ def replace_authors(path: Path, email: str, name: str | None = None, /) -> None:
 
 
 def clear_licenses_dir(path: Path, /) -> None:
-    """Remove all files from the LICENSES/ directory."""
+    """Remove all files from the ``LICENSES/`` directory.
+
+    Args:
+        path: Repository root that contains the ``LICENSES/`` directory.
+    """
     lic_dir = path / "LICENSES"
     if lic_dir.is_dir():
         for file in lic_dir.iterdir():
@@ -197,13 +256,23 @@ def clear_licenses_dir(path: Path, /) -> None:
 
 
 def _write_license(path: Path, license_name: str, /) -> None:
-    """Download and write the SPDX license text to the LICENSE file."""
+    """Download and write the SPDX license text to the LICENSE file.
+
+    Args:
+        path: Path to the LICENSE file.
+        license_name: SPDX license identifier to fetch.
+    """
     path.unlink()
     put_license_in_file(license_name, path)
 
 
 def set_license_pyproject(path: Path, license_name: str, /) -> None:
-    """Set the license field in pyproject.toml."""
+    """Set the license field in pyproject.toml.
+
+    Args:
+        path: Path to pyproject.toml.
+        license_name: SPDX license identifier to set.
+    """
     doc = tomlkit.parse(path.read_text())
     if "project" not in doc:
         doc["project"] = {}
@@ -212,14 +281,24 @@ def set_license_pyproject(path: Path, license_name: str, /) -> None:
 
 
 def set_license_package_json(path: Path, license_name: str, /) -> None:
-    """Set the license field in package.json."""
+    """Set the license field in package.json.
+
+    Args:
+        path: Path to package.json.
+        license_name: SPDX license identifier to set.
+    """
     data = json.loads(path.read_text())
     data["license"] = license_name
     path.write_text(json.dumps(data, indent=2) + "\n")
 
 
 def configure_licenses(path: Path, license_name: str, /) -> None:
-    """Clear LICENSES/, download LICENSE, and set license in pyproject.toml and package.json."""
+    """Clear ``LICENSES/``, download ``LICENSE``, and set the license fields.
+
+    Args:
+        path: Repository root.
+        license_name: SPDX license identifier to configure.
+    """
     _validate_license(license_name)
     clear_licenses_dir(path)
     _write_license(path / "LICENSE", license_name)
@@ -228,7 +307,14 @@ def configure_licenses(path: Path, license_name: str, /) -> None:
 
 
 def _validate_license(license_name: str, /) -> None:
-    """Validate that *license_name* is a known SPDX license identifier."""
+    """Validate that `license_name` is a known SPDX license identifier.
+
+    Args:
+        license_name: SPDX license identifier to validate.
+
+    Raises:
+        ValueError: If the identifier is not present in the license map.
+    """
     if license_name not in LICENSE_MAP:
         raise ValueError(
             f"Unknown SPDX license: {license_name!r}. "

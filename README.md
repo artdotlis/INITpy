@@ -14,7 +14,7 @@ SPDX-License-Identifier: CC0-1.0
 
 [![main](https://github.com/artdotlis/INITpy/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/artdotlis/INITpy/actions/workflows/main.yml)
 
-**INITpy** is a minimal, opinionated project layout designed for modern Python development. It leverages `uv` for lightning-fast environment management, `tox` for testing, and `zensical` for documentation.
+**INITpy** is a minimal, opinionated project layout designed for modern Python development. It leverages `uv` for environment management, `pytest` for testing, and `zensical` for documentation.
 
 ---
 
@@ -76,9 +76,10 @@ All commands must be run within the Dev Container or by passing `CONTAINER=conta
 | :---------- | :------------------------ | :---------------------------------------------------------------------------------------- |
 | **Setup**   | `make dev`                | Installs lefthook, syncs all dependencies                                                 |
 | **Active**  | `make run-act`            | Enters the virtual environment shell.                                                     |
-| **Quality** | `make run-checks`         | Runs `lefthook` pre-commit hooks (includes `ruff`, `pyrefly`)                             |
-| **Test**    | `make run-tests`          | Runs the test suite via `tox`.                                                            |
-| **Docs**    | `make serve-docs`         | Previews documentation at `http://localhost:8000` (configurable via `.env` - `DOC_PORT`). |
+| **Build**   | `make run-build`          | Builds all packages as wheels via `uv`.                                                   |
+| **Quality** | `make run-checks`         | Runs `lefthook` pre-commit hooks (lint + static analysis)                                 |
+| **Test**    | `make run-tests`          | Runs the pytest test suite (incl. coverage) for all packages via `lefthook`.              |
+| **Docs**    | `make run-docs`, `serve-docs` | Builds or serves the `zensical` documentation.                                        |
 | **Release** | `make run-bump`           | Bumps version and updates CHANGELOG.                                                      |
 | **Git**     | `make commit`, `make com` | Generates commit message with `commitizen` or opens `vim` for editing, then commits.      |
 

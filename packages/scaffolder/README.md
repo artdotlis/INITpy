@@ -23,46 +23,12 @@ packages via the `uv` build system.
 
 ---
 
-## 📚 Installation & Build
+## 📚 Installation
 
-The package is automatically built when you run:
-
-```bash
-# From the repository root
-make run-build
-```
-
-There is no separate `pip install` step for consuming `scaffolder` from
-outside this repo; it is included in the repository’s wheel
-distribution.
-
-If you add external dependencies, declare them in the root
-`pyproject.toml` or in this sub‑module’s `[project.dependencies]`.
+The package is built alongside the rest of the repository when you run `make run-build` from the root; there is no separate installation step. Add any external dependencies to this module’s `[project.dependencies]`.
 
 ---
 
 ## ⚙️ Usage
 
-### Console script
-
-```bash
-# From the repository root (or any virtual‑env that has the repo’s
-# packages on `sys.path`):
-scaffolder
-```
-
-Running the script will execute `scaffolder.main:run`.
-
-### Importing in code
-
-```python
-from scaffolder.main import run
-```
-
----
-
-## 📚 Modules
-
-| Module            | Description                                                                                                                     |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| `scaffolder.main` | The application's main entry point; it coordinates the work performed by `scaffolder` and pulls in helpers from `shared_utils`. |
+The package exposes a console script named `scaffolder`. Its entry point is `scaffolder.main:run_cli`, which launches an interactive CLI.

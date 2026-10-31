@@ -34,11 +34,15 @@ from shared_utils.files import (
 
 
 class TestFindSpdxBlock:
+    """Tests for _find_spdx_block."""
+
     def test_returns_none_when_no_spdx(self) -> None:
+        """Return None for text with no SPDX block."""
         result = _find_spdx_block("# hello world", PythonCommentStyle)
         assert result is None
 
     def test_returns_block_when_spdx_exists(self) -> None:
+        """Return the offset and content of an SPDX comment block."""
         # REUSE-IgnoreStart
         text = "# SPDX-License-Identifier: MIT"
         # REUSE-IgnoreEnd
@@ -49,6 +53,7 @@ class TestFindSpdxBlock:
         assert "SPDX" in block
 
     def test_skips_lines_without_spdx(self) -> None:
+        """Find the block even when preceding lines lack SPDX markers."""
         # REUSE-IgnoreStart
         text = "# no spdx\n# SPDX-License-Identifier: CC0-1.0"
         # REUSE-IgnoreEnd
@@ -58,11 +63,13 @@ class TestFindSpdxBlock:
         assert "SPDX" in block
 
     def test_iterates_when_no_spdx_found(self) -> None:
+        """Return None after exhausting the comment block."""
         text = "# line1\n# line2\n# line3\n" * 10 + "end"
         result = _find_spdx_block(text, PythonCommentStyle)
         assert result is None
 
     def test_handles_first_line_only(self) -> None:
+        """Return None for a single line with no SPDX."""
         # Single line with no newline triggers the `nxt == -1` break
         text = "# no SPDX here"
         result = _find_spdx_block(text, PythonCommentStyle)
@@ -70,7 +77,10 @@ class TestFindSpdxBlock:
 
 
 class TestUpdatePyprojectAuthors:
+    """Tests for update_pyproject_authors."""
+
     def test_updates_existing_pyproject(self, tmp_path: Path) -> None:
+        """Replace the authors in an existing pyproject.toml."""
         p = tmp_path / "pyproject.toml"
         p.write_text('[project]\nname = "old"\n')
         update_pyproject_authors(p, "New Name", "new@mail.com")
@@ -80,6 +90,7 @@ class TestUpdatePyprojectAuthors:
         ]
 
     def test_creates_project_section(self, tmp_path: Path) -> None:
+        """Create the project section when it is missing."""
         p = tmp_path / "pyproject.toml"
         p.write_text("")
         update_pyproject_authors(p, "Name", "email")
@@ -89,7 +100,10 @@ class TestUpdatePyprojectAuthors:
 
 
 class TestUpdatePyprojectName:
+    """Tests for update_pyproject_name."""
+
     def test_updates_name(self, tmp_path: Path) -> None:
+        """Replace the project name in an existing pyproject.toml."""
         p = tmp_path / "pyproject.toml"
         p.write_text('[project]\nname = "old"\n')
         update_pyproject_name(p, "new_name")
@@ -97,6 +111,7 @@ class TestUpdatePyprojectName:
         assert doc["project"]["name"] == "new_name"
 
     def test_creates_project_when_missing(self, tmp_path: Path) -> None:
+        """Create the project section when it is missing."""
         p = tmp_path / "pyproject.toml"
         p.write_text('[build-system]\nrequires = ["setuptools"]\n')
         update_pyproject_name(p, "new_name")
@@ -106,7 +121,10 @@ class TestUpdatePyprojectName:
 
 
 class TestUpdatePyprojectDescription:
+    """Tests for update_pyproject_description."""
+
     def test_updates_description(self, tmp_path: Path) -> None:
+        """Replace the description in an existing pyproject.toml."""
         p = tmp_path / "pyproject.toml"
         p.write_text('[project]\nname = "x"\n')
         update_pyproject_description(p, "New desc")
@@ -114,6 +132,7 @@ class TestUpdatePyprojectDescription:
         assert doc["project"]["description"] == "New desc"
 
     def test_creates_project_when_missing(self, tmp_path: Path) -> None:
+        """Create the project section when it is missing."""
         p = tmp_path / "pyproject.toml"
         p.write_text('[build-system]\nrequires = ["setuptools"]\n')
         update_pyproject_description(p, "New desc")
@@ -123,7 +142,10 @@ class TestUpdatePyprojectDescription:
 
 
 class TestUpdatePyprojectWorkspace:
+    """Tests for update_pyproject_workspace."""
+
     def test_adds_source(self, tmp_path: Path) -> None:
+        """Add the package as a workspace source."""
         p = tmp_path / "pyproject.toml"
         p.write_text("[tool.uv]\n")
         update_pyproject_workspace(p, "my_pkg")
@@ -132,7 +154,10 @@ class TestUpdatePyprojectWorkspace:
 
 
 class TestUpdatePyprojectDepGroups:
+    """Tests for update_pyproject_dep_groups."""
+
     def test_adds_mono_group(self, tmp_path: Path) -> None:
+        """Add the package to the mono dependency group."""
         p = tmp_path / "pyproject.toml"
         p.write_text('[project]\nname = "x"\n')
         update_pyproject_dep_groups(p, "my_pkg")
@@ -141,7 +166,10 @@ class TestUpdatePyprojectDepGroups:
 
 
 class TestCleanPyprojectDependencies:
+    """Tests for clean_pyproject_dependencies."""
+
     def test_clears_dependencies(self, tmp_path: Path) -> None:
+        """Empty the dependencies list in an existing pyproject.toml."""
         p = tmp_path / "pyproject.toml"
         p.write_text('[project]\ndependencies = ["requests"]\n')
         clean_pyproject_dependencies(p)
@@ -149,6 +177,7 @@ class TestCleanPyprojectDependencies:
         assert doc["project"]["dependencies"] == []
 
     def test_creates_project_when_missing(self, tmp_path: Path) -> None:
+        """Create the project section when it is missing."""
         p = tmp_path / "pyproject.toml"
         p.write_text('[build-system]\nrequires = ["setuptools"]\n')
         clean_pyproject_dependencies(p)
@@ -158,7 +187,10 @@ class TestCleanPyprojectDependencies:
 
 
 class TestUpdatePyprojectPath:
+    """Tests for update_pyproject_path."""
+
     def test_updates_packages_find_include(self, tmp_path: Path) -> None:
+        """Set the package in the setuptools find include list."""
         p = tmp_path / "pyproject.toml"
         p.write_text("[tool.setuptools.packages.find]\ninclude = []\n")
         update_pyproject_path(p, "my_pkg")
@@ -167,7 +199,10 @@ class TestUpdatePyprojectPath:
 
 
 class TestUpdatePackageAuthors:
+    """Tests for update_package_authors."""
+
     def test_updates_author(self, tmp_path: Path) -> None:
+        """Set the author object in a package.json file."""
         p = tmp_path / "package.json"
         p.write_text('{"name": "x"}\n')
         update_package_authors(p, "New Name", "new@mail.com")
@@ -176,7 +211,10 @@ class TestUpdatePackageAuthors:
 
 
 class TestUpdatePackageDevconName:
+    """Tests for update_package_devcon_name."""
+
     def test_updates_name(self, tmp_path: Path) -> None:
+        """Replace the name field in a JSON file."""
         p = tmp_path / "package.json"
         p.write_text('{"name": "old"}\n')
         update_package_devcon_name(p, "new_name")
@@ -185,19 +223,24 @@ class TestUpdatePackageDevconName:
 
 
 class TestReplaceAuthors:
+    """Tests for replace_authors."""
+
     def test_replaces_in_pyproject(self, tmp_path: Path) -> None:
+        """Update the author in a pyproject.toml file."""
         (tmp_path / "pyproject.toml").write_text('[project]\nname = "x"\n')
         replace_authors(tmp_path, "a@b.com", "Name")
         doc = tomlkit.parse((tmp_path / "pyproject.toml").read_text())
         assert doc["project"]["authors"][0]["email"] == "a@b.com"
 
     def test_replaces_in_package_json(self, tmp_path: Path) -> None:
+        """Update the author in a package.json file."""
         (tmp_path / "package.json").write_text('{"name": "x"}\n')
         replace_authors(tmp_path, "a@b.com", "Name")
         data = json.loads((tmp_path / "package.json").read_text())
         assert data["author"]["email"] == "a@b.com"
 
     def test_ignores_non_matching_files(self, tmp_path: Path) -> None:
+        """Leave files that are neither pyproject.toml nor package.json."""
         (tmp_path / "other.txt").write_text("content")
         (tmp_path / "subdir").mkdir()  # rglob returns dirs too
         replace_authors(tmp_path, "a@b.com", "Name")
@@ -205,7 +248,10 @@ class TestReplaceAuthors:
 
 
 class TestStripSpdxHeaders:
+    """Tests for strip_spdx_headers."""
+
     def test_removes_spdx_from_file(self, tmp_path: Path) -> None:
+        """Remove SPDX headers from a file."""
         f = tmp_path / "file.py"
         f.write_text("# SPDX-License-Identifier: MIT\n# Copyright 2024\n\nprint('hi')\n")
         strip_spdx_headers(tmp_path)
@@ -214,17 +260,20 @@ class TestStripSpdxHeaders:
         assert "print('hi')" in text
 
     def test_removes_license_file(self, tmp_path: Path) -> None:
+        """Delete the companion .license file."""
         (tmp_path / "MIT.license").write_text("license text")
         strip_spdx_headers(tmp_path)
         assert not (tmp_path / "MIT.license").exists()
 
     def test_skips_files_without_spdx(self, tmp_path: Path) -> None:
+        """Leave files that contain no SPDX block unchanged."""
         f = tmp_path / "no_spdx.py"
         f.write_text("print('hello')\n")
         strip_spdx_headers(tmp_path)
         assert f.read_text() == "print('hello')\n"
 
     def test_handles_none_comment_style(self, tmp_path: Path) -> None:
+        """Leave the file unchanged when no comment style is detected."""
         f = tmp_path / "file.py"
         f.write_text("# Contains SPDX somewhere\nprint('hi')\n")
         with patch("shared_utils.files.get_comment_style", return_value=None):
@@ -233,12 +282,14 @@ class TestStripSpdxHeaders:
         assert f.read_text() == "# Contains SPDX somewhere\nprint('hi')\n"
 
     def test_handles_no_spdx_found(self, tmp_path: Path) -> None:
+        """Leave a comment-only file unchanged."""
         f = tmp_path / "file.py"
         f.write_text("# just a comment\nprint('hi')\n")
         strip_spdx_headers(tmp_path)
         assert f.read_text() == "# just a comment\nprint('hi')\n"
 
     def test_handles_spdx_but_not_valid_block(self, tmp_path: Path) -> None:
+        """Keep the text when SPDX is not part of a valid comment block."""
         f = tmp_path / "file.py"
         f.write_text("# SPDX not valid here\nprint('hi')\n")
         strip_spdx_headers(tmp_path)
@@ -246,7 +297,10 @@ class TestStripSpdxHeaders:
 
 
 class TestClearLicensesDir:
+    """Tests for clear_licenses_dir."""
+
     def test_removes_files_from_licenses_dir(self, tmp_path: Path) -> None:
+        """Delete every file inside the LICENSES directory."""
         lic = tmp_path / "LICENSES"
         lic.mkdir()
         (lic / "MIT.txt").write_text("license")
@@ -255,11 +309,15 @@ class TestClearLicensesDir:
         assert not any(lic.iterdir())
 
     def test_noop_when_no_licenses_dir(self, tmp_path: Path) -> None:
+        """Do nothing when the LICENSES directory is absent."""
         clear_licenses_dir(tmp_path)  # should not raise
 
 
 class TestSetLicensePyproject:
+    """Tests for set_license_pyproject."""
+
     def test_sets_license(self, tmp_path: Path) -> None:
+        """Set the license field in an existing pyproject.toml."""
         p = tmp_path / "pyproject.toml"
         p.write_text('[project]\nname = "x"\n')
         set_license_pyproject(p, "MIT")
@@ -267,6 +325,7 @@ class TestSetLicensePyproject:
         assert doc["project"]["license"] == "MIT"
 
     def test_creates_project_when_missing(self, tmp_path: Path) -> None:
+        """Create the project section when it is missing."""
         p = tmp_path / "pyproject.toml"
         p.write_text('[build-system]\nrequires = ["setuptools"]\n')
         set_license_pyproject(p, "MIT")
@@ -275,7 +334,10 @@ class TestSetLicensePyproject:
 
 
 class TestSetLicensePackageJson:
+    """Tests for set_license_package_json."""
+
     def test_sets_license(self, tmp_path: Path) -> None:
+        """Set the license field in a package.json file."""
         p = tmp_path / "package.json"
         p.write_text('{"name": "x"}\n')
         set_license_package_json(p, "MIT")
@@ -284,16 +346,23 @@ class TestSetLicensePackageJson:
 
 
 class TestValidateLicense:
+    """Tests for _validate_license."""
+
     def test_known_license_passes(self) -> None:
+        """Accept a known SPDX license identifier."""
         _validate_license("MIT")  # should not raise
 
     def test_unknown_license_raises(self) -> None:
+        """Raise ValueError for an unknown SPDX license identifier."""
         with pytest.raises(ValueError, match="Unknown SPDX license"):
             _validate_license("NONEXISTENT_LICENSE_XYZ")
 
 
 class TestWriteLicense:
+    """Tests for _write_license."""
+
     def test_writes_license_file(self, tmp_path: Path) -> None:
+        """Download the license text into the LICENSE file."""
         lic_file = tmp_path / "LICENSE"
         lic_file.write_text("old content")
         with patch("shared_utils.files.put_license_in_file") as mock_put:
@@ -303,7 +372,10 @@ class TestWriteLicense:
 
 
 class TestConfigureLicenses:
+    """Tests for configure_licenses."""
+
     def test_configures_licenses(self, tmp_path: Path) -> None:
+        """Clear, download, and set the license in all config files."""
         pyproject = tmp_path / "pyproject.toml"
         pyproject.write_text('[project]\nname = "x"\n')
         pkg_json = tmp_path / "package.json"
