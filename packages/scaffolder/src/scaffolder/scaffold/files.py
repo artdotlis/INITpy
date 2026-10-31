@@ -4,7 +4,10 @@
 
 """File transformation functions for scaffolding."""
 
+import json
+import shutil
 import tomlkit
+
 from ruamel.yaml import YAML
 from shared_utils.files import update_pyproject_dep_groups
 from shared_utils.files import update_pyproject_workspace
@@ -14,7 +17,6 @@ from shared_utils.files import update_pyproject_name
 from shared_utils.names import package_env_file
 from shared_utils.names import package_env_var
 from pathlib import Path
-from shared_utils.constants import VERSION
 
 
 def write_package_files(path: Path, package_name: str, /) -> None:
@@ -168,16 +170,28 @@ def _update_ci_tests(path: Path, package_name: str, /) -> None:
 
 
 def set_version(path: Path, /) -> None:
-    """Set the version to ``0.1.0`` in pyproject and package.json files.
+    """Set the project version to ``0.1.0`` in pyproject.toml and package.json.
+
+    Uses tomlkit/json parsers to touch only the ``version`` field so other
+    version strings (e.g. dep pins) are left untouched.
 
     Args:
         path: Root of the generated project.
     """
     for fpath in path.rglob("*"):
-        if fpath.is_file() and fpath.name in ("pyproject.toml", "package.json"):
-            text = fpath.read_text()
-            text = text.replace(VERSION, "0.1.0")
-            fpath.write_text(text)
+        if not fpath.is_file() or fpath.name not in ("pyproject.toml", "package.json"):
+            continue
+        if fpath.name == "pyproject.toml":
+            doc = tomlkit.parse(fpath.read_text())
+            project = doc.get("project")
+            if project is not None and "version" in project:
+                project["version"] = "0.1.0"
+            fpath.write_text(tomlkit.dumps(doc))
+        else:
+            data = json.loads(fpath.read_text())
+            if "version" in data:
+                data["version"] = "0.1.0"
+            fpath.write_text(json.dumps(data, indent=2) + "\n")
 
 
 def update_licenses_sh(path: Path, /) -> None:
@@ -256,3 +270,15 @@ def correct_core_project(
     update_pyproject_description(path / "pyproject.toml", description)
     update_package_devcon_name(path / "package.json", project_name)
     update_package_devcon_name(path / ".devcontainer" / "devcontainer.json", project_name)
+
+
+def remove_projects_output_folder(path: Path, /) -> None:
+    """Remove the template PROJECTS output folder from a generated project.
+
+    Args:
+        path: Root of the generated project.
+    """
+    output_path = path / "PROJECTS"
+    if output_path.exists():
+        shutil.rmtree(output_path) if output_path.is_dir() else output_path.unlink()
+

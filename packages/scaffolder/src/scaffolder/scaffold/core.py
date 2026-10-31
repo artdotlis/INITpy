@@ -4,6 +4,7 @@
 
 """Core scaffold orchestration and CLI."""
 
+from scaffolder.scaffold.files import remove_projects_output_folder
 from shared_utils.constants import VERSION
 from shared_utils.make import lock_project
 from shared_utils.files import strip_spdx_headers
@@ -74,54 +75,74 @@ def run(
     output_path.mkdir(parents=True, exist_ok=True)
 
     # clone INITpy at the tag matching this scaffolder's release
+    print(f"[scaffolder] cloning INITpy at {clone_ref()} ...")
     clone_git(output_path, "https://github.com/artdotlis/INITpy.git", clone_ref())
 
     # reset git
     reset_git(output_path)
 
+    # drop the template's PROJECTS output folder from the generated project
+    print("[scaffolder] removing template PROJECTS folder ...")
+    remove_projects_output_folder(output_path)
+
     # create package
+    print(f"[scaffolder] creating package {package_name} ...")
     create_package(output_path, package_name, description)
 
     # write package files
+    print("[scaffolder] writing package files ...")
     write_package_files(output_path, package_name)
 
     # amend docs / zensical
+    print("[scaffolder] amending docs ...")
     amend_docs(output_path, package_name, project_name)
 
     # update env vars
+    print("[scaffolder] updating env vars ...")
     update_envs(output_path, package_name)
 
     # single package test wiring in lefthook + CI
+    print("[scaffolder] wiring tests ...")
     update_tests(output_path, package_name)
 
     # clean root README and CHANGELOG
+    print("[scaffolder] cleaning README and CHANGELOG ...")
     clean_root_md(output_path, project_name)
 
     # replace authors and project name
+    print("[scaffolder] replacing authors ...")
     replace_authors(output_path, author_email, author_name)
 
     # replace project name
+    print("[scaffolder] configuring project ...")
     correct_core_project(output_path, project_name, package_name, dep_name, description)
 
     # version 0.1.0
     set_version(output_path)
 
     # strip SPDX + .license
+    print("[scaffolder] stripping SPDX headers ...")
     strip_spdx_headers(output_path)
 
     # LICENSES/ + LICENSE
+    print("[scaffolder] configuring licenses ...")
     configure_licenses(output_path, license_name)
 
     # entry_pod.sh
+    print("[scaffolder] writing entrypoint ...")
     set_entry_prod(output_path)
 
     # licenses.sh
+    print("[scaffolder] updating licenses.sh ...")
     update_licenses_sh(output_path)
 
     # lock project dependencies
+    print("[scaffolder] locking dependencies (may take a while) ...")
     lock_project(output_path)
 
     # init and commit
+    print("[scaffolder] committing generated project ...")
     inti_and_commit(output_path)
 
+    print(f"[scaffolder] done: {output_path}")
     return output_path

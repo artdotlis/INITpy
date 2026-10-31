@@ -175,6 +175,18 @@ class TestSetVersion:
         set_version(tmp_path)
         assert VERSION not in p.read_text()
 
+    def test_preserves_dependency_version_pins(self, tmp_path: Path) -> None:
+        """Only the project version is replaced, not pinned dependency versions."""
+        p = tmp_path / "pyproject.toml"
+
+        p.write_text(
+            f'[project]\nversion = "{VERSION}"\ndependencies = ["shellcheck-py=={VERSION}.1"]\n'
+        )
+        set_version(tmp_path)
+        content = p.read_text()
+        assert content.startswith('[project]\nversion = "0.1.0"')
+        assert f"shellcheck-py=={VERSION}.1" in content
+
 
 class TestUpdateLicensesSh:
     """Tests for update_licenses_sh."""
