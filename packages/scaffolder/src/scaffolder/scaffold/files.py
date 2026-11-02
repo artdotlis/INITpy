@@ -108,7 +108,7 @@ def update_envs(path: Path, package_name: str, /) -> None:
     package_env.write_text(content)
     lint_env = path / "bin" / "lint" / "lint_env.sh"
     content = lint_env.read_text()
-    content = content.replace("$SCAF_ENV", package_env_file(package_name))
+    content = content.replace("SCAF_ENV", package_env_file(package_name))
     lint_env.write_text(content)
 
 
