@@ -19,6 +19,7 @@ from shared_utils.files import (
     clear_licenses_dir,
     configure_licenses,
     replace_authors,
+    remove_reuse,
     set_license_package_json,
     set_license_pyproject,
     strip_spdx_headers,
@@ -399,3 +400,61 @@ class TestConfigureLicenses:
 
         pkg_data = json.loads(pkg_json.read_text())
         assert pkg_data["license"] == "MIT"
+
+
+class TestRemoveReuse:
+    """Tests for remove_reuse."""
+
+    def test_removes_reuse_structure(self, tmp_path: Path) -> None:
+        """Delete reuse dirs, REUSE.toml, dep, and script section."""
+        # reuse directories + files
+        (tmp_path / "LICENSES").mkdir()
+        (tmp_path / "LICENSES" / "Unlicense.txt").write_text("x")
+        (tmp_path / "package.json.license").write_text("x")
+        reuse_toml = tmp_path / "packages" / "docs" / "REUSE.toml"
+        reuse_toml.parent.mkdir(parents=True)
+        reuse_toml.write_text("x")
+
+        # keep LICENSE file
+        (tmp_path / "LICENSE").write_text("keep me")
+
+        # pyproject with a reuse dependency in the dev dependency group
+        pyproject = tmp_path / "pyproject.toml"
+        pyproject.write_text(
+            '[project]\nname = "x"\ndependencies = ["requests"]\n'
+            "[dependency-groups]\n"
+            'dev = ["pytest", "reuse ==6.2.0"]\n'
+        )
+
+        # licenses.sh with marked reuse section
+        licenses_sh = tmp_path / "bin" / "lint" / "licenses.sh"
+        licenses_sh.parent.mkdir(parents=True)
+        licenses_sh.write_text(
+            "#!/bin/bash\n"
+            "echo non-reuse\n"
+            "# ===== REUSE:START =====\n"
+            "reuse lint\n"
+            "# ===== REUSE:END =====\n"
+            "echo tail\n"
+        )
+
+        remove_reuse(tmp_path)
+
+        assert not (tmp_path / "LICENSES").exists()
+        assert not (tmp_path / "packages" / "docs" / "REUSE.toml").exists()
+        # .license companions are owned by strip_spdx_headers, not remove_reuse
+        assert (tmp_path / "package.json.license").exists()
+        assert (tmp_path / "LICENSE").read_text() == "keep me"
+
+        pydoc = tomlkit.parse(pyproject.read_text())
+        assert "reuse ==6.2.0" not in pydoc["project"]["dependencies"]
+        assert "requests" in pydoc["project"]["dependencies"]
+        dev_deps = pydoc["dependency-groups"]["dev"]
+        assert "reuse ==6.2.0" not in dev_deps
+        assert "pytest" in dev_deps
+
+        script = licenses_sh.read_text()
+        assert "reuse lint" not in script
+        assert "REUSE:START" not in script
+        assert "echo non-reuse" in script
+        assert "echo tail" in script

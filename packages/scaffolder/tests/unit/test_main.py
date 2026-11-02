@@ -55,14 +55,16 @@ class TestRunCli:
             "test@example.com\n"  # author email
             "Test Copyright\n"  # copyright holder
             "MIT\n"  # valid license
+            "n\n"  # use reuse tooling → no
         )
         mock = _drive(inputs, return_value=Path("/tmp/output/test_proj"))
         mock.assert_called_once()
-        call_kwargs = mock.call_args[0]
-        assert call_kwargs[0] == "test_proj"
-        assert call_kwargs[1] == "/tmp/output"
-        assert call_kwargs[4] == "MIT"
-        assert call_kwargs[6] == "Test Copyright"
+        call_kwargs = mock.call_args[0][0]
+        assert call_kwargs.project_name == "test_proj"
+        assert call_kwargs.output_dir == "/tmp/output"
+        assert call_kwargs.license_name == "MIT"
+        assert call_kwargs.copyright == "Test Copyright"
+        assert call_kwargs.use_reuse is False
 
     def test_scaf_output_prefix_skips_prompt(self) -> None:
         """When SCAF_OUTPUT_DIR is set it is used as the output prefix."""
@@ -73,13 +75,14 @@ class TestRunCli:
             "test@example.com\n"  # author email
             "Test Copyright\n"  # copyright holder
             "MIT\n"  # valid license
+            "\n"  # use reuse tooling → default yes
         )
         mock = _drive(
             inputs,
             scaf_output_dir="/scaf",
             return_value=Path("/scaf/test_proj"),
         )
-        assert mock.call_args[0][1] == "/scaf"
+        assert mock.call_args[0][0].output_dir == "/scaf"
 
     def test_short_name_rejected(self) -> None:
         """Test that project names <3 chars are rejected."""
@@ -92,6 +95,7 @@ class TestRunCli:
             "a@b.com\n"
             "Copyright\n"
             "MIT\n"
+            "\n"  # use reuse tooling → default yes
         )
         assert _drive(inputs, return_value=Path("/tmp/out/valid_name")).call_count == 1
 
@@ -103,9 +107,10 @@ class TestRunCli:
             "/tmp/out\n"
             "Author\n"
             "a@b.com\n"
+            "Copyright\n"
             "INVALID\n"  # invalid
             "MIT\n"  # valid, accepted
-            "Copyright\n"
+            "\n"  # use reuse tooling → default yes
         )
         assert _drive(inputs, return_value=Path("/tmp/out/proj")).call_count == 1
 
@@ -120,6 +125,7 @@ class TestRunCli:
             "a@b.com\n"
             "Copyright\n"
             "MIT\n"
+            "\n"  # use reuse tooling → default yes
         )
         assert _drive(inputs, return_value=Path("/tmp/out/proj")).call_count == 1
 
@@ -134,6 +140,7 @@ class TestRunCli:
             "a@b.com\n"
             "Copyright\n"
             "MIT\n"
+            "\n"  # use reuse tooling → default yes
         )
         assert _drive(inputs, return_value=Path("/tmp/out/proj")).call_count == 1
 
@@ -148,6 +155,7 @@ class TestRunCli:
             "a@b.com\n"
             "Copyright\n"
             "MIT\n"
+            "\n"  # use reuse tooling → default yes
         )
         assert _drive(inputs, return_value=Path("/tmp/out/proj")).call_count == 1
 
@@ -162,11 +170,28 @@ class TestRunCli:
             "a@b.com\n"  # non-empty, accepted
             "Copyright\n"
             "MIT\n"
+            "\n"  # use reuse tooling → default yes
         )
         assert _drive(inputs, return_value=Path("/tmp/out/proj")).call_count == 1
 
     def test_run_exception_handled(self) -> None:
         """Test that exceptions from run() are re-raised."""
-        inputs = "proj\ndesc\n/tmp/out\nAuthor\na@b.com\nCopyright\nMIT\n"
+        inputs = "proj\ndesc\n/tmp/out\nAuthor\na@b.com\nCopyright\nMIT\n\n"
         with pytest.raises(RuntimeError, match="test error"):
             _drive(inputs, exc=RuntimeError("test error"))
+
+    def test_invalid_use_reuse_retries(self) -> None:
+        """Test that an invalid reuse answer prompts again."""
+        inputs = (
+            "proj\n"
+            "desc\n"
+            "/tmp/out\n"
+            "Author\n"
+            "a@b.com\n"
+            "Copyright\n"
+            "MIT\n"
+            "maybe\n"  # invalid, rejected
+            "n\n"  # valid, accepted
+        )
+        mock = _drive(inputs, return_value=Path("/tmp/out/proj"))
+        assert mock.call_args[0][0].use_reuse is False

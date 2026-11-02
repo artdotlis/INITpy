@@ -19,11 +19,13 @@ from scaffolder.scaffold.package import create_package
 from shared_utils.git import reset_git
 from shared_utils.git import clone_git
 from pathlib import Path
+from dataclasses import dataclass
 
 import os
 
 from shared_utils.names import sanitize_package_name
 from shared_utils.files import configure_licenses
+from shared_utils.files import remove_reuse
 from scaffolder.scaffold.files import (
     amend_docs,
     update_copyright,
@@ -45,33 +47,40 @@ def clone_ref() -> str:
     return f"v{VERSION}"
 
 
-def run(
-    project_name: str,
-    output_dir: str,
-    author_name: str,
-    author_email: str,
-    license_name: str,
-    description: str,
-    copyright: str,
-    /,
-) -> Path:
+@dataclass(slots=True, frozen=True)
+class ScaffoldArgs:
+    """Bundle of user-provided scaffold options."""
+
+    project_name: str
+    output_dir: str
+    author_name: str
+    author_email: str
+    license_name: str
+    description: str
+    copyright: str
+    use_reuse: bool
+
+
+def run(args: ScaffoldArgs) -> Path:
     """Execute the multi-step scaffolding procedure.
 
     Clones the INITpy template, creates and wires a single package,
     applies project metadata, and resets version, licenses, and git state.
 
     Args:
-        project_name: Name of the new project.
-        output_dir: Parent directory where the project is created.
-        author_name: Name used for author fields.
-        author_email: Email used for author fields.
-        license_name: SPDX license identifier to configure.
-        description: Short description of the new project.
-        copyright: Copyright holder of the new project.
+        args: Bundled scaffold options.
 
     Returns:
         Path to the created project directory.
     """
+    project_name = args.project_name
+    output_dir = args.output_dir
+    author_name = args.author_name
+    author_email = args.author_email
+    license_name = args.license_name
+    description = args.description
+    copyright = args.copyright
+    use_reuse = args.use_reuse
     package_name = f"{sanitize_package_name(project_name)}_pkg"
     dep_name = sanitize_package_name_dep_group(package_name)
     output_path = Path(output_dir) / project_name
@@ -142,6 +151,11 @@ def run(
     # licenses.sh
     print("[scaffolder] updating licenses.sh ...")
     update_licenses_sh(output_path)
+
+    # strip reuse tooling unless requested
+    if not use_reuse:
+        print("[scaffolder] removing reuse tooling ...")
+        remove_reuse(output_path)
 
     # lock project dependencies
     print("[scaffolder] locking dependencies (may take a while) ...")

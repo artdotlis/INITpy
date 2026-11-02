@@ -89,7 +89,7 @@ def amend_docs(path: Path, package_name: str, project_name: str, /) -> None:
 
 
 def update_copyright(path: Path, copyright: str, /) -> None:
-    """Set the COPYRIGHT value in the generated project's ``package.env``.
+    """Set COPYRIGHT in the project's ``package.env``.
 
     Args:
         path: Root of the generated project.

@@ -129,6 +129,6 @@ tests:
   parallel: true
   jobs:
     - name: scaffolder
-      run: bin/install/wrap.sh 'cd $PKG_SHAR && coverage run -m pytest'
-    - name: shared-utils
       run: bin/install/wrap.sh 'cd $PKG_SCAF && coverage run -m pytest'
+    - name: shared-utils
+      run: bin/install/wrap.sh 'cd $PKG_SHAR && coverage run -m pytest'

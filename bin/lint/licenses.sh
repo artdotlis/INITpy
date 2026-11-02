@@ -9,6 +9,42 @@ ROOT="$(dirname "$(realpath "$0")")/../.."
 set -a
 source "$ROOT/package.env" || { echo "Failed to source $ROOT/package.env"; exit 1; }
 
+SOFTWARE_LIC="Unlicense"
+YEAR=$(date +%Y)
+
+# ---------------------------------------------------------------------------
+# Non-reuse LICENSE checks. Always run.
+# ---------------------------------------------------------------------------
+
+if [[ ! -f "$ROOT/LICENSE" ]]; then
+    echo "LICENSE file not found: $ROOT/LICENSE"
+    exit 1
+fi
+
+LICENSE_SHORT_FILES=(
+    "$ROOT/pyproject.toml"
+    "$ROOT/package.json"
+)
+
+for file_path in "${LICENSE_SHORT_FILES[@]}"; do
+    if [ ! -f "$file_path" ]; then
+        echo "File not found: $file_path"
+        exit 1
+    fi
+    if ! grep -q "$SOFTWARE_LIC" "$file_path" 2>/dev/null; then
+        echo "License ($SOFTWARE_LIC) not found in $file_path"
+        exit 1
+    fi
+done
+
+# ---------------------------------------------------------------------------
+# ===== REUSE:START =====
+# Reuse-only block through REUSE:END. Drop it along with LICENSES/, *.license,
+# and REUSE.toml when reuse is not used; the non-reuse checks above stay.
+# ---------------------------------------------------------------------------
+
+DATA_LIC="CC0-1.0"
+
 while IFS= read -r -d '' license || [[ -n "$license" ]]; do
   original="${license%.license}"
   if [[ ! -e "$original" ]]; then
@@ -16,10 +52,6 @@ while IFS= read -r -d '' license || [[ -n "$license" ]]; do
     rm -f "$license" || true
   fi
 done < <(find "$ROOT" -type f -name "*.license" -print0 2>/dev/null || true)
-
-SOFTWARE_LIC="Unlicense"
-DATA_LIC="CC0-1.0"
-YEAR=$(date +%Y)
 
 if [[ -z "${COPYRIGHT:-}" ]]; then
     echo "COPYRIGHT is not set or is empty"
@@ -46,22 +78,6 @@ for license_file in "${LICENSE_FILES[@]}"; do
     fi
     if ! grep -Pv '^[^sS]+\s*SPDX-' "$license_file" | grep -q -e "$SOFTWARE_LIC" -e "$DATA_LIC" 2>/dev/null; then
         echo "Neither license ($SOFTWARE_LIC) nor ($DATA_LIC) found in $license_file"
-        exit 1
-    fi
-done
-
-LICENSE_SHORT_FILES=(
-    "$ROOT/pyproject.toml"
-    "$ROOT/package.json"
-)
-
-for file_path in "${LICENSE_SHORT_FILES[@]}"; do
-    if [ ! -f "$file_path" ]; then
-        echo "File not found: $file_path"
-        exit 1
-    fi
-    if ! grep -q "$SOFTWARE_LIC" "$file_path" 2>/dev/null; then
-        echo "License ($SOFTWARE_LIC) not found in $file_path"
         exit 1
     fi
 done
@@ -194,6 +210,10 @@ if ! reuse lint; then
     echo "Linting failed!"
     exit 1
 fi
+
+# ---------------------------------------------------------------------------
+# ===== REUSE:END =====
+# ---------------------------------------------------------------------------
 
 if [ "${DISABLE_GIT_ADD:-0}" != "1" ]; then
     git -C "$ROOT" add .
