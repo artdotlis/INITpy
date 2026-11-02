@@ -59,10 +59,7 @@ def test_placeholder() -> None:
 
 
 def amend_docs(path: Path, package_name: str, project_name: str, /) -> None:
-    """Update the docs index and module reference.
-
-    The VitePress config (``.vitepress/config.mts``) is not edited here
-    because it is a TypeScript module and cannot be parsed with tomlkit.
+    """Update the docs index, module reference, and VitePress config.
 
     Args:
         path: Root of the generated project.
@@ -71,15 +68,25 @@ def amend_docs(path: Path, package_name: str, project_name: str, /) -> None:
     """
     index = path / "packages" / "docs" / "src" / "index.md"
     text = index.read_text()
-    text = text.replace("# INIT - Python", f"# {project_name}", 1)
+    text = text.replace("# INITpy", f"# {project_name}", 1)
     index.write_text(text)
 
     ref_m = path / "packages" / "docs" / "src" / "ref" / "ref_m.md"
     if ref_m.exists():
         ref_m.write_text(
-            f"# {project_name} - {package_name}\n\n::: {package_name}\n    options:"
-            + "\n        show_submodules: true\n"
+            f"::: {package_name}\n" + "options:\n" + "show_submodules: true\n"
         )
+
+    config = path / "packages" / "docs" / ".vitepress" / "config.toml"
+    doc = tomlkit.parse(config.read_text())
+    doc["site"]["title"] = project_name
+    theme = doc.get("vitepress", {}).get("themeConfig")
+    if theme is not None and "socialLinks" in theme:
+        links = theme["socialLinks"]
+        for link in list(links):
+            if str(link.get("link", "")).startswith("https://github.com/artdotlis"):
+                links.remove(link)
+    config.write_text(tomlkit.dumps(doc))
 
 
 def update_copyright(path: Path, copyright: str, /) -> None:

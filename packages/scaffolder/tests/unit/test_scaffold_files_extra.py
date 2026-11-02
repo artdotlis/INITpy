@@ -26,12 +26,21 @@ from shared_utils.constants import VERSION
 class TestAmendDocs:
     """Tests for amend_docs."""
 
+    @staticmethod
+    def _write_docs(tmp_path: Path, index: str = "# INITpy\n") -> None:
+        """Create the default scaffolded docs files."""
+        index_md = tmp_path / "packages" / "docs" / "src" / "index.md"
+        index_md.parent.mkdir(parents=True, exist_ok=True)
+        index_md.write_text(index)
+        config = tmp_path / "packages" / "docs" / ".vitepress" / "config.toml"
+        config.parent.mkdir(parents=True, exist_ok=True)
+        config.write_text('[site]\ntitle = "INIT - Python"\n')
+
     def test_updates_index_title(self, tmp_path: Path) -> None:
         """Retitle the docs index with the project name."""
-        index = tmp_path / "packages" / "docs" / "src" / "index.md"
-        index.parent.mkdir(parents=True)
-        index.write_text("# INIT - Python\n\ncontent")
+        self._write_docs(tmp_path, "# INITpy\n\ncontent")
         amend_docs(tmp_path, "my_pkg", "NewProject")
+        index = tmp_path / "packages" / "docs" / "src" / "index.md"
         assert index.read_text().startswith("# NewProject")
 
     def test_updates_ref_m_when_exists(self, tmp_path: Path) -> None:
@@ -39,11 +48,26 @@ class TestAmendDocs:
         ref_m = tmp_path / "packages" / "docs" / "src" / "ref" / "ref_m.md"
         ref_m.parent.mkdir(parents=True)
         ref_m.write_text("# old content\n")
-        # Need index.md for amend_docs to not fail
-        index = tmp_path / "packages" / "docs" / "src" / "index.md"
-        index.write_text("# INIT - Python\n")
+        self._write_docs(tmp_path)
         amend_docs(tmp_path, "my_pkg", "NewProject")
-        assert "# NewProject - my_pkg" in ref_m.read_text()
+        assert "::: my_pkg\noptions:\nshow_submodules: true" in ref_m.read_text()
+
+    def test_updates_config_title_and_drops_repo_link(self, tmp_path: Path) -> None:
+        """Set the site title and drop the template repo social link in config."""
+        self._write_docs(tmp_path)
+        config = tmp_path / "packages" / "docs" / ".vitepress" / "config.toml"
+        config.write_text(
+            '[site]\ntitle = "INIT - Python"\n'
+            '[vitepress]\nbase = "/INITpy/"\n'
+            "[vitepress.themeConfig]\n"
+            '[[vitepress.themeConfig.socialLinks]]\nicon = "github"\n'
+            'link = "https://github.com/artdotlis/INITpy"\n'
+        )
+        amend_docs(tmp_path, "my_pkg", "NewProject")
+        doc = tomlkit.parse(config.read_text())
+        assert doc["site"]["title"] == "NewProject"
+        links = doc["vitepress"]["themeConfig"].get("socialLinks", [])
+        assert all("artdotlis" not in str(link.get("link", "")) for link in links)
 
 
 class TestUpdateCopyright:

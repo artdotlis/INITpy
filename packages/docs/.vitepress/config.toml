@@ -13,6 +13,8 @@ base = "/INITpy/"
 outDir = "public/docs"
 cleanUrls = true
 lastUpdated = true
+srcDir = "src"
+theme = "./theme"
 
 [vitepress.markdown.theme]
 light = "vitesse-light"

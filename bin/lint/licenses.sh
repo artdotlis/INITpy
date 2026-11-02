@@ -129,6 +129,7 @@ SOFTWARE=(
     '^packages/.+\.py$'
     '^packages/.+\.sh$'
     '^packages/.+\.ts$'
+    '^packages/.+\.vue$'
 )
 
 CC0_FILES=(
