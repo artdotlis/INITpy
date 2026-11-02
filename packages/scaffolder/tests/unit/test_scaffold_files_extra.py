@@ -15,6 +15,7 @@ from scaffolder.scaffold.files import (
     correct_core_project,
     set_entry_prod,
     set_version,
+    update_copyright,
     update_envs,
     update_licenses_sh,
     update_tests,
@@ -61,6 +62,20 @@ class TestAmendDocs:
         index.write_text("# INIT - Python\n")
         amend_docs(tmp_path, "my_pkg", "NewProject")
         assert "# NewProject - my_pkg" in ref_m.read_text()
+
+
+class TestUpdateCopyright:
+    """Tests for update_copyright."""
+
+    def test_updates_package_env(self, tmp_path: Path) -> None:
+        """Replace the COPYRIGHT value in package.env."""
+        pkg_env = tmp_path / "package.env"
+        pkg_env.write_text('COPYRIGHT="Artur Lissin"\nPYV=3.13\n')
+        update_copyright(tmp_path, "New Owner")
+        content = pkg_env.read_text()
+        assert 'COPYRIGHT="New Owner"' in content
+        assert "Artur Lissin" not in content
+        assert "PYV=3.13" in content
 
 
 class TestUpdateEnvs:

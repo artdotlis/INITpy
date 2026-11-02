@@ -26,6 +26,7 @@ from shared_utils.names import sanitize_package_name
 from shared_utils.files import configure_licenses
 from scaffolder.scaffold.files import (
     amend_docs,
+    update_copyright,
     update_envs,
     update_licenses_sh,
     set_version,
@@ -51,6 +52,7 @@ def run(
     author_email: str,
     license_name: str,
     description: str,
+    copyright: str,
     /,
 ) -> Path:
     """Execute the multi-step scaffolding procedure.
@@ -65,6 +67,7 @@ def run(
         author_email: Email used for author fields.
         license_name: SPDX license identifier to configure.
         description: Short description of the new project.
+        copyright: Copyright holder of the new project.
 
     Returns:
         Path to the created project directory.
@@ -100,6 +103,10 @@ def run(
     # update env vars
     print("[scaffolder] updating env vars ...")
     update_envs(output_path, package_name)
+
+    # replace copyright holder in package.env
+    print("[scaffolder] updating copyright ...")
+    update_copyright(output_path, copyright)
 
     # single package test wiring in lefthook + CI
     print("[scaffolder] wiring tests ...")

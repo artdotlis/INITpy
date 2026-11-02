@@ -53,6 +53,7 @@ class TestRunCli:
             "/tmp/output\n"  # output dir (non-empty)
             "Test Author\n"  # author name
             "test@example.com\n"  # author email
+            "Test Copyright\n"  # copyright holder
             "MIT\n"  # valid license
         )
         mock = _drive(inputs, return_value=Path("/tmp/output/test_proj"))
@@ -61,6 +62,7 @@ class TestRunCli:
         assert call_kwargs[0] == "test_proj"
         assert call_kwargs[1] == "/tmp/output"
         assert call_kwargs[4] == "MIT"
+        assert call_kwargs[6] == "Test Copyright"
 
     def test_scaf_output_prefix_skips_prompt(self) -> None:
         """When SCAF_OUTPUT_DIR is set it is used as the output prefix."""
@@ -69,6 +71,7 @@ class TestRunCli:
             "A description\n"  # description
             "Test Author\n"  # author name
             "test@example.com\n"  # author email
+            "Test Copyright\n"  # copyright holder
             "MIT\n"  # valid license
         )
         mock = _drive(
@@ -87,6 +90,7 @@ class TestRunCli:
             "/tmp/out\n"
             "Author\n"
             "a@b.com\n"
+            "Copyright\n"
             "MIT\n"
         )
         assert _drive(inputs, return_value=Path("/tmp/out/valid_name")).call_count == 1
@@ -101,6 +105,7 @@ class TestRunCli:
             "a@b.com\n"
             "INVALID\n"  # invalid
             "MIT\n"  # valid, accepted
+            "Copyright\n"
         )
         assert _drive(inputs, return_value=Path("/tmp/out/proj")).call_count == 1
 
@@ -113,6 +118,7 @@ class TestRunCli:
             "/tmp/out\n"
             "Author\n"
             "a@b.com\n"
+            "Copyright\n"
             "MIT\n"
         )
         assert _drive(inputs, return_value=Path("/tmp/out/proj")).call_count == 1
@@ -126,6 +132,7 @@ class TestRunCli:
             "/tmp/out\n"  # non-empty, accepted
             "Author\n"
             "a@b.com\n"
+            "Copyright\n"
             "MIT\n"
         )
         assert _drive(inputs, return_value=Path("/tmp/out/proj")).call_count == 1
@@ -139,6 +146,7 @@ class TestRunCli:
             "\n"  # empty, rejected
             "Author\n"  # non-empty, accepted
             "a@b.com\n"
+            "Copyright\n"
             "MIT\n"
         )
         assert _drive(inputs, return_value=Path("/tmp/out/proj")).call_count == 1
@@ -152,12 +160,13 @@ class TestRunCli:
             "Author\n"
             "\n"  # empty, rejected
             "a@b.com\n"  # non-empty, accepted
+            "Copyright\n"
             "MIT\n"
         )
         assert _drive(inputs, return_value=Path("/tmp/out/proj")).call_count == 1
 
     def test_run_exception_handled(self) -> None:
         """Test that exceptions from run() are re-raised."""
-        inputs = "proj\ndesc\n/tmp/out\nAuthor\na@b.com\nMIT\n"
+        inputs = "proj\ndesc\n/tmp/out\nAuthor\na@b.com\nCopyright\nMIT\n"
         with pytest.raises(RuntimeError, match="test error"):
             _drive(inputs, exc=RuntimeError("test error"))

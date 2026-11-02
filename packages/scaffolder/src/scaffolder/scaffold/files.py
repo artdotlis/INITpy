@@ -5,6 +5,7 @@
 """File transformation functions for scaffolding."""
 
 import json
+import re
 import shutil
 import tomlkit
 
@@ -85,6 +86,19 @@ def amend_docs(path: Path, package_name: str, project_name: str, /) -> None:
     if "repo_url" in doc:
         del doc["repo_url"]
     zensical.write_text(tomlkit.dumps(doc))
+
+
+def update_copyright(path: Path, copyright: str, /) -> None:
+    """Set the COPYRIGHT value in the generated project's ``package.env``.
+
+    Args:
+        path: Root of the generated project.
+        copyright: Copyright holder of the new project.
+    """
+    package_env = path / "package.env"
+    content = package_env.read_text()
+    content = re.sub(r"^COPYRIGHT=.*$", f'COPYRIGHT="{copyright}"', content, flags=re.M)
+    package_env.write_text(content)
 
 
 def update_envs(path: Path, package_name: str, /) -> None:

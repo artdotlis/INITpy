@@ -51,6 +51,12 @@ def run_cli() -> None:
             break
         print("❌ Cannot be empty", file=sys.stderr)
 
+    while True:
+        copyright = input("Copyright holder: ").strip()
+        if copyright:
+            break
+        print("❌ Cannot be empty", file=sys.stderr)
+
     examples = random.sample(list(LICENSE_MAP.keys()), 6)
     print(f"\nAvailable licenses: {', '.join(examples)}, and more")
     while True:
@@ -68,6 +74,7 @@ def run_cli() -> None:
             author_email,
             license_name,
             project_description,
+            copyright,
         )
         print(f"\n✅ '{project_name}' → {result.absolute()}")
     except Exception as exc:
