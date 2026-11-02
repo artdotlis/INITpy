@@ -64,18 +64,32 @@ load_env_file() {
 
 if [[ ! -f "$ENV_MK" ]]; then
     load_env_file "$ROOT/package.env" > "$ENV_MK" 2>/dev/null || true
-    UV_INSTALL_DIR="${ENV_VARS[UV_INSTALL_DIR]:-}"
+
+    FNM_HOME="${ENV_VARS[FNM_HOME]:-}"
     UV_PYTHON_BIN_DIR="${ENV_VARS[UV_PYTHON_BIN_DIR]:-}"
+    UV_INSTALL_DIR="${ENV_VARS[UV_INSTALL_DIR]:-}"
     PNPM_HOME="${ENV_VARS[PNPM_HOME]:-}"
 
     UVE="$ROOT/$UV_INSTALL_DIR/uv"
-    command -v uv &>/dev/null && UVE="uv"
-
     PNPME="$ROOT/$PNPM_HOME/bin/pnpm"
-    command -v pnpm &>/dev/null && PNPME="pnpm"
+
+    declare -a PATH_DIRS
+    PATH_DIRS+=("$ROOT/$FNM_HOME/aliases/default/bin")
+    PATH_DIRS+=("$ROOT/$UV_PYTHON_BIN_DIR")
+    PATH_DIRS+=("$ROOT/$UV_INSTALL_DIR")
+    PATH_DIRS+=("$ROOT/$PNPM_HOME")
+
+    PATH_BUILD="$PATH"
+    declare -A _seen
+    for d in "${PATH_DIRS[@]}"; do
+        if [[ -z "${_seen[$d]:-}" ]]; then
+            PATH_BUILD="$PATH_BUILD:$d"
+            _seen[$d]=1
+        fi
+    done
 
     {
-        printf 'PATH := %s:%s/%s:%s/%s:%s/%s\n' "$PATH" "$ROOT" "$UV_PYTHON_BIN_DIR" "$ROOT" "$UV_INSTALL_DIR" "$ROOT" "$PNPM_HOME"
+        printf 'PATH := %s\n' "$PATH_BUILD"
         printf 'PNPME := %s\n' "$PNPME"
         printf 'UVE := %s\n' "$UVE"
         printf 'SHELL := /bin/bash\n'

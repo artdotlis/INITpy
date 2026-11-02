@@ -28,27 +28,11 @@ class TestAmendDocs:
 
     def test_updates_index_title(self, tmp_path: Path) -> None:
         """Retitle the docs index with the project name."""
-        zensical = tmp_path / ".zensical.toml"
-        zensical.write_text('site_name = "old"\n')
         index = tmp_path / "packages" / "docs" / "src" / "index.md"
         index.parent.mkdir(parents=True)
         index.write_text("# INIT - Python\n\ncontent")
         amend_docs(tmp_path, "my_pkg", "NewProject")
         assert index.read_text().startswith("# NewProject")
-
-    def test_updates_zensical_site_name(self, tmp_path: Path) -> None:
-        """Update the site name and drop repo references in zensical."""
-        zensical = tmp_path / ".zensical.toml"
-        zensical.write_text('site_name = "old"\nrepo_name = "x"\nrepo_url = "y"\n')
-        # Need index.md for amend_docs to not fail
-        index = tmp_path / "packages" / "docs" / "src" / "index.md"
-        index.parent.mkdir(parents=True)
-        index.write_text("# INIT - Python\n")
-        amend_docs(tmp_path, "my_pkg", "NewProject")
-        doc = tomlkit.parse(zensical.read_text())
-        assert doc["site_name"] == "NewProject"
-        assert "repo_name" not in doc
-        assert "repo_url" not in doc
 
     def test_updates_ref_m_when_exists(self, tmp_path: Path) -> None:
         """Rewrite the module reference doc when it exists."""
@@ -56,8 +40,6 @@ class TestAmendDocs:
         ref_m.parent.mkdir(parents=True)
         ref_m.write_text("# old content\n")
         # Need index.md for amend_docs to not fail
-        zensical = tmp_path / ".zensical.toml"
-        zensical.write_text('site_name = "old"\n')
         index = tmp_path / "packages" / "docs" / "src" / "index.md"
         index.write_text("# INIT - Python\n")
         amend_docs(tmp_path, "my_pkg", "NewProject")

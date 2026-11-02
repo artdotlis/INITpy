@@ -105,7 +105,7 @@ def run(args: ScaffoldArgs) -> Path:
     print("[scaffolder] writing package files ...")
     write_package_files(output_path, package_name)
 
-    # amend docs / zensical
+    # amend docs / vitepress
     print("[scaffolder] amending docs ...")
     amend_docs(output_path, package_name, project_name)
 

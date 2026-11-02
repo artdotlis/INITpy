@@ -60,7 +60,7 @@ fi
 echo "COPYRIGHT is set: $COPYRIGHT"
 
 LICENSE_FILES=(
-    "$ROOT/.zensical.toml"
+    "$CONFIG_DOCS"
 )
 
 for license_file in "${LICENSE_FILES[@]}"; do

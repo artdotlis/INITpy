@@ -59,7 +59,10 @@ def test_placeholder() -> None:
 
 
 def amend_docs(path: Path, package_name: str, project_name: str, /) -> None:
-    """Update the docs index, module reference, and ``.zensical.toml``.
+    """Update the docs index and module reference.
+
+    The VitePress config (``.vitepress/config.mts``) is not edited here
+    because it is a TypeScript module and cannot be parsed with tomlkit.
 
     Args:
         path: Root of the generated project.
@@ -77,15 +80,6 @@ def amend_docs(path: Path, package_name: str, project_name: str, /) -> None:
             f"# {project_name} - {package_name}\n\n::: {package_name}\n    options:"
             + "\n        show_submodules: true\n"
         )
-
-    zensical = path / ".zensical.toml"
-    doc = tomlkit.parse(zensical.read_text())
-    doc["site_name"] = project_name
-    if "repo_name" in doc:
-        del doc["repo_name"]
-    if "repo_url" in doc:
-        del doc["repo_url"]
-    zensical.write_text(tomlkit.dumps(doc))
 
 
 def update_copyright(path: Path, copyright: str, /) -> None:

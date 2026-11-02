@@ -1,7 +1,7 @@
 version = 1
 
 [[annotations]]
-path = ["src/**/*.md"]
+path = [".vitepress/**/*.md"]
 precedence = "override"
 SPDX-FileCopyrightText = "2026 Artur Lissin"
 SPDX-License-Identifier = "Unlicense"

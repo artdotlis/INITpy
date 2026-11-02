@@ -52,8 +52,7 @@ dev = [
   # types
 ]
 docs = [
-  "zensical ==0.0.71",
-  "mkdocstrings-python ==2.0.10",
+  "griffe2md ==1.1.0",
 ]
 test = ["pytest ==9.1.1", "coverage ==7.17.0"]
 

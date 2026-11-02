@@ -59,10 +59,10 @@ build-docs:
 	cd $(ROOT_MAKEFILE)/$(PKG_DOCS) && $(PNPME) run build
 
 run-docs: build-docs
-	$(UVE) run zensical build -f $(CONFIG_DOCS)
+	cd $(PKG_DOCS) && $(PNPME) run build
 
 serve-docs: build-docs
-	$(UVE) run zensical serve -f $(CONFIG_DOCS) -a 0.0.0.0:8000
+	cd $(PKG_DOCS) && $(PNPME) run preview
 
 run-tests:
 	$(UVE) run lefthook run tests
@@ -95,3 +95,6 @@ com commit:
 	else \
 		$(UVE) run cz commit --write-message-to-file .commit_msg && rm -f .commit_msg; \
 	fi
+
+clean:
+	bash $(ROOT_MAKEFILE)/bin/install/clean.sh

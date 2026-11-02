@@ -14,7 +14,7 @@ SPDX-License-Identifier: CC0-1.0
 
 [![main](https://github.com/artdotlis/INITpy/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/artdotlis/INITpy/actions/workflows/main.yml)
 
-**INITpy** is a minimal, opinionated project layout designed for modern Python development. It leverages `uv` for environment management, `pytest` for testing, and `zensical` for documentation.
+**INITpy** is a minimal, opinionated project layout designed for modern Python development. It leverages `uv` for environment management, `pytest` for testing, and `vitepress` for documentation.
 
 ---
 
@@ -25,7 +25,7 @@ SPDX-License-Identifier: CC0-1.0
 - **Conventional Commits:** Uses `commitizen` with `vim` for editing commit messages.
 - **Strict Consistency:** A Docker-based Dev Container ensures every contributor uses the exact same tool versions.
 - **Robust CI/CD:** Ready-to-go workflows for testing, linting (`ruff`), and static analysis (`pyrefly`).
-- **Documentation:** Built with `zensical` (Python) and deployed via GitHub Pages.
+- **Documentation:** Built with `vitepress` and deployed via GitHub Pages.
 
 ---
 
@@ -80,7 +80,7 @@ All commands must be run within the Dev Container or by passing `CONTAINER=conta
 | **Build**   | `make run-build`              | Builds all packages as wheels via `uv`.                                              |
 | **Quality** | `make run-checks`             | Runs `lefthook` pre-commit hooks (lint + static analysis)                            |
 | **Test**    | `make run-tests`              | Runs the pytest test suite (incl. coverage) for all packages via `lefthook`.         |
-| **Docs**    | `make run-docs`, `serve-docs` | Builds or serves the `zensical` documentation.                                       |
+| **Docs**    | `make run-docs`, `serve-docs` | Builds or serves the VitePress documentation.                                        |
 | **Release** | `make run-bump`               | Bumps version and updates CHANGELOG.                                                 |
 | **Git**     | `make commit`, `make com`     | Generates commit message with `commitizen` or opens `vim` for editing, then commits. |
 
@@ -115,11 +115,11 @@ Projects land at `SCAF_OUTPUT_DIR/<project-name>` on the host (default `./PROJEC
 
 ## 📚 Documentation
 
-The API documentation is built with **Zensical**.
+The API documentation is generated with **griffe2md** and served with **VitePress**.
 
 - **Build:** `make run-docs`
 - **Serve:** `make serve-docs`
-- **Port:** Configured via `DOC_PORT` in `.env` (default: `9191`)
+- **Preview:** `make serve-docs`
 
 ---
 

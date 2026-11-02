@@ -123,6 +123,10 @@ instance/
 # Sphinx documentation
 docs/_build/
 
+# VitePress
+.vitepress/.cache/
+.vitepress/dist/
+
 # PyBuilder
 .pybuilder/
 target/
@@ -246,6 +250,7 @@ build/Release
 
 # Dependency directories
 node_modules/
+.fnm
 jspm_packages/
 
 # Snowpack dependency directory (https://snowpack.dev/)

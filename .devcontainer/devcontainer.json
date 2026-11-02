@@ -1,16 +1,11 @@
 {
   "customizations": {},
-  "dockerComposeFile": [
-    "../docker-compose.yml",
-    "dev.docker-compose.yml"
-  ],
+  "dockerComposeFile": ["../docker-compose.yml", "dev.docker-compose.yml"],
   "initializeCommand": "if [ ! -f .env ]; then cat package.env > .env; fi",
   "name": "initpy",
   "postAttachCommand": "make dev",
   "remoteUser": "devu",
-  "runServices": [
-    "dev"
-  ],
+  "runServices": ["dev"],
   "service": "dev",
   "shutdownAction": "stopCompose",
   "updateRemoteUserUID": true,
