@@ -4,8 +4,10 @@
     "name": "Artur Lissin"
   },
   "devDependencies": {
+    "@types/node": "catalog:",
     "oxlint": "catalog:",
-    "prettier": "catalog:"
+    "prettier": "catalog:",
+    "typescript": "catalog:"
   },
   "license": "Unlicense",
   "name": "initpy",

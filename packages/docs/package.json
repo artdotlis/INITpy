@@ -15,5 +15,6 @@
     "build": "vitepress build",
     "preview": "vitepress preview",
     "test": "vitest run"
-  }
+  },
+  "type": "module"
 }

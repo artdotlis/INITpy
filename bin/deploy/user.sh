@@ -4,8 +4,6 @@
 #
 # SPDX-License-Identifier: Unlicense
 
-#!/bin/bash
-
 set -euo pipefail
 
 USERNAME="${USERNAME:-devu}"
