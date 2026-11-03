@@ -11,8 +11,8 @@
   "name": "docs",
   "private": true,
   "scripts": {
-    "build": "vitepress build .vitepress --config config.ts",
-    "dev": "vitepress dev .vitepress --config config.ts",
-    "preview": "vitepress preview .vitepress"
+    "build": "vitepress build",
+    "dev": "vitepress dev",
+    "preview": "vitepress preview"
   }
 }

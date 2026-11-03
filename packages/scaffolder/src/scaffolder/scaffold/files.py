@@ -68,14 +68,13 @@ def amend_docs(path: Path, package_name: str, project_name: str, /) -> None:
     """
     index = path / "packages" / "docs" / "src" / "index.md"
     text = index.read_text()
-    text = text.replace("# INITpy", f"# {project_name}", 1)
+    # The template home hero uses `name: INITpy` in its frontmatter.
+    text = text.replace("name: INITpy", f"name: {project_name}", 1)
     index.write_text(text)
 
-    ref_m = path / "packages" / "docs" / "src" / "ref" / "ref_m.md"
-    if ref_m.exists():
-        ref_m.write_text(
-            f"::: {package_name}\n" + "options:\n" + "show_submodules: true\n"
-        )
+    ref_index = path / "packages" / "docs" / "src" / "ref" / "index.md"
+    if ref_index.exists():
+        ref_index.write_text(f"# Reference\n\n- [{package_name}]({package_name})\n")
 
     config = path / "packages" / "docs" / ".vitepress" / "config.toml"
     doc = tomlkit.parse(config.read_text())

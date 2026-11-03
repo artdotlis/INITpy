@@ -55,14 +55,22 @@ run-checks:
 		$(UVE) run lefthook run pre-commit --all-files -f; \
 	fi
 
-build-docs:
+build-docs: docs-ref
 	cd $(ROOT_MAKEFILE)/$(PKG_DOCS) && $(PNPME) run build
 
 run-docs: build-docs
-	cd $(PKG_DOCS) && $(PNPME) run build
+	@echo "docs build complete (CI)"
 
 serve-docs: build-docs
 	cd $(PKG_DOCS) && $(PNPME) run preview
+
+docs-ref:
+	$(UVE) sync --frozen --group docs
+	$(UVE) run griffe2md scaffolder -o $(DOCS_REF_DIR)/scaffolder.md
+	$(UVE) run griffe2md shared_utils -o $(DOCS_REF_DIR)/shared_utils.md
+	mkdir -p $(DOCS_PARTIALS_DIR)
+	cp $(ROOT_MAKEFILE)/README.md $(DOCS_PARTIALS_DIR)/readme.md
+	cp $(ROOT_MAKEFILE)/LICENSE $(DOCS_PARTIALS_DIR)/license.md
 
 run-tests:
 	$(UVE) run lefthook run tests

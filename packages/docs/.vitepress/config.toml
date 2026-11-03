@@ -10,7 +10,6 @@ description = "INITpy documentation"
 
 [vitepress]
 base = "/INITpy/"
-outDir = "public/docs"
 cleanUrls = true
 lastUpdated = true
 srcDir = "src"
@@ -47,7 +46,7 @@ link = "/license/"
 
 [[vitepress.themeConfig.nav]]
 text = "API"
-link = "/api/"
+link = "/ref/"
 
 [[vitepress.themeConfig.footer]]
 copyright = "Copyright © 2026 Artur Lissin"

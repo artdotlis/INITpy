@@ -128,7 +128,7 @@ fi
 SOFTWARE=(
     '^packages/.+\.py$'
     '^packages/.+\.sh$'
-    '^packages/.+\.ts$'
+    '^packages/.+\.(ts|mts)$'
     '^packages/.+\.vue$'
 )
 

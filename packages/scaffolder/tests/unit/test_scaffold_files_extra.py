@@ -27,7 +27,7 @@ class TestAmendDocs:
     """Tests for amend_docs."""
 
     @staticmethod
-    def _write_docs(tmp_path: Path, index: str = "# INITpy\n") -> None:
+    def _write_docs(tmp_path: Path, index: str = "name: INITpy\n") -> None:
         """Create the default scaffolded docs files."""
         index_md = tmp_path / "packages" / "docs" / "src" / "index.md"
         index_md.parent.mkdir(parents=True, exist_ok=True)
@@ -37,20 +37,21 @@ class TestAmendDocs:
         config.write_text('[site]\ntitle = "INIT - Python"\n')
 
     def test_updates_index_title(self, tmp_path: Path) -> None:
-        """Retitle the docs index with the project name."""
-        self._write_docs(tmp_path, "# INITpy\n\ncontent")
+        """Retitle the docs index hero with the project name."""
+        self._write_docs(tmp_path, "hero:\n    name: INITpy\n\ncontent")
         amend_docs(tmp_path, "my_pkg", "NewProject")
         index = tmp_path / "packages" / "docs" / "src" / "index.md"
-        assert index.read_text().startswith("# NewProject")
+        assert "name: NewProject" in index.read_text()
 
-    def test_updates_ref_m_when_exists(self, tmp_path: Path) -> None:
-        """Rewrite the module reference doc when it exists."""
-        ref_m = tmp_path / "packages" / "docs" / "src" / "ref" / "ref_m.md"
-        ref_m.parent.mkdir(parents=True)
-        ref_m.write_text("# old content\n")
+    def test_updates_ref_index_when_exists(self, tmp_path: Path) -> None:
+        """Rewrite the module reference index for the single package."""
+        ref_index = tmp_path / "packages" / "docs" / "src" / "ref" / "index.md"
+        ref_index.parent.mkdir(parents=True)
+        ref_index.write_text("# old content\n")
         self._write_docs(tmp_path)
         amend_docs(tmp_path, "my_pkg", "NewProject")
-        assert "::: my_pkg\noptions:\nshow_submodules: true" in ref_m.read_text()
+        content = ref_index.read_text()
+        assert "- [my_pkg](my_pkg)" in content
 
     def test_updates_config_title_and_drops_repo_link(self, tmp_path: Path) -> None:
         """Set the site title and drop the template repo social link in config."""

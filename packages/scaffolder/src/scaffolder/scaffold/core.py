@@ -52,13 +52,21 @@ class ScaffoldArgs:
     """Bundle of user-provided scaffold options."""
 
     project_name: str
+    """New project name."""
     output_dir: str
+    """Destination for the generated project."""
     author_name: str
+    """Author / copyright holder name."""
     author_email: str
+    """Author contact email."""
     license_name: str
+    """SPDX license identifier for the project."""
     description: str
+    """One-line project description."""
     copyright: str
+    """Full copyright owner string."""
     use_reuse: bool
+    """Whether to keep the REUSE tooling."""
 
 
 def run(args: ScaffoldArgs) -> Path:

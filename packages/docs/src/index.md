@@ -1,30 +1,26 @@
+---
+layout: home
+
+hero:
+  name: INITpy
+  text: Python
+  tagline: INITpy documentation
+  actions:
+    - theme: brand
+      text: About
+      link: /about/
+    - theme: alt
+      text: API Reference
+      link: /ref/
+features:
+  - title: Docs Built-in
+    details: VitePress site with an API reference generated straight from docstrings.
+  - title: Ready CI/CD
+    details: Workflows for tests, linting, and static analysis run out of the box.
+---
+
 <!--
 SPDX-FileCopyrightText: 2026 Artur Lissin
 
 SPDX-License-Identifier: CC0-1.0
 -->
-
----
-
-layout: home
-
-hero:
-name: INITpy
-text: Python
-tagline: INITpy documentation
-actions: - theme: brand
-text: Markdown Examples
-link: /markdown-examples - theme: alt
-text: API Examples
-link: /api-examples
-
-features:
-
-- title: Feature A
-  details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-- title: Feature B
-  details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-- title: Feature C
-  details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-
----
