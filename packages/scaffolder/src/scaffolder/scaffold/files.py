@@ -208,6 +208,47 @@ def set_version(path: Path, /) -> None:
             fpath.write_text(json.dumps(data, indent=2) + "\n")
 
 
+def update_commitizen_version_files(path: Path, package_name: str, /) -> None:
+    """Scope :ref:`[tool.commitizen] version_files` to the new package.
+
+    Removes entries referencing shared_utils and renames the scaffolder
+    entry to the scaffolded package's pyproject.toml.
+
+    Args:
+        path: Root of the generated project.
+        package_name: The package being scaffolded.
+    """
+    root_pyproject = path / "pyproject.toml"
+    if not root_pyproject.is_file():
+        return
+
+    doc = tomlkit.parse(root_pyproject.read_text())
+    tool = doc.get("tool")
+    if tool is None:
+        return
+    commitizen = tool.get("commitizen")
+    if commitizen is None:
+        return
+
+    version_files = commitizen.get("version_files")
+    if not isinstance(version_files, list):
+        return
+
+    # Drop shared_utils entries; retarget scaffolder to the new package.
+    cleaned = [
+        (
+            f"packages/{package_name}/pyproject.toml"
+            if entry == "packages/scaffolder/pyproject.toml"
+            else entry
+        )
+        for entry in version_files
+        if "shared_utils" not in entry
+    ]
+    commitizen["version_files"] = cleaned
+
+    root_pyproject.write_text(tomlkit.dumps(doc))
+
+
 def update_licenses_sh(path: Path, /) -> None:
     """Add a leading error exit to ``licenses.sh``.
 

@@ -32,6 +32,7 @@ from scaffolder.scaffold.files import (
     update_envs,
     update_licenses_sh,
     set_version,
+    update_commitizen_version_files,
     update_tests,
 )
 
@@ -143,6 +144,9 @@ def run(args: ScaffoldArgs) -> Path:
 
     # version 0.1.0
     set_version(output_path)
+
+    # scope commitizen version_files to the new package
+    update_commitizen_version_files(output_path, package_name)
 
     # strip SPDX + .license
     print("[scaffolder] stripping SPDX headers ...")

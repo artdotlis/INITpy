@@ -15,6 +15,7 @@ from scaffolder.scaffold.files import (
     correct_core_project,
     remove_prod_docker,
     set_version,
+    update_commitizen_version_files,
     update_copyright,
     update_envs,
     update_licenses_sh,
@@ -208,6 +209,44 @@ class TestSetVersion:
         content = p.read_text()
         assert content.startswith('[project]\nversion = "0.1.0"')
         assert f"shellcheck-py=={VERSION}.1" in content
+
+
+class TestUpdateCommitizenVersionFiles:
+    """Tests for update_commitizen_version_files."""
+
+    def test_retargets_and_removes_shared_utils(self, tmp_path: Path) -> None:
+        """Drop shared_utils entries and rename scaffolder to new package."""
+        p = tmp_path / "pyproject.toml"
+        p.write_text(
+            "[tool.commitizen]\nversion_files = [\n"
+            '  "README.md:^\\\\[!\\\\[release:",\n'
+            '  "packages/shared_utils/src/shared_utils/constants.py:^VERSION",\n'
+            '  "package.json",\n'
+            '  "pyproject.toml",\n'
+            '  "packages/scaffolder/pyproject.toml",\n'
+            '  "packages/shared_utils/pyproject.toml",\n'
+            '  "packages/docs/package.json",\n'
+            "]\n"
+        )
+
+        update_commitizen_version_files(tmp_path, "my_pkg")
+
+        doc = tomlkit.parse(p.read_text())
+        files = doc["tool"]["commitizen"]["version_files"]
+        # README badge entry is kept unchanged
+        assert files[0].startswith("README.md:")
+        assert "packages/shared_utils" not in "\n".join(files)
+        assert files == [
+            files[0],
+            "package.json",
+            "pyproject.toml",
+            "packages/my_pkg/pyproject.toml",
+            "packages/docs/package.json",
+        ]
+
+    def test_no_op_when_missing(self, tmp_path: Path) -> None:
+        """Do nothing when there is no pyproject.toml."""
+        update_commitizen_version_files(tmp_path, "my_pkg")
 
 
 class TestUpdateLicensesSh:
