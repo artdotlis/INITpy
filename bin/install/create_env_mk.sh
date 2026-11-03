@@ -75,6 +75,7 @@ if [[ ! -f "$ENV_MK" ]]; then
 
     declare -a PATH_DIRS
     PATH_DIRS+=("$ROOT/$FNM_HOME/aliases/default/bin")
+    PATH_DIRS+=("$ROOT/$FNM_HOME")
     PATH_DIRS+=("$ROOT/$UV_PYTHON_BIN_DIR")
     PATH_DIRS+=("$ROOT/$UV_INSTALL_DIR")
     PATH_DIRS+=("$ROOT/$PNPM_HOME")
