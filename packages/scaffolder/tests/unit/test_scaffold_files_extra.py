@@ -13,7 +13,7 @@ from scaffolder.scaffold.files import (
     amend_docs,
     clean_root_md,
     correct_core_project,
-    set_entry_prod,
+    remove_prod_docker,
     set_version,
     update_copyright,
     update_envs,
@@ -229,16 +229,6 @@ class TestUpdateLicensesSh:
             update_licenses_sh(tmp_path)
 
 
-class TestSetEntryProd:
-    """Tests for set_entry_prod."""
-
-    def test_creates_entry_prod_sh(self, tmp_path: Path) -> None:
-        """Write the production entry script with a sleeping loop."""
-        set_entry_prod(tmp_path)
-        entry = tmp_path / "bin" / "deploy" / "entry_prod.sh"
-        assert entry.read_text() == "#!/bin/bash\n\nset -euo pipefail\n\nsleep infinity\n"
-
-
 class TestCleanRootMd:
     """Tests for clean_root_md."""
 
@@ -287,3 +277,54 @@ class TestCorrectCoreProject:
 
         dc_data = json.loads(devcontainer.read_text())
         assert dc_data["name"] == "NewProject"
+
+
+class TestRemoveProdDocker:
+    """Tests for remove_prod_docker."""
+
+    @staticmethod
+    def _write(tmp_path: Path) -> None:
+        (tmp_path / "Dockerfile").write_text("# prod\n")
+        (tmp_path / "docker-compose.yml").write_text("prod:\n")
+        dev_dir = tmp_path / ".devcontainer"
+        dev_dir.mkdir(parents=True)
+        (dev_dir / "dev.docker-compose.yml").write_text("dev:\n")
+        (dev_dir / "devcontainer.json").write_text(
+            '{"name": "init", "dockerComposeFile": '
+            '["../docker-compose.yml", "dev.docker-compose.yml"]}\n'
+        )
+        (tmp_path / "package.env").write_text(
+            "BIN_DEPLOY_PREP=x\nBIN_DEPLOY_HEALTH=y\nBIN_DEPLOY_ENTRY_PROD=z\n"
+        )
+        deploy = tmp_path / "bin" / "deploy"
+        deploy.mkdir(parents=True)
+        (deploy / "entry_prod.sh").write_text("x")
+        (deploy / "health.sh").write_text("y")
+        (deploy / "entry_dev.sh").write_text("z")
+
+    def test_removes_prod_docker_and_promotes_dev(self, tmp_path: Path) -> None:
+        """Drop the prod Dockerfile and promote the dev compose to root."""
+        self._write(tmp_path)
+        remove_prod_docker(tmp_path)
+        assert not (tmp_path / "Dockerfile").exists()
+        assert (tmp_path / "docker-compose.yml").read_text() == "dev:\n"
+        assert not (tmp_path / ".devcontainer" / "dev.docker-compose.yml").exists()
+
+    def test_devcontainer_points_at_single_compose(self, tmp_path: Path) -> None:
+        """Collapse dockerComposeFile to the root (dev) compose."""
+        self._write(tmp_path)
+        remove_prod_docker(tmp_path)
+        data = json.loads((tmp_path / ".devcontainer" / "devcontainer.json").read_text())
+        assert data["dockerComposeFile"] == ["../docker-compose.yml"]
+
+    def test_drops_prod_only_env_and_scripts(self, tmp_path: Path) -> None:
+        """Remove prod-only env vars and deploy scripts."""
+        self._write(tmp_path)
+        remove_prod_docker(tmp_path)
+        env = (tmp_path / "package.env").read_text()
+        assert "BIN_DEPLOY_HEALTH" not in env
+        assert "BIN_DEPLOY_ENTRY_PROD" not in env
+        assert "BIN_DEPLOY_PREP" in env
+        assert not (tmp_path / "bin" / "deploy" / "entry_prod.sh").exists()
+        assert not (tmp_path / "bin" / "deploy" / "health.sh").exists()
+        assert (tmp_path / "bin" / "deploy" / "entry_dev.sh").exists()

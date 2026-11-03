@@ -12,7 +12,6 @@ from shared_utils.names import sanitize_package_name_dep_group
 from scaffolder.scaffold.files import correct_core_project
 from shared_utils.files import replace_authors
 from scaffolder.scaffold.files import clean_root_md
-from scaffolder.scaffold.files import set_entry_prod
 from scaffolder.scaffold.files import write_package_files
 from shared_utils.git import inti_and_commit
 from scaffolder.scaffold.package import create_package
@@ -28,6 +27,7 @@ from shared_utils.files import configure_licenses
 from shared_utils.files import remove_reuse
 from scaffolder.scaffold.files import (
     amend_docs,
+    remove_prod_docker,
     update_copyright,
     update_envs,
     update_licenses_sh,
@@ -152,9 +152,9 @@ def run(args: ScaffoldArgs) -> Path:
     print("[scaffolder] configuring licenses ...")
     configure_licenses(output_path, license_name)
 
-    # entry_pod.sh
-    print("[scaffolder] writing entrypoint ...")
-    set_entry_prod(output_path)
+    # remove production docker; dev compose becomes the root one
+    print("[scaffolder] removing production docker ...")
+    remove_prod_docker(output_path)
 
     # licenses.sh
     print("[scaffolder] updating licenses.sh ...")
