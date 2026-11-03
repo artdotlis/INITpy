@@ -4,8 +4,7 @@
 
 # ---> Custom
 # scaffolder output folder (SCAF_OUTPUT_DIR default); keep dir via inner .gitignore
-/PROJECTS/*
-!/PROJECTS/.gitignore
+
 /public/
 .ruff_cache/
 .VSCodeCounter/
