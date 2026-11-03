@@ -13,6 +13,9 @@ ROOT_MAKEFILE := $(abspath $(patsubst %/, %, $(dir $(abspath $(lastword $(MAKEFI
 $(shell $(ROOT_MAKEFILE)/bin/install/create_env_mk.sh 2>/dev/null || true)
 -include .env.mk
 
+# Export all .env.mk vars (PATH, UV_LINK_MODE, UVE, ...) to every recipe's child process
+.EXPORT_ALL_VARIABLES:
+
 # Default to 0 if not set in .env.mk or environment
 DISABLE_GIT_ADD ?= 0
 export DISABLE_GIT_ADD
