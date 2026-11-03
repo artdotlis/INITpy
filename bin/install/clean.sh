@@ -22,6 +22,39 @@ for dir in "${DIRS[@]}"; do
     rm -rf -- "$ROOT/${dir:?}"
 done
 
+echo "Cleaning project caches, test artifacts, and build output..."
+
+# Nested cache/build dirs the project generates (pytest, ruff, python bytecode)
+while IFS= read -r dir; do
+    [[ -n "$dir" ]] || continue
+    echo "  removing ${dir##*/}"
+    rm -rf -- "$dir"
+done < <(find "$ROOT" \
+    \( -path "*/.git" -o -path "$ROOT/.venv" -o -path "*/node_modules" \) -prune \
+    -o -type d \( -name ".pytest_cache" -o -name ".ruff_cache" -o -name "__pycache__" \) -print 2>/dev/null)
+
+# coverage data files (one per package)
+while IFS= read -r f; do
+    [[ -n "$f" ]] || continue
+    rm -f -- "$f"
+done < <(find "$ROOT" \
+    \( -path "*/.git" -o -path "$ROOT/.venv" -o -path "*/node_modules" \) -prune \
+    -o -type f -name ".coverage*" -print 2>/dev/null)
+
+# package manager install trees
+for nm in "$ROOT/node_modules" "$ROOT/$PKG_DOCS/node_modules"; do
+    [[ -e "$nm" ]] || continue
+    echo "  removing ${nm##*/}"
+    rm -rf -- "$nm"
+done
+
+# docs build output and VitePress workdir (cache/dist only; .vitepress source is tracked)
+for out in "$ROOT/public" "$ROOT/$PKG_DOCS/.vitepress/.vitepress"; do
+    [[ -e "$out" ]] || continue
+    echo "  removing ${out##*/}"
+    rm -rf -- "$out"
+done
+
 [[ -f "$ROOT/.env.mk" ]] && echo "  removing .env.mk" && rm -f "$ROOT/.env.mk"
 
 echo "Done."

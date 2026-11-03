@@ -6,13 +6,14 @@
   "description": "This package documents the whole project.",
   "devDependencies": {
     "toml": "^5.0.1",
-    "vitepress": "^1.6.4"
+    "vitepress": "^1.6.4",
+    "vitest": "^2.1.9"
   },
   "name": "docs",
   "private": true,
   "scripts": {
     "build": "vitepress build",
-    "dev": "vitepress dev",
-    "preview": "vitepress preview"
+    "preview": "vitepress preview",
+    "test": "vitest run"
   }
 }

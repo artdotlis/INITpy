@@ -128,6 +128,8 @@ pre-push:
 tests:
   parallel: true
   jobs:
+    - name: docs
+      run: bin/install/wrap.sh 'cd $PKG_DOCS && $PNPME test'
     - name: scaffolder
       run: bin/install/wrap.sh 'cd $PKG_SCAF && coverage run -m pytest'
     - name: shared-utils

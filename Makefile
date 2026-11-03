@@ -35,17 +35,9 @@ dev: setup
 		$(UVE) run lefthook install; \
 	fi
 
-tests: setup
-	$(UVE) sync --frozen --group test
-	$(PNPME) install --frozen-lockfile
-
 build: setup
 	$(UVE) sync --frozen
 	$(PNPME) install --frozen-lockfile --prod
-
-docs: setup
-	$(UVE) sync --frozen --group docs
-	$(PNPME) install --frozen-lockfile
 
 run-act:
 	@echo "source .venv/bin/activate; rm /tmp/$(RAN)" > /tmp/$(RAN)
@@ -68,7 +60,6 @@ serve-docs: build-docs
 	cd $(PKG_DOCS) && $(PNPME) run preview
 
 docs-ref:
-	$(UVE) sync --frozen --group docs
 	$(UVE) run griffe2md scaffolder -o $(DOCS_REF_DIR)/scaffolder.md
 	$(UVE) run griffe2md shared_utils -o $(DOCS_REF_DIR)/shared_utils.md
 	mkdir -p $(DOCS_PARTIALS_DIR)
