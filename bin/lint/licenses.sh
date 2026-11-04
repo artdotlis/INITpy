@@ -10,7 +10,6 @@ set -a
 source "$ROOT/package.env" || { echo "Failed to source $ROOT/package.env"; exit 1; }
 
 SOFTWARE_LIC="Unlicense"
-YEAR=$(date +%Y)
 
 # ---------------------------------------------------------------------------
 # Non-reuse LICENSE checks. Always run.
@@ -43,6 +42,7 @@ done
 # and REUSE.toml when reuse is not used; the non-reuse checks above stay.
 # ---------------------------------------------------------------------------
 
+YEAR=$(date +%Y)
 DATA_LIC="CC0-1.0"
 
 while IFS= read -r -d '' license || [[ -n "$license" ]]; do
