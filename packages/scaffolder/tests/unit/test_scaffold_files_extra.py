@@ -11,6 +11,7 @@ from unittest.mock import patch
 import pytest
 import tomlkit
 from scaffolder.scaffold.files import (
+    _drop_docs_make_targets,
     _validate_license,
     amend_docs,
     clean_root_md,
@@ -387,7 +388,6 @@ class TestRemoveDocs:
             "\n"
             "exp-run-lock:\n"
             "\t$(UVE) lock\n"
-            "\tcd $(PKG_DOCS) && $(PNPME) install --lockfile-only\n"
             "\n"
             "real:\n"
             "\techo real\n"
@@ -484,15 +484,103 @@ class TestRemoveDocs:
         makefile = (tmp_path / "Makefile").read_text()
         for frag in (
             "docs:",
-            "build-docs",
-            "run-docs",
-            "serve-docs",
-            "docs-ref",
+            "build-docs:",
+            "run-docs:",
+            "serve-docs:",
+            "docs-ref:",
             "PKG_DOCS",
         ):
             assert frag not in makefile
+        assert not makefile.startswith("\n")
         assert "exp-run-lock:" in makefile
         assert "real:" in makefile
+
+    def test_strips_docs_targets_robustly(self, tmp_path: Path) -> None:
+        """Drop docs blocks (with and without recipes) and PKG_DOCS lines."""
+        makefile = tmp_path / "Makefile"
+        makefile.write_text(
+            "docs: setup\n"
+            "\t$(UVE) sync --group docs\n"
+            "\n"
+            "dev: setup\n"
+            "\techo dev\n"
+            "\n"
+            "build-docs: docs-ref\n"
+            "\tcd $(PKG_DOCS) && $(PNPME) run build\n"
+            "\n"
+            "run-docs: build-docs\n"
+            "\t@echo hi\n"
+            "\n"
+            # recipe-less docs target (phony aggregate)
+            "serve-docs: build-docs\n"
+            "\n"
+            "docs-ref:\n"
+            "\t$(UVE) run griffe2md -o $(DOCS_REF_DIR)/x.md\n"
+            "\n"
+            "exp-run-lock:\n"
+            "\t$(UVE) lock\n"
+            "\n"
+            "RAN := $(shell echo hi)\n"
+            "run-bump: DISABLE_GIT_ADD = 0\n"
+            "\techo bump\n"
+        )
+        _drop_docs_make_targets(makefile)
+        makefile_text = makefile.read_text()
+        for frag in (
+            "docs:",
+            "build-docs:",
+            "run-docs:",
+            "serve-docs:",
+            "docs-ref:",
+            "PKG_DOCS",
+        ):
+            assert frag not in makefile_text
+        # no leading blank residue from removed target blocks
+        assert not makefile_text.startswith("\n")
+        # unrelated rules and assignments untouched
+        assert "dev: setup\n\techo dev\n" in makefile_text
+        assert "exp-run-lock:\n\t$(UVE) lock\n" in makefile_text
+        assert "RAN := $(shell echo hi)\n" in makefile_text
+        assert "run-bump: DISABLE_GIT_ADD = 0\n\techo bump\n" in makefile_text
+
+    def test_strips_docs_targets_raises_on_missing(self, tmp_path: Path) -> None:
+        """Fail loudly when a docs target is absent from the Makefile."""
+        makefile = tmp_path / "Makefile"
+        makefile.write_text(
+            "docs: setup\n"
+            "\t$(UVE) sync --group docs\n"
+            "\n"
+            "docs-ref:\n"
+            "\t$(UVE) run griffe2md -o $(DOCS_REF_DIR)/x.md\n"
+        )
+        with pytest.raises(ValueError, match="missing docs target"):
+            _drop_docs_make_targets(makefile)
+
+    def test_strips_docs_raises_on_pkg_docs_leftover(self, tmp_path: Path) -> None:
+        """Fail loudly when PKG_DOCS survives outside a docs target block."""
+        makefile = tmp_path / "Makefile"
+        makefile.write_text(
+            "docs: setup\n"
+            "\t$(UVE) sync --group docs\n"
+            "\n"
+            "build-docs: docs-ref\n"
+            "\tcd $(PKG_DOCS) && $(PNPME) run build\n"
+            "\n"
+            "run-docs: build-docs\n"
+            "\t@echo hi\n"
+            "\n"
+            "serve-docs: build-docs\n"
+            "\tcd $(PKG_DOCS) && $(PNPME) run preview\n"
+            "\n"
+            "docs-ref:\n"
+            "\t$(UVE) run griffe2md -o $(DOCS_REF_DIR)/x.md\n"
+            "\n"
+            "exp-run-lock:\n"
+            "\t$(UVE) lock\n"
+            "\tcd $(PKG_DOCS) && $(PNPME) install --lockfile-only\n"
+        )
+        with pytest.raises(ValueError, match="PKG_DOCS"):
+            _drop_docs_make_targets(makefile)
 
     def test_cleans_env_and_lint_scripts(self, tmp_path: Path) -> None:
         """Drop docs vars from package.env, lint_env.sh and licenses.sh."""

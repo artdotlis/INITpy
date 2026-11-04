@@ -436,19 +436,33 @@ def _remove_docs_pnpm_workspace(workspace_yaml: Path, /) -> None:
             yaml.dump(doc, stream)
 
 
+_DOCS_MAKE_TARGETS = ("docs", "build-docs", "run-docs", "serve-docs", "docs-ref")
+_DOCS_TARGET_BLOCK_RE = re.compile(
+    rf"^(?:{'|'.join(re.escape(t) for t in _DOCS_MAKE_TARGETS)}):.*?$\n"
+    rf"(?:\t[^\n]*$\n?)*\n?",
+    re.M,
+)
+
+
 def _drop_docs_make_targets(makefile: Path, /) -> None:
-    """Remove docs build/dev targets and PKG_DOCS recipe lines from the Makefile."""
-    if makefile.is_file():
-        text = makefile.read_text()
-        for target in ("docs", "build-docs", "run-docs", "serve-docs", "docs-ref"):
-            text = re.sub(
-                rf"(?m)^{re.escape(target)}:.*?$\n(?:\t[^\n]*$\n?)*",
-                "",
-                text,
-            )
-        text = re.sub(r"(?m)^\tcd \$\(PKG_DOCS\) && \$\(PNPME\) [^\n]*$\n", "", text)
-        text = re.sub(r"\n{3,}", "\n\n", text)
-        makefile.write_text(text)
+    """Remove docs build/dev targets from a Makefile, failing on leftovers.
+
+    Verifies every docs target is present, drops each target block (header,
+    recipe lines and one trailing blank), then fails loudly if the PKG_DOCS
+    variable survives anywhere else — no silent stripping.
+    """
+    text = makefile.read_text()
+    missing = [
+        t for t in _DOCS_MAKE_TARGETS if not re.search(rf"(?m)^{re.escape(t)}:", text)
+    ]
+    if missing:
+        raise ValueError("Makefile missing docs target(s): " + ", ".join(missing))
+    text = _DOCS_TARGET_BLOCK_RE.sub("", text)
+    if re.search(r"\$\(PKG_DOCS\)", text):
+        raise ValueError(
+            "Makefile still references $(PKG_DOCS) after dropping docs targets"
+        )
+    makefile.write_text(text)
 
 
 def _drop_docs_lefthook(lefthook: Path, /) -> None:
