@@ -85,9 +85,20 @@ class TestCloneGit:
             mock_run.return_value = MagicMock(returncode=0)
             clone_git(target, "https://example.com/repo.git")
             assert target.exists()
-            assert mock_rmtree.call_count == 1
+            assert mock_rmtree.call_count == 0
             assert mock_run.call_count == 1
             args = mock_run.call_args[0][0]
             assert "clone" in args
             assert "--branch" in args
             assert "dev" in args
+
+    def test_removes_existing_target_before_clone(self, tmp_path: Path) -> None:
+        """Wipe a leftover existing target before cloning."""
+        target = tmp_path / "repo"
+        target.mkdir()
+        (target / "leftover.txt").write_text("x")
+        with patch("subprocess.run") as mock_run, patch("shutil.rmtree") as mock_rmtree:
+            mock_run.return_value = MagicMock(returncode=0)
+            clone_git(target, "https://example.com/repo.git")
+            assert mock_rmtree.call_count == 1
+            assert mock_run.call_count == 1

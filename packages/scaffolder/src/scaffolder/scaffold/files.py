@@ -256,8 +256,7 @@ def remove_prod_docker(path: Path, /) -> None:
         path: Root of the generated project.
     """
     dockerfile = path / "Dockerfile"
-    if dockerfile.exists():
-        dockerfile.unlink()
+    dockerfile.unlink()
 
     dev_compose = path / ".devcontainer" / "dev.docker-compose.yml"
     root_compose = path / "docker-compose.yml"
@@ -279,8 +278,7 @@ def remove_prod_docker(path: Path, /) -> None:
     # prod-only deploy scripts
     for name in ("entry_prod.sh", "health.sh"):
         script = path / "bin" / "deploy" / name
-        if script.exists():
-            script.unlink()
+        script.unlink()
 
 
 def clean_root_md(path: Path, project_name: str, /) -> None:
@@ -347,8 +345,7 @@ def remove_docs(path: Path, /) -> None:
         path: Root of the generated project.
     """
     docs_dir = path / "packages" / "docs"
-    if docs_dir.exists():
-        shutil.rmtree(docs_dir) if docs_dir.is_dir() else docs_dir.unlink()
+    shutil.rmtree(docs_dir) if docs_dir.is_dir() else docs_dir.unlink()
 
     _remove_docs_pyproject(path / "pyproject.toml")
     _remove_docs_pnpm_workspace(path / "pnpm-workspace.yaml")

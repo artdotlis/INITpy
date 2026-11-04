@@ -20,9 +20,9 @@ def clone_git(path: Path, template_url: str, ref: str = "dev", /) -> None:
         template_url: Git repository URL to clone.
         ref: Branch or tag to clone. Defaults to ``dev``.
     """
-    path.mkdir(parents=True, exist_ok=True)
     if path.exists():
         shutil.rmtree(path)
+    path.mkdir(parents=True, exist_ok=True)
 
     subprocess.run(
         ["git", "clone", "--branch", ref, template_url, str(path)],
