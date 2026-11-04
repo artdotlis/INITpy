@@ -1,20 +1,20 @@
 {
-  "author": {
-    "email": "artdotlis@pm.me",
-    "name": "Artur Lissin"
-  },
-  "description": "This package documents the whole project.",
-  "devDependencies": {
-    "toml": "^5.0.1",
-    "vitepress": "^1.6.4",
-    "vitest": "^2.1.9"
-  },
-  "name": "docs",
-  "private": true,
-  "scripts": {
-    "build": "vitepress build",
-    "preview": "vitepress preview",
-    "test": "vitest run"
-  },
-  "type": "module"
+    "author": {
+        "email": "artdotlis@pm.me",
+        "name": "Artur Lissin"
+    },
+    "description": "This package documents the whole project.",
+    "devDependencies": {
+        "toml": "^5.0.1",
+        "vitepress": "^1.6.4",
+        "vitest": "^2.1.9"
+    },
+    "name": "docs",
+    "private": true,
+    "scripts": {
+        "build": "vitepress build",
+        "preview": "vitepress preview",
+        "test": "vitest run"
+    },
+    "type": "module"
 }

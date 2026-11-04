@@ -3,28 +3,28 @@
 # SPDX-License-Identifier: CC0-1.0
 
 services:
-  dev:
-    user: devu
-    env_file:
-      - .env
-    environment:
-      HISTFILE: /dev/null
-      HISTSIZE: 0
-      HISTFILESIZE: 0
-      EDITOR: vim
-      SSH_AUTH_SOCK: /ssh-agent
-    build:
-      context: .
-      dockerfile: configs/docker/dev.Dockerfile
-      args:
-        USERNAME: devu
-        WORK_DIR: "/workspace"
-        SSH_AUTH_SOCK: /ssh-agent
-        BIN_DEPLOY_PREP: ${BIN_DEPLOY_PREP}
-        BIN_DEPLOY_REQ: ${BIN_DEPLOY_REQ}
-        BIN_DEPLOY_USER: ${BIN_DEPLOY_USER}
-        BIN_DEPLOY_ENTRY_DEV: ${BIN_DEPLOY_ENTRY_DEV}
-    volumes:
-      - ${SSH_AUTH_SOCK:-/dev/null}:/ssh-agent:ro
-      - .:/workspace:cached
-      - ${GITCONFIG_PATH:-${HOME}/.gitconfig}:/etc/gitconfig:ro
+    dev:
+        user: devu
+        env_file:
+            - .env
+        environment:
+            HISTFILE: /dev/null
+            HISTSIZE: 0
+            HISTFILESIZE: 0
+            EDITOR: vim
+            SSH_AUTH_SOCK: /ssh-agent
+        build:
+            context: .
+            dockerfile: configs/docker/dev.Dockerfile
+            args:
+                USERNAME: devu
+                WORK_DIR: '/workspace'
+                SSH_AUTH_SOCK: /ssh-agent
+                BIN_DEPLOY_PREP: ${BIN_DEPLOY_PREP}
+                BIN_DEPLOY_REQ: ${BIN_DEPLOY_REQ}
+                BIN_DEPLOY_USER: ${BIN_DEPLOY_USER}
+                BIN_DEPLOY_ENTRY_DEV: ${BIN_DEPLOY_ENTRY_DEV}
+        volumes:
+            - ${SSH_AUTH_SOCK:-/dev/null}:/ssh-agent:ro
+            - .:/workspace:cached
+            - ${GITCONFIG_PATH:-${HOME}/.gitconfig}:/etc/gitconfig:ro

@@ -1,13 +1,13 @@
 {
-  "customizations": {},
-  "dockerComposeFile": ["../docker-compose.yml", "dev.docker-compose.yml"],
-  "initializeCommand": "if [ ! -f .env ]; then cat package.env > .env; fi",
-  "name": "initpy",
-  "postAttachCommand": "make dev",
-  "remoteUser": "devu",
-  "runServices": ["dev"],
-  "service": "dev",
-  "shutdownAction": "stopCompose",
-  "updateRemoteUserUID": true,
-  "workspaceFolder": "/workspace"
+    "customizations": {},
+    "dockerComposeFile": ["../docker-compose.yml", "dev.docker-compose.yml"],
+    "initializeCommand": "if [ ! -f .env ]; then cat package.env > .env; fi",
+    "name": "initpy",
+    "postAttachCommand": "make dev",
+    "remoteUser": "devu",
+    "runServices": ["dev"],
+    "service": "dev",
+    "shutdownAction": "stopCompose",
+    "updateRemoteUserUID": true,
+    "workspaceFolder": "/workspace"
 }

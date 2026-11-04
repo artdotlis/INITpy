@@ -42,18 +42,29 @@ done < <(find "$ROOT" \
     -o -type f -name ".coverage*" -print 2>/dev/null)
 
 # package manager install trees
-for nm in "$ROOT/node_modules" "$ROOT/$PKG_DOCS/node_modules"; do
-    [[ -e "$nm" ]] || continue
-    echo "  removing ${nm##*/}"
-    rm -rf -- "$nm"
-done
+if [[ -e "$ROOT/node_modules" ]]; then
+    echo "  removing node_modules"
+    rm -rf -- "$ROOT/node_modules"
+fi
+
+# ===== DOCS:START =====
+if [[ -e "$ROOT/$PKG_DOCS/node_modules" ]]; then
+    echo "  removing docs node_modules"
+    rm -rf -- "$ROOT/$PKG_DOCS/node_modules"
+fi
 
 # docs build output and VitePress workdir (cache/dist only; .vitepress source is tracked)
-for out in "$ROOT/public" "$ROOT/$PKG_DOCS/.vitepress/.vitepress"; do
-    [[ -e "$out" ]] || continue
-    echo "  removing ${out##*/}"
-    rm -rf -- "$out"
-done
+if [[ -e "$ROOT/$PKG_DOCS/.vitepress/.vitepress" ]]; then
+    echo "  removing vitepress workdir"
+    rm -rf -- "$ROOT/$PKG_DOCS/.vitepress/.vitepress"
+fi
+# ===== DOCS:END =====
+
+# build output
+if [[ -e "$ROOT/public" ]]; then
+    echo "  removing public"
+    rm -rf -- "$ROOT/public"
+fi
 
 [[ -f "$ROOT/.env.mk" ]] && echo "  removing .env.mk" && rm -f "$ROOT/.env.mk"
 

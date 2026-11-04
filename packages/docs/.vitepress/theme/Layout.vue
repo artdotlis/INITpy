@@ -5,12 +5,12 @@ SPDX-License-Identifier: Unlicense
 -->
 
 <script setup>
-import DefaultTheme from "vitepress/theme";
+import DefaultTheme from 'vitepress/theme';
 
 const { Layout, EnhanceApp } = DefaultTheme;
 </script>
 
 <template>
-  <Layout />
-  <EnhanceApp />
+    <Layout />
+    <EnhanceApp />
 </template>

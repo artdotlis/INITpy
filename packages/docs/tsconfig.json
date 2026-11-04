@@ -1,22 +1,22 @@
 {
-  "compilerOptions": {
-    "declaration": true,
-    "esModuleInterop": true,
-    "module": "ES2022",
-    "moduleResolution": "bundler",
-    "outDir": "dist",
-    "paths": {
-      "@/*": ["./*"],
-      "@theme/*": ["./.vitepress/theme/*"]
+    "compilerOptions": {
+        "declaration": true,
+        "esModuleInterop": true,
+        "module": "ES2022",
+        "moduleResolution": "bundler",
+        "outDir": "dist",
+        "paths": {
+            "@/*": ["./*"],
+            "@theme/*": ["./.vitepress/theme/*"]
+        },
+        "skipLibCheck": true,
+        "strict": true,
+        "target": "ES2022"
     },
-    "skipLibCheck": true,
-    "strict": true,
-    "target": "ES2022"
-  },
-  "include": [
-    ".vitepress/**/*.ts",
-    ".vitepress/**/*.vue",
-    ".vitepress/**/*.css",
-    "tests/**/*.ts"
-  ]
+    "include": [
+        ".vitepress/**/*.ts",
+        ".vitepress/**/*.vue",
+        ".vitepress/**/*.css",
+        "tests/**/*.ts"
+    ]
 }

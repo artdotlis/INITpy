@@ -13,6 +13,7 @@ from scaffolder.scaffold.files import (
     amend_docs,
     clean_root_md,
     correct_core_project,
+    remove_docs,
     remove_prod_docker,
     set_version,
     update_commitizen_version_files,
@@ -367,3 +368,193 @@ class TestRemoveProdDocker:
         assert not (tmp_path / "bin" / "deploy" / "entry_prod.sh").exists()
         assert not (tmp_path / "bin" / "deploy" / "health.sh").exists()
         assert (tmp_path / "bin" / "deploy" / "entry_dev.sh").exists()
+
+
+class TestRemoveDocs:
+    """Tests for remove_docs."""
+
+    @staticmethod
+    def _write(tmp_path: Path) -> None:
+        """Create a minimal project with docs wiring."""
+        (tmp_path / "packages" / "docs" / "src").mkdir(parents=True)
+        (tmp_path / "packages" / "docs" / "src" / "index.md").write_text("# docs\n")
+        (tmp_path / "packages" / "my_pkg").mkdir(parents=True)
+
+        (tmp_path / "pyproject.toml").write_text(
+            "[tool.uv.workspace]\n"
+            'members = ["packages/*"]\n'
+            'exclude = ["packages/docs"]\n'
+            "\n"
+            "[dependency-groups]\n"
+            'docs = ["griffe2md ==1.1.0"]\n'
+            'test = ["pytest"]\n'
+            "\n"
+            "[tool.vulture]\n"
+            'exclude = ["packages/docs/"]\n'
+            "\n"
+            "[tool.commitizen]\n"
+            'version_files = [\n  "package.json",\n  "packages/docs/package.json",\n]\n'
+        )
+        (tmp_path / "pnpm-workspace.yaml").write_text('packages:\n  - "packages/docs"\n')
+        (tmp_path / "Makefile").write_text(
+            "docs: setup\n"
+            "\t$(UVE) sync --group docs\n"
+            "\n"
+            "build-docs: docs-ref\n"
+            "\tcd $(PKG_DOCS) && $(PNPME) run build\n"
+            "\n"
+            "run-docs: build-docs\n"
+            "\t@echo hi\n"
+            "\n"
+            "serve-docs: build-docs\n"
+            "\tcd $(PKG_DOCS) && $(PNPME) run preview\n"
+            "\n"
+            "docs-ref:\n"
+            "\t$(UVE) run griffe2md -o $(DOCS_REF_DIR)/x.md\n"
+            "\n"
+            "exp-run-lock:\n"
+            "\t$(UVE) lock\n"
+            "\tcd $(PKG_DOCS) && $(PNPME) install --lockfile-only\n"
+            "\n"
+            "real:\n"
+            "\techo real\n"
+        )
+        (tmp_path / "package.env").write_text(
+            "PKG_MY_=packages/my_pkg\n"
+            "CONFIG_DOCS=packages/docs/.vitepress/config.toml\n"
+            "PKG_DOCS=packages/docs\n"
+            "DOCS_ENV=packages/docs/.env\n"
+        )
+        (tmp_path / "lefthook.yml").write_text(
+            "tests:\n"
+            "    jobs:\n"
+            "        - name: docs\n"
+            "          run: bin/install/wrap.sh 'cd $PKG_DOCS && $PNPME test'\n"
+            "        - name: my_pkg\n"
+            "          run: bin/install/wrap.sh 'cd $PKG_MY_ && pytest'\n"
+        )
+        lint_env = tmp_path / "bin" / "lint" / "lint_env.sh"
+        lint_env.parent.mkdir(parents=True)
+        lint_env.write_text('ENV_FILES=( "$ROOT_ENV" "$MY__ENV" "$DOCS_ENV")\n')
+        clean = tmp_path / "bin" / "install" / "clean.sh"
+        clean.parent.mkdir(parents=True, exist_ok=True)
+        clean.write_text(
+            "# package manager install trees\n"
+            'if [[ -e "$ROOT/node_modules" ]]; then\n'
+            '    rm -rf -- "$ROOT/node_modules"\n'
+            "fi\n"
+            "# ===== DOCS:START =====\n"
+            'if [[ -e "$ROOT/$PKG_DOCS/node_modules" ]]; then\n'
+            '    rm -rf -- "$ROOT/$PKG_DOCS/node_modules"\n'
+            "fi\n"
+            "# docs build output and VitePress workdir (cache/dist only; "
+            ".vitepress source is tracked)\n"
+            'if [[ -e "$ROOT/$PKG_DOCS/.vitepress/.vitepress" ]]; then\n'
+            '    rm -rf -- "$ROOT/$PKG_DOCS/.vitepress/.vitepress"\n'
+            "fi\n"
+            "# ===== DOCS:END =====\n"
+            "# build output\n"
+            'if [[ -e "$ROOT/public" ]]; then\n'
+            '    rm -rf -- "$ROOT/public"\n'
+            "fi\n"
+        )
+        licenses = tmp_path / "bin" / "lint" / "licenses.sh"
+        licenses.parent.mkdir(parents=True, exist_ok=True)
+        licenses.write_text(
+            'LICENSE_FILES=(\n    "$CONFIG_DOCS"\n)\n\n'
+            "IGNORE=(\n"
+            "    '^packages/docs/REUSE\\.toml$'\n"
+            "    '^packages/docs/src/.+\\.md$'\n"
+            "    '^bin/lint/licenses\\.sh$'\n"
+            ")\n"
+        )
+        (tmp_path / ".gitignore").write_text(
+            "# Sphinx documentation\ndocs/_build/\n"
+            "\n"
+            "# VitePress\n.vitepress/.cache/\n.vitepress/dist/\n"
+        )
+        wf = tmp_path / ".github" / "workflows"
+        wf.mkdir(parents=True)
+        (wf / "docs.yml").write_text("name: docs\n")
+        (wf / "main.yml").write_text("name: main\n")
+
+    def test_removes_docs_package_dir(self, tmp_path: Path) -> None:
+        """Delete the packages/docs directory."""
+        self._write(tmp_path)
+        remove_docs(tmp_path)
+        assert not (tmp_path / "packages" / "docs").exists()
+        assert (tmp_path / "packages" / "my_pkg").exists()
+
+    def test_cleans_pyproject(self, tmp_path: Path) -> None:
+        """Strip docs from workspace exclude, dep groups, vulture and commitizen."""
+        self._write(tmp_path)
+        remove_docs(tmp_path)
+        doc = tomlkit.parse((tmp_path / "pyproject.toml").read_text())
+        ws = doc["tool"]["uv"]["workspace"]
+        assert "exclude" not in ws
+        assert "docs" not in doc["dependency-groups"]
+        assert "packages/docs" not in "".join(doc["tool"]["vulture"]["exclude"])
+        assert "packages/docs/package.json" not in [
+            str(e) for e in doc["tool"]["commitizen"]["version_files"]
+        ]
+
+    def test_cleans_pnpm_workspace(self, tmp_path: Path) -> None:
+        """Remove the docs package from the pnpm workspace."""
+        self._write(tmp_path)
+        remove_docs(tmp_path)
+        assert "packages/docs" not in (tmp_path / "pnpm-workspace.yaml").read_text()
+
+    def test_cleans_makefile(self, tmp_path: Path) -> None:
+        """Drop docs targets and PKG_DOCS recipe lines from the Makefile."""
+        self._write(tmp_path)
+        remove_docs(tmp_path)
+        makefile = (tmp_path / "Makefile").read_text()
+        for frag in (
+            "docs:",
+            "build-docs",
+            "run-docs",
+            "serve-docs",
+            "docs-ref",
+            "PKG_DOCS",
+        ):
+            assert frag not in makefile
+        assert "exp-run-lock:" in makefile
+        assert "real:" in makefile
+
+    def test_cleans_env_and_lint_scripts(self, tmp_path: Path) -> None:
+        """Drop docs vars from package.env, lint_env.sh and licenses.sh."""
+        self._write(tmp_path)
+        remove_docs(tmp_path)
+        env = (tmp_path / "package.env").read_text()
+        assert "DOCS" not in env
+        assert "PKG_MY_" in env
+        lint_env = (tmp_path / "bin" / "lint" / "lint_env.sh").read_text()
+        assert "DOCS_ENV" not in lint_env
+        clean = (tmp_path / "bin" / "install" / "clean.sh").read_text()
+        assert "PKG_DOCS" not in clean
+        assert "DOCS:START" not in clean
+        assert "vitepress" not in clean.lower()
+        assert 'if [[ -e "$ROOT/node_modules" ]]; then' in clean
+        assert 'if [[ -e "$ROOT/public" ]]; then' in clean
+        licenses = (tmp_path / "bin" / "lint" / "licenses.sh").read_text()
+        assert "CONFIG_DOCS" not in licenses
+        assert "packages/docs" not in licenses
+
+    def test_cleans_lefthook(self, tmp_path: Path) -> None:
+        """Remove the docs test job from lefthook.yml."""
+        self._write(tmp_path)
+        remove_docs(tmp_path)
+        text = (tmp_path / "lefthook.yml").read_text()
+        assert "name: docs" not in text
+        assert "PKG_DOCS" not in text
+        assert "my_pkg" in text
+
+    def test_removes_gitignore_and_workflow(self, tmp_path: Path) -> None:
+        """Drop the VitePress ignore blocks and the docs workflow."""
+        self._write(tmp_path)
+        remove_docs(tmp_path)
+        gitignore = (tmp_path / ".gitignore").read_text()
+        assert ".vitepress" not in gitignore
+        assert "docs/_build" not in gitignore
+        assert not (tmp_path / ".github" / "workflows" / "docs.yml").exists()
+        assert (tmp_path / ".github" / "workflows" / "main.yml").exists()

@@ -26,6 +26,20 @@ def _prompt_use_reuse() -> bool:
         print("❌ Please answer y or n", file=sys.stderr)
 
 
+def _prompt_use_docs() -> bool:
+    """Ask whether to keep the docs subpackage; default yes (empty = y)."""
+    while True:
+        raw = input("Keep docs subpackage? [Y/n] ").strip()
+        if raw == "":
+            return True
+        normalization = raw.lower()
+        if normalization in ("y", "yes"):
+            return True
+        if normalization in ("n", "no"):
+            return False
+        print("❌ Please answer y or n", file=sys.stderr)
+
+
 def _prompt_project_name() -> str:
     """Prompt for a project name of at least 3 characters."""
     while True:
@@ -77,6 +91,7 @@ def run_cli() -> None:
     copyright = _prompt_non_empty("Copyright holder: ")
     license_name = _prompt_license()
     use_reuse = _prompt_use_reuse()
+    use_docs = _prompt_use_docs()
 
     try:
         result = run(
@@ -89,6 +104,7 @@ def run_cli() -> None:
                 description=project_description,
                 copyright=copyright,
                 use_reuse=use_reuse,
+                use_docs=use_docs,
             )
         )
         print(f"\n✅ '{project_name}' → {result.absolute()}")

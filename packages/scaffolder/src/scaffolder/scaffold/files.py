@@ -4,6 +4,7 @@
 
 """File transformation functions for scaffolding."""
 
+from tomlkit import TOMLDocument
 import json
 import re
 import shutil
@@ -366,3 +367,191 @@ def remove_projects_output_folder(path: Path, /) -> None:
     output_path = path / "PROJECTS"
     if output_path.exists():
         shutil.rmtree(output_path) if output_path.is_dir() else output_path.unlink()
+
+
+def remove_docs(path: Path, /) -> None:
+    """Remove the ``docs`` subpackage and every VitePress/docs mention.
+
+    Deletes ``packages/docs`` and strips docs references from the workspace
+    config, pyproject.toml, Makefile, CI workflows, lint scripts, package.env
+    and .gitignore so no dangling docs wiring remains.
+
+    Args:
+        path: Root of the generated project.
+    """
+    docs_dir = path / "packages" / "docs"
+    if docs_dir.exists():
+        shutil.rmtree(docs_dir) if docs_dir.is_dir() else docs_dir.unlink()
+
+    _remove_docs_pyproject(path / "pyproject.toml")
+    _remove_docs_pnpm_workspace(path / "pnpm-workspace.yaml")
+    _drop_docs_make_targets(path / "Makefile")
+    _drop_docs_lefthook(path / "lefthook.yml")
+    _drop_docs_env(path / "package.env")
+    _drop_docs_env_script(path / "bin" / "lint" / "lint_env.sh")
+    _drop_docs_clean_script(path / "bin" / "install" / "clean.sh")
+    _drop_docs_licenses(path / "bin" / "lint" / "licenses.sh")
+    _drop_docs_gitignore(path / ".gitignore")
+    _drop_docs_workflow(path)
+
+
+def _remove_docs_pyproject(pyproject: Path, /) -> None:
+    """Drop docs references from the root pyproject.toml."""
+    if pyproject.is_file():
+        doc = tomlkit.parse(pyproject.read_text())
+        _drop_docs_uv_workspace(doc)
+        _drop_docs_dependency_group(doc)
+        _drop_docs_commitizen(doc)
+        _drop_docs_vulture(doc)
+        pyproject.write_text(tomlkit.dumps(doc))
+
+
+def _drop_docs_uv_workspace(doc: TOMLDocument) -> None:
+    """Remove the docs package from the uv workspace exclude list."""
+    workspace = doc.get("tool", {}).get("uv", {}).get("workspace")
+    if isinstance(workspace, dict) and isinstance(workspace.get("exclude"), list):
+        workspace["exclude"] = [
+            entry for entry in workspace["exclude"] if str(entry) != "packages/docs"
+        ]
+        if not workspace["exclude"]:
+            del workspace["exclude"]
+
+
+def _drop_docs_dependency_group(doc: TOMLDocument) -> None:
+    """Remove the docs dependency group."""
+    groups = doc.get("dependency-groups")
+    if isinstance(groups, dict) and "docs" in groups:
+        del groups["docs"]
+
+
+def _drop_docs_commitizen(doc: TOMLDocument) -> None:
+    """Drop the docs package from commitizen version_files."""
+    commitizen = doc.get("tool", {}).get("commitizen")
+    if isinstance(commitizen, dict) and isinstance(commitizen.get("version_files"), list):
+        commitizen["version_files"] = [
+            entry
+            for entry in commitizen["version_files"]
+            if str(entry) != "packages/docs/package.json"
+        ]
+
+
+def _drop_docs_vulture(doc: TOMLDocument) -> None:
+    """Drop the docs path from vulture excludes."""
+    vulture = doc.get("tool", {}).get("vulture")
+    if isinstance(vulture, dict) and isinstance(vulture.get("exclude"), list):
+        vulture["exclude"] = [
+            entry for entry in vulture["exclude"] if "packages/docs" not in str(entry)
+        ]
+
+
+def _remove_docs_pnpm_workspace(workspace_yaml: Path, /) -> None:
+    """Remove the docs package from the pnpm workspace packages list."""
+    if workspace_yaml.is_file():
+        yaml = _round_trip_yaml()
+        doc = yaml.load(workspace_yaml.read_text())
+        packages = doc.get("packages")
+        if isinstance(packages, list):
+            doc["packages"] = [
+                entry for entry in packages if str(entry) != "packages/docs"
+            ]
+            if not doc["packages"]:
+                del doc["packages"]
+        with workspace_yaml.open("w") as stream:
+            yaml.dump(doc, stream)
+
+
+def _drop_docs_make_targets(makefile: Path, /) -> None:
+    """Remove docs build/dev targets and PKG_DOCS recipe lines from the Makefile."""
+    if makefile.is_file():
+        text = makefile.read_text()
+        for target in ("docs", "build-docs", "run-docs", "serve-docs", "docs-ref"):
+            text = re.sub(
+                rf"(?m)^{re.escape(target)}:.*?$\n(?:\t[^\n]*$\n?)*",
+                "",
+                text,
+            )
+        text = re.sub(r"(?m)^\tcd \$\(PKG_DOCS\) && \$\(PNPME\) [^\n]*$\n", "", text)
+        text = re.sub(r"\n{3,}", "\n\n", text)
+        makefile.write_text(text)
+
+
+def _drop_docs_lefthook(lefthook: Path, /) -> None:
+    """Remove the docs test job from lefthook.yml."""
+    if lefthook.is_file():
+        yaml = _round_trip_yaml()
+        doc = yaml.load(lefthook.read_text())
+        for hook in doc.values():
+            jobs = hook.get("jobs") if isinstance(hook, dict) else None
+            if isinstance(jobs, list):
+                jobs[:] = [
+                    job
+                    for job in jobs
+                    if not (isinstance(job, dict) and job.get("name") == "docs")
+                ]
+        with lefthook.open("w") as stream:
+            yaml.dump(doc, stream)
+
+
+def _drop_docs_env(package_env: Path, /) -> None:
+    """Drop docs-related variable declarations from package.env."""
+    if package_env.is_file():
+        content = package_env.read_text()
+        for var in ("CONFIG_DOCS", "PKG_DOCS", "DOCS_ENV"):
+            content = re.sub(rf"(?m)^{var}=.*$\n?", "", content)
+        content = re.sub(r"\n{2,}", "\n", content)
+        package_env.write_text(content)
+
+
+def _drop_docs_env_script(script: Path, /) -> None:
+    """Remove the DOCS_ENV entry from lint_env.sh ENV_FILES."""
+    if script.is_file():
+        text = script.read_text()
+        text = text.replace('"$DOCS_ENV"', "")
+        script.write_text(text)
+
+
+_DOCS_START = "# ===== DOCS:START ====="
+_DOCS_END = "# ===== DOCS:END ====="
+
+
+def _drop_docs_clean_script(script: Path, /) -> None:
+    """Remove the marked DOCS block from clean.sh."""
+    if script.is_file():
+        text = script.read_text()
+        border = r"[ \t]*#[ \t-]*\n"
+        text = re.sub(
+            rf"(?ms)(?:{border})?{re.escape(_DOCS_START)}.*?{re.escape(_DOCS_END)}\n?(?:{border})?",
+            "",
+            text,
+        )
+        text = re.sub(r"\n\n\n+", "\n\n", text)
+        script.write_text(text)
+
+
+def _drop_docs_licenses(licenses_sh: Path, /) -> None:
+    """Remove docs config and ignore entries from licenses.sh."""
+    if licenses_sh.is_file():
+        text = licenses_sh.read_text()
+        text = text.replace('"$CONFIG_DOCS"', "")
+        lines = [
+            line for line in text.splitlines(keepends=True) if "packages/docs" not in line
+        ]
+        licenses_sh.write_text("".join(lines))
+
+
+def _drop_docs_gitignore(gitignore: Path, /) -> None:
+    """Remove Sphinx/VitePress ignore blocks from .gitignore."""
+    if gitignore.is_file():
+        text = gitignore.read_text()
+        text = text.replace("# Sphinx documentation\ndocs/_build/\n", "")
+        text = re.sub(
+            r"(?m)^# VitePress\n\.vitepress/\.cache/\n\.vitepress/dist/\n", "", text
+        )
+        gitignore.write_text(text)
+
+
+def _drop_docs_workflow(path: Path, /) -> None:
+    """Remove the docs GitHub Actions workflow."""
+    workflow = path / ".github" / "workflows" / "docs.yml"
+    if workflow.is_file():
+        workflow.unlink()

@@ -3,29 +3,29 @@
 # SPDX-License-Identifier: CC0-1.0
 
 services:
-  deploy:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-      secrets:
-        - env_file
-      args:
-        USERNAME: runner
-        USER_UID: ${USER_UID:-1000}
-        USER_GID: ${USER_GID:-1000}
-        WORK_DIR: "/workspace"
-        BIN_DEPLOY_PREP: ${BIN_DEPLOY_PREP}
-        BIN_DEPLOY_REQ: ${BIN_DEPLOY_REQ}
-        BIN_DEPLOY_USER: ${BIN_DEPLOY_USER}
-        BIN_DEPLOY_HEALTH: ${BIN_DEPLOY_HEALTH}
-        BIN_DEPLOY_ENTRY_PROD: ${BIN_DEPLOY_ENTRY_PROD}
-    environment:
-      SCAF_OUTPUT_DIR: /scaf
-    volumes:
-      - ${SCAF_OUTPUT_DIR:-./PROJECTS}:/scaf
-    stdin_open: true
-    tty: true
+    deploy:
+        build:
+            context: .
+            dockerfile: ./Dockerfile
+            secrets:
+                - env_file
+            args:
+                USERNAME: runner
+                USER_UID: ${USER_UID:-1000}
+                USER_GID: ${USER_GID:-1000}
+                WORK_DIR: '/workspace'
+                BIN_DEPLOY_PREP: ${BIN_DEPLOY_PREP}
+                BIN_DEPLOY_REQ: ${BIN_DEPLOY_REQ}
+                BIN_DEPLOY_USER: ${BIN_DEPLOY_USER}
+                BIN_DEPLOY_HEALTH: ${BIN_DEPLOY_HEALTH}
+                BIN_DEPLOY_ENTRY_PROD: ${BIN_DEPLOY_ENTRY_PROD}
+        environment:
+            SCAF_OUTPUT_DIR: /scaf
+        volumes:
+            - ${SCAF_OUTPUT_DIR:-./PROJECTS}:/scaf
+        stdin_open: true
+        tty: true
 
 secrets:
-  env_file:
-    file: ./.env
+    env_file:
+        file: ./.env

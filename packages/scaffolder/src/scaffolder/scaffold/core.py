@@ -27,6 +27,7 @@ from shared_utils.files import configure_licenses
 from shared_utils.files import remove_reuse
 from scaffolder.scaffold.files import (
     amend_docs,
+    remove_docs,
     remove_prod_docker,
     update_copyright,
     update_envs,
@@ -68,6 +69,8 @@ class ScaffoldArgs:
     """Full copyright owner string."""
     use_reuse: bool
     """Whether to keep the REUSE tooling."""
+    use_docs: bool
+    """Whether to keep the docs (VitePress) subpackage."""
 
 
 def run(args: ScaffoldArgs) -> Path:
@@ -90,6 +93,7 @@ def run(args: ScaffoldArgs) -> Path:
     description = args.description
     copyright = args.copyright
     use_reuse = args.use_reuse
+    use_docs = args.use_docs
     package_name = f"{sanitize_package_name(project_name)}_pkg"
     dep_name = sanitize_package_name_dep_group(package_name)
     output_path = Path(output_dir) / project_name
@@ -115,8 +119,11 @@ def run(args: ScaffoldArgs) -> Path:
     write_package_files(output_path, package_name)
 
     # amend docs / vitepress
-    print("[scaffolder] amending docs ...")
-    amend_docs(output_path, package_name, project_name)
+    if use_docs:
+        print("[scaffolder] amending docs ...")
+        amend_docs(output_path, package_name, project_name)
+    else:
+        print("[scaffolder] skipping docs (requested removal) ...")
 
     # update env vars
     print("[scaffolder] updating env vars ...")
@@ -168,6 +175,11 @@ def run(args: ScaffoldArgs) -> Path:
     if not use_reuse:
         print("[scaffolder] removing reuse tooling ...")
         remove_reuse(output_path)
+
+    # remove docs subpackage unless requested
+    if not use_docs:
+        print("[scaffolder] removing docs subpackage ...")
+        remove_docs(output_path)
 
     # lock project dependencies
     print("[scaffolder] locking dependencies (may take a while) ...")

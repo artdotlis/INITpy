@@ -56,6 +56,7 @@ class TestRunCli:
             "Test Copyright\n"  # copyright holder
             "MIT\n"  # valid license
             "n\n"  # use reuse tooling → no
+            "\n"  # keep docs subpackage → default yes
         )
         mock = _drive(inputs, return_value=Path("/tmp/output/test_proj"))
         mock.assert_called_once()
@@ -65,6 +66,7 @@ class TestRunCli:
         assert call_kwargs.license_name == "MIT"
         assert call_kwargs.copyright == "Test Copyright"
         assert call_kwargs.use_reuse is False
+        assert call_kwargs.use_docs is True
 
     def test_scaf_output_prefix_skips_prompt(self) -> None:
         """When SCAF_OUTPUT_DIR is set it is used as the output prefix."""
@@ -76,6 +78,7 @@ class TestRunCli:
             "Test Copyright\n"  # copyright holder
             "MIT\n"  # valid license
             "\n"  # use reuse tooling → default yes
+            "\n"  # keep docs subpackage → default yes
         )
         mock = _drive(
             inputs,
@@ -96,6 +99,7 @@ class TestRunCli:
             "Copyright\n"
             "MIT\n"
             "\n"  # use reuse tooling → default yes
+            "\n"  # keep docs → default yes
         )
         assert _drive(inputs, return_value=Path("/tmp/out/valid_name")).call_count == 1
 
@@ -111,6 +115,7 @@ class TestRunCli:
             "INVALID\n"  # invalid
             "MIT\n"  # valid, accepted
             "\n"  # use reuse tooling → default yes
+            "\n"  # keep docs → default yes
         )
         assert _drive(inputs, return_value=Path("/tmp/out/proj")).call_count == 1
 
@@ -126,6 +131,7 @@ class TestRunCli:
             "Copyright\n"
             "MIT\n"
             "\n"  # use reuse tooling → default yes
+            "\n"  # keep docs → default yes
         )
         assert _drive(inputs, return_value=Path("/tmp/out/proj")).call_count == 1
 
@@ -141,6 +147,7 @@ class TestRunCli:
             "Copyright\n"
             "MIT\n"
             "\n"  # use reuse tooling → default yes
+            "\n"  # keep docs → default yes
         )
         assert _drive(inputs, return_value=Path("/tmp/out/proj")).call_count == 1
 
@@ -156,6 +163,7 @@ class TestRunCli:
             "Copyright\n"
             "MIT\n"
             "\n"  # use reuse tooling → default yes
+            "\n"  # keep docs → default yes
         )
         assert _drive(inputs, return_value=Path("/tmp/out/proj")).call_count == 1
 
@@ -171,12 +179,13 @@ class TestRunCli:
             "Copyright\n"
             "MIT\n"
             "\n"  # use reuse tooling → default yes
+            "\n"  # keep docs → default yes
         )
         assert _drive(inputs, return_value=Path("/tmp/out/proj")).call_count == 1
 
     def test_run_exception_handled(self) -> None:
         """Test that exceptions from run() are re-raised."""
-        inputs = "proj\ndesc\n/tmp/out\nAuthor\na@b.com\nCopyright\nMIT\n\n"
+        inputs = "proj\ndesc\n/tmp/out\nAuthor\na@b.com\nCopyright\nMIT\n\n\n"
         with pytest.raises(RuntimeError, match="test error"):
             _drive(inputs, exc=RuntimeError("test error"))
 
@@ -192,6 +201,24 @@ class TestRunCli:
             "MIT\n"
             "maybe\n"  # invalid, rejected
             "n\n"  # valid, accepted
+            "\n"  # keep docs → default yes
         )
         mock = _drive(inputs, return_value=Path("/tmp/out/proj"))
         assert mock.call_args[0][0].use_reuse is False
+
+    def test_invalid_use_docs_retries_and_applies(self) -> None:
+        """An invalid docs answer retries; 'n' drops the docs subpackage."""
+        inputs = (
+            "proj\n"
+            "desc\n"
+            "/tmp/out\n"
+            "Author\n"
+            "a@b.com\n"
+            "Copyright\n"
+            "MIT\n"
+            "\n"  # use reuse tooling → default yes
+            "maybe\n"  # invalid docs, rejected
+            "n\n"  # remove docs
+        )
+        mock = _drive(inputs, return_value=Path("/tmp/out/proj"))
+        assert mock.call_args[0][0].use_docs is False
