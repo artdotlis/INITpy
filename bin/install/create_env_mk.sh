@@ -78,7 +78,7 @@ if [[ ! -f "$ENV_MK" ]]; then
     PATH_DIRS+=("$ROOT/$FNM_HOME")
     PATH_DIRS+=("$ROOT/$UV_PYTHON_BIN_DIR")
     PATH_DIRS+=("$ROOT/$UV_INSTALL_DIR")
-    PATH_DIRS+=("$ROOT/$PNPM_HOME")
+    PATH_DIRS+=("$ROOT/$PNPM_HOME/bin")
 
     PATH_BUILD="$PATH"
     declare -A _seen
