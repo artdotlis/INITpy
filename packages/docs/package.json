@@ -5,9 +5,9 @@
     },
     "description": "This package documents the whole project.",
     "devDependencies": {
-        "toml": "^5.0.1",
-        "vitepress": "^1.6.4",
-        "vitest": "^2.1.9"
+        "toml": "catalog:",
+        "vitepress": "catalog:",
+        "vitest": "catalog:"
     },
     "name": "docs",
     "private": true,

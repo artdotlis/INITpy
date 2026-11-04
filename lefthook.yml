@@ -45,6 +45,8 @@ pre-commit:
                     run: bin/install/wrap.sh check-yaml -- {staged_files}
                   - name: check-json
                     glob: '*.json'
+                    exclude:
+                        - '**/tsconfig.json'
                     run: bin/install/wrap.sh check-json -- {staged_files}
                   - name: check-toml
                     glob: '*.{toml,tml}'

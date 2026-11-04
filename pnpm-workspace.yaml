@@ -19,5 +19,8 @@ catalog:
     prettier: '^3.9.10'
     '@types/node': '^24.0.0'
     typescript: '^7.0.2'
+    toml: '^5.0.1'
+    vitepress: '^1.6.4'
+    vitest: '^2.1.9'
 allowBuilds:
     esbuild: true
