@@ -11,6 +11,7 @@ from unittest.mock import patch
 import pytest
 import tomlkit
 from scaffolder.scaffold.files import (
+    _drop_docs_lefthook,
     _drop_docs_make_targets,
     _validate_license,
     amend_docs,
@@ -22,6 +23,7 @@ from scaffolder.scaffold.files import (
     remove_prod_docker,
     remove_reuse,
     set_license_package_json,
+    set_license_licenses_sh,
     set_license_pyproject,
     update_commitizen_version_files,
     update_copyright,
@@ -625,6 +627,67 @@ class TestRemoveDocs:
         assert (tmp_path / ".github" / "workflows" / "main.yml").exists()
 
 
+class TestPruneLefthook:
+    """Tests for pruning empty lefthook hooks and groups."""
+
+    def test_removes_hook_left_without_jobs(self, tmp_path: Path) -> None:
+        """Drop a hook when removing its last job leaves it empty."""
+        lefthook = tmp_path / "lefthook.yml"
+        lefthook.write_text(
+            "pre-push:\n"
+            "    piped: true\n"
+            "    jobs:\n"
+            "        - name: docs\n"
+            "          run: x\n"
+        )
+        _drop_docs_lefthook(lefthook)
+        assert "pre-push" not in lefthook.read_text()
+
+    def test_removes_empty_group_and_keeps_siblings(self, tmp_path: Path) -> None:
+        """Drop an emptied group entry but keep the hook and its other jobs."""
+        lefthook = tmp_path / "lefthook.yml"
+        lefthook.write_text(
+            "pre-commit:\n"
+            "    jobs:\n"
+            "        - name: check\n"
+            "          group:\n"
+            "              jobs:\n"
+            "                  - name: docs\n"
+            "                    run: x\n"
+            "        - name: other\n"
+            "          run: y\n"
+        )
+        _drop_docs_lefthook(lefthook)
+        text = lefthook.read_text()
+        assert "pre-commit" in text
+        assert "check" not in text
+        assert "name: other" in text
+
+    def test_removes_hook_when_group_emptied(self, tmp_path: Path) -> None:
+        """Drop the hook when its only group ends up empty."""
+        lefthook = tmp_path / "lefthook.yml"
+        lefthook.write_text(
+            "pre-commit:\n"
+            "    jobs:\n"
+            "        - name: check\n"
+            "          group:\n"
+            "              jobs:\n"
+            "                  - name: docs\n"
+            "                    run: x\n"
+        )
+        _drop_docs_lefthook(lefthook)
+        assert "pre-commit" not in lefthook.read_text()
+
+    def test_keeps_hook_with_commands(self, tmp_path: Path) -> None:
+        """Keep a hook that only has commands (no jobs) untouched."""
+        lefthook = tmp_path / "lefthook.yml"
+        lefthook.write_text(
+            "commit-msg:\n    commands:\n        commitizen:\n            run: cz\n"
+        )
+        _drop_docs_lefthook(lefthook)
+        assert "commitizen" in lefthook.read_text()
+
+
 class TestUpdatePyprojectDepGroups:
     """Tests for update_pyproject_dep_groups."""
 
@@ -686,6 +749,31 @@ class TestSetLicensePackageJson:
         assert data["license"] == "MIT"
 
 
+class TestSetLicenseLicensesSh:
+    """Tests for set_license_licenses_sh."""
+
+    @staticmethod
+    def _write(tmp_path: Path) -> Path:
+        sh = tmp_path / "licenses.sh"
+        sh.write_text('SOFTWARE_LIC="Unlicense"\nDATA_LIC="CC0-1.0"\n')
+        return sh
+
+    def test_sets_software_lic(self, tmp_path: Path) -> None:
+        """Replace the default SOFTWARE_LIC with the user's choice."""
+        sh = self._write(tmp_path)
+        set_license_licenses_sh(sh, "MIT")
+        text = sh.read_text()
+        assert 'SOFTWARE_LIC="MIT"' in text
+        assert 'DATA_LIC="CC0-1.0"' in text
+
+    def test_raises_when_assignment_missing(self, tmp_path: Path) -> None:
+        """Fail loudly when SOFTWARE_LIC is not present."""
+        sh = tmp_path / "licenses.sh"
+        sh.write_text('DATA_LIC="CC0-1.0"\n')
+        with pytest.raises(ValueError):
+            set_license_licenses_sh(sh, "MIT")
+
+
 class TestValidateLicense:
     """Tests for _validate_license."""
 
@@ -713,6 +801,9 @@ class TestConfigureLicenses:
         (licenses_dir / "MIT.txt").write_text("x")
         # LICENSE file must exist (it gets unlinked first by write_license)
         (tmp_path / "LICENSE").write_text("old")
+        licenses_sh = tmp_path / "bin" / "lint" / "licenses.sh"
+        licenses_sh.parent.mkdir(parents=True)
+        licenses_sh.write_text('SOFTWARE_LIC="Unlicense"\nDATA_LIC="CC0-1.0"\n')
 
         with (
             patch("scaffolder.scaffold.files._validate_license"),
@@ -727,6 +818,7 @@ class TestConfigureLicenses:
 
         pkg_data = json.loads(pkg_json.read_text())
         assert pkg_data["license"] == "MIT"
+        assert 'SOFTWARE_LIC="MIT"' in licenses_sh.read_text()
 
 
 class TestRemoveReuse:

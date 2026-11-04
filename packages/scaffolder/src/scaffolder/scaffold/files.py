@@ -4,6 +4,8 @@
 
 """File transformation functions for scaffolding."""
 
+from typing import Any
+
 from tomlkit import TOMLDocument
 import json
 import re
@@ -135,6 +137,45 @@ def _round_trip_yaml() -> YAML:
     return yaml
 
 
+def _prune_jobs(jobs: list[Any], /) -> None:
+    """Recursively drop empty group entries from a lefthook ``jobs`` list."""
+    kept: list[Any] = []
+    for job in jobs:
+        if not isinstance(job, dict):
+            kept.append(job)
+            continue
+        group = job.get("group")
+        if isinstance(group, dict) and isinstance(group.get("jobs"), list):
+            _prune_jobs(group["jobs"])
+            if len(group["jobs"]) == 0:
+                continue
+        kept.append(job)
+    jobs[:] = kept
+
+
+def _prune_lefthook_hooks(doc: dict[str, Any], /) -> None:
+    """Drop lefthook hooks and groups left without jobs.
+
+    When jobs are removed from a hook, a now-empty ``jobs`` list would
+    otherwise linger. Remove each empty group entry, then any hook that has
+    neither jobs nor commands left.
+    """
+    to_del: list[str] = []
+    for hook, body in doc.items():
+        if not isinstance(body, dict):
+            continue
+        jobs = body.get("jobs")
+        if isinstance(jobs, list):
+            _prune_jobs(jobs)
+        commands = body.get("commands")
+        has_jobs = isinstance(jobs, list) and len(jobs) > 0
+        has_commands = isinstance(commands, dict) and len(commands) > 0
+        if not has_jobs and not has_commands:
+            to_del.append(hook)
+    for hook in to_del:
+        del doc[hook]
+
+
 def update_tests(path: Path, package_name: str, /) -> None:
     """Wire the scaffolded package into lefthook and CI test config.
 
@@ -154,6 +195,7 @@ def _update_lefthook_tests(path: Path, package_name: str, /) -> None:
     yaml = _round_trip_yaml()
     doc = yaml.load(lefthook.read_text())
     doc["tests"]["jobs"] = [{"name": package_name, "run": run_cmd}]
+    _prune_lefthook_hooks(doc)
     with lefthook.open("w") as stream:
         yaml.dump(doc, stream)
 
@@ -449,6 +491,19 @@ def _drop_docs_make_targets(makefile: Path, /) -> None:
     makefile.write_text(text)
 
 
+def _remove_docs_jobs(jobs: list[object], /) -> None:
+    """Drop jobs named ``docs``, recursing into nested group entries."""
+    kept: list[object] = []
+    for job in jobs:
+        if isinstance(job, dict) and job.get("name") == "docs":
+            continue
+        group = job.get("group") if isinstance(job, dict) else None
+        if isinstance(group, dict) and isinstance(group.get("jobs"), list):
+            _remove_docs_jobs(group["jobs"])
+        kept.append(job)
+    jobs[:] = kept
+
+
 def _drop_docs_lefthook(lefthook: Path, /) -> None:
     """Remove the docs test job from lefthook.yml."""
     yaml = _round_trip_yaml()
@@ -456,11 +511,8 @@ def _drop_docs_lefthook(lefthook: Path, /) -> None:
     for hook in doc.values():
         jobs = hook.get("jobs") if isinstance(hook, dict) else None
         if isinstance(jobs, list):
-            jobs[:] = [
-                job
-                for job in jobs
-                if not (isinstance(job, dict) and job.get("name") == "docs")
-            ]
+            _remove_docs_jobs(jobs)
+    _prune_lefthook_hooks(doc)
     with lefthook.open("w") as stream:
         yaml.dump(doc, stream)
 
@@ -597,6 +649,33 @@ def set_license_package_json(path: Path, license_name: str, /) -> None:
     path.write_text(json.dumps(data, indent=2) + "\n")
 
 
+def set_license_licenses_sh(licenses_sh: Path, license_name: str, /) -> None:
+    """Set the software license in ``licenses.sh``.
+
+    The license is chosen by the user at scaffold time; it replaces the
+    default ``SOFTWARE_LIC`` assignment so the license-check tooling annotates
+    files with the selected SPDX identifier.
+
+    Args:
+        licenses_sh: Path to ``bin/lint/licenses.sh``.
+        license_name: SPDX license identifier to set.
+
+    Raises:
+        ValueError: If the ``SOFTWARE_LIC`` assignment is not found.
+    """
+    text = licenses_sh.read_text()
+    text, count = re.subn(
+        r'^SOFTWARE_LIC="[^"]*"$',
+        f'SOFTWARE_LIC="{license_name}"',
+        text,
+        count=1,
+        flags=re.M,
+    )
+    if count != 1:
+        raise ValueError("SOFTWARE_LIC assignment not found in licenses.sh")
+    licenses_sh.write_text(text)
+
+
 def configure_licenses(path: Path, license_name: str, /) -> None:
     """Clear ``LICENSES/``, download ``LICENSE``, and set the license fields.
 
@@ -609,6 +688,7 @@ def configure_licenses(path: Path, license_name: str, /) -> None:
     write_license(path / "LICENSE", license_name)
     set_license_pyproject(path / "pyproject.toml", license_name)
     set_license_package_json(path / "package.json", license_name)
+    set_license_licenses_sh(path / "bin" / "lint" / "licenses.sh", license_name)
 
 
 _REUSE_START = "# ===== REUSE:START ====="
