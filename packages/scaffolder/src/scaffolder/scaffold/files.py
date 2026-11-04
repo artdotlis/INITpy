@@ -75,8 +75,7 @@ def amend_docs(path: Path, package_name: str, project_name: str, /) -> None:
     index.write_text(text)
 
     ref_index = path / "packages" / "docs" / "src" / "ref" / "index.md"
-    if ref_index.exists():
-        ref_index.write_text(f"# Reference\n\n- [{package_name}]({package_name})\n")
+    ref_index.write_text(f"# Reference\n\n- [{package_name}]({package_name})\n")
 
     config = path / "packages" / "docs" / ".vitepress" / "config.toml"
     doc = tomlkit.parse(config.read_text())
@@ -196,9 +195,6 @@ def update_commitizen_version_files(path: Path, package_name: str, /) -> None:
         package_name: The package being scaffolded.
     """
     root_pyproject = path / "pyproject.toml"
-    if not root_pyproject.is_file():
-        return
-
     doc = tomlkit.parse(root_pyproject.read_text())
     tool = doc.get("tool")
     if tool is None:
@@ -236,8 +232,6 @@ def update_licenses_sh(path: Path, /) -> None:
         FileNotFoundError: If ``bin/lint/licenses.sh`` is missing.
     """
     licenses_sh = path / "bin" / "lint" / "licenses.sh"
-    if not licenses_sh.exists():
-        raise FileNotFoundError(f"Missing required file: {licenses_sh}")
     text = licenses_sh.read_text()
     # Insert exit after shebang
     exit_block = """# TODO: Complete license implementation before use.
@@ -267,23 +261,20 @@ def remove_prod_docker(path: Path, /) -> None:
 
     dev_compose = path / ".devcontainer" / "dev.docker-compose.yml"
     root_compose = path / "docker-compose.yml"
-    if dev_compose.exists():
-        shutil.move(str(dev_compose), str(root_compose))
+    shutil.move(str(dev_compose), str(root_compose))
 
     devcontainer = path / ".devcontainer" / "devcontainer.json"
-    if devcontainer.exists():
-        data = json.loads(devcontainer.read_text())
-        data["dockerComposeFile"] = ["../docker-compose.yml"]
-        devcontainer.write_text(json.dumps(data, indent=2) + "\n")
+    data = json.loads(devcontainer.read_text())
+    data["dockerComposeFile"] = ["../docker-compose.yml"]
+    devcontainer.write_text(json.dumps(data, indent=2) + "\n")
 
     # prod-only env vars would trip the lint_env occurrence check
     package_env = path / "package.env"
-    if package_env.exists():
-        content = package_env.read_text()
-        for var in ("BIN_DEPLOY_HEALTH", "BIN_DEPLOY_ENTRY_PROD"):
-            content = re.sub(rf"^{var}=.*$", "", content, flags=re.M)
-        content = re.sub(r"\n{2,}", "\n", content)
-        package_env.write_text(content)
+    content = package_env.read_text()
+    for var in ("BIN_DEPLOY_HEALTH", "BIN_DEPLOY_ENTRY_PROD"):
+        content = re.sub(rf"^{var}=.*$", "", content, flags=re.M)
+    content = re.sub(r"\n{2,}", "\n", content)
+    package_env.write_text(content)
 
     # prod-only deploy scripts
     for name in ("entry_prod.sh", "health.sh"):
@@ -373,13 +364,12 @@ def remove_docs(path: Path, /) -> None:
 
 def _remove_docs_pyproject(pyproject: Path, /) -> None:
     """Drop docs references from the root pyproject.toml."""
-    if pyproject.is_file():
-        doc = tomlkit.parse(pyproject.read_text())
-        _drop_docs_uv_workspace(doc)
-        _drop_docs_dependency_group(doc)
-        _drop_docs_commitizen(doc)
-        _drop_docs_vulture(doc)
-        pyproject.write_text(tomlkit.dumps(doc))
+    doc = tomlkit.parse(pyproject.read_text())
+    _drop_docs_uv_workspace(doc)
+    _drop_docs_dependency_group(doc)
+    _drop_docs_commitizen(doc)
+    _drop_docs_vulture(doc)
+    pyproject.write_text(tomlkit.dumps(doc))
 
 
 def _drop_docs_uv_workspace(doc: TOMLDocument) -> None:
@@ -422,18 +412,15 @@ def _drop_docs_vulture(doc: TOMLDocument) -> None:
 
 def _remove_docs_pnpm_workspace(workspace_yaml: Path, /) -> None:
     """Remove the docs package from the pnpm workspace packages list."""
-    if workspace_yaml.is_file():
-        yaml = _round_trip_yaml()
-        doc = yaml.load(workspace_yaml.read_text())
-        packages = doc.get("packages")
-        if isinstance(packages, list):
-            doc["packages"] = [
-                entry for entry in packages if str(entry) != "packages/docs"
-            ]
-            if not doc["packages"]:
-                del doc["packages"]
-        with workspace_yaml.open("w") as stream:
-            yaml.dump(doc, stream)
+    yaml = _round_trip_yaml()
+    doc = yaml.load(workspace_yaml.read_text())
+    packages = doc.get("packages")
+    if isinstance(packages, list):
+        doc["packages"] = [entry for entry in packages if str(entry) != "packages/docs"]
+        if not doc["packages"]:
+            del doc["packages"]
+    with workspace_yaml.open("w") as stream:
+        yaml.dump(doc, stream)
 
 
 _DOCS_MAKE_TARGETS = ("docs", "build-docs", "run-docs", "serve-docs", "docs-ref")
@@ -467,37 +454,34 @@ def _drop_docs_make_targets(makefile: Path, /) -> None:
 
 def _drop_docs_lefthook(lefthook: Path, /) -> None:
     """Remove the docs test job from lefthook.yml."""
-    if lefthook.is_file():
-        yaml = _round_trip_yaml()
-        doc = yaml.load(lefthook.read_text())
-        for hook in doc.values():
-            jobs = hook.get("jobs") if isinstance(hook, dict) else None
-            if isinstance(jobs, list):
-                jobs[:] = [
-                    job
-                    for job in jobs
-                    if not (isinstance(job, dict) and job.get("name") == "docs")
-                ]
-        with lefthook.open("w") as stream:
-            yaml.dump(doc, stream)
+    yaml = _round_trip_yaml()
+    doc = yaml.load(lefthook.read_text())
+    for hook in doc.values():
+        jobs = hook.get("jobs") if isinstance(hook, dict) else None
+        if isinstance(jobs, list):
+            jobs[:] = [
+                job
+                for job in jobs
+                if not (isinstance(job, dict) and job.get("name") == "docs")
+            ]
+    with lefthook.open("w") as stream:
+        yaml.dump(doc, stream)
 
 
 def _drop_docs_env(package_env: Path, /) -> None:
     """Drop docs-related variable declarations from package.env."""
-    if package_env.is_file():
-        content = package_env.read_text()
-        for var in ("CONFIG_DOCS", "PKG_DOCS", "DOCS_ENV"):
-            content = re.sub(rf"(?m)^{var}=.*$\n?", "", content)
-        content = re.sub(r"\n{2,}", "\n", content)
-        package_env.write_text(content)
+    content = package_env.read_text()
+    for var in ("CONFIG_DOCS", "PKG_DOCS", "DOCS_ENV"):
+        content = re.sub(rf"(?m)^{var}=.*$\n?", "", content)
+    content = re.sub(r"\n{2,}", "\n", content)
+    package_env.write_text(content)
 
 
 def _drop_docs_env_script(script: Path, /) -> None:
     """Remove the DOCS_ENV entry from lint_env.sh ENV_FILES."""
-    if script.is_file():
-        text = script.read_text()
-        text = text.replace('"$DOCS_ENV"', "")
-        script.write_text(text)
+    text = script.read_text()
+    text = text.replace('"$DOCS_ENV"', "")
+    script.write_text(text)
 
 
 _DOCS_START = "# ===== DOCS:START ====="
@@ -506,45 +490,41 @@ _DOCS_END = "# ===== DOCS:END ====="
 
 def _drop_docs_clean_script(script: Path, /) -> None:
     """Remove the marked DOCS block from clean.sh."""
-    if script.is_file():
-        text = script.read_text()
-        border = r"[ \t]*#[ \t-]*\n"
-        text = re.sub(
-            rf"(?ms)(?:{border})?{re.escape(_DOCS_START)}.*?{re.escape(_DOCS_END)}\n?(?:{border})?",
-            "",
-            text,
-        )
-        text = re.sub(r"\n\n\n+", "\n\n", text)
-        script.write_text(text)
+    text = script.read_text()
+    border = r"[ \t]*#[ \t-]*\n"
+    text = re.sub(
+        rf"(?ms)(?:{border})?{re.escape(_DOCS_START)}.*?{re.escape(_DOCS_END)}\n?(?:{border})?",
+        "",
+        text,
+    )
+    text = re.sub(r"\n\n\n+", "\n\n", text)
+    script.write_text(text)
 
 
 def _drop_docs_licenses(licenses_sh: Path, /) -> None:
     """Remove docs config and ignore entries from licenses.sh."""
-    if licenses_sh.is_file():
-        text = licenses_sh.read_text()
-        text = text.replace('"$CONFIG_DOCS"', "")
-        lines = [
-            line for line in text.splitlines(keepends=True) if "packages/docs" not in line
-        ]
-        licenses_sh.write_text("".join(lines))
+    text = licenses_sh.read_text()
+    text = text.replace('"$CONFIG_DOCS"', "")
+    lines = [
+        line for line in text.splitlines(keepends=True) if "packages/docs" not in line
+    ]
+    licenses_sh.write_text("".join(lines))
 
 
 def _drop_docs_gitignore(gitignore: Path, /) -> None:
     """Remove Sphinx/VitePress ignore blocks from .gitignore."""
-    if gitignore.is_file():
-        text = gitignore.read_text()
-        text = text.replace("# Sphinx documentation\ndocs/_build/\n", "")
-        text = re.sub(
-            r"(?m)^# VitePress\n\.vitepress/\.cache/\n\.vitepress/dist/\n", "", text
-        )
-        gitignore.write_text(text)
+    text = gitignore.read_text()
+    text = text.replace("# Sphinx documentation\ndocs/_build/\n", "")
+    text = re.sub(
+        r"(?m)^# VitePress\n\.vitepress/\.cache/\n\.vitepress/dist/\n", "", text
+    )
+    gitignore.write_text(text)
 
 
 def _drop_docs_workflow(path: Path, /) -> None:
     """Remove the docs GitHub Actions workflow."""
     workflow = path / ".github" / "workflows" / "docs.yml"
-    if workflow.is_file():
-        workflow.unlink()
+    workflow.unlink()
 
 
 def update_pyproject_dep_groups(

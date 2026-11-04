@@ -44,6 +44,9 @@ class TestAmendDocs:
         config = tmp_path / "packages" / "docs" / ".vitepress" / "config.toml"
         config.parent.mkdir(parents=True, exist_ok=True)
         config.write_text('[site]\ntitle = "INIT - Python"\n')
+        ref_index = tmp_path / "packages" / "docs" / "src" / "ref" / "index.md"
+        ref_index.parent.mkdir(parents=True, exist_ok=True)
+        ref_index.write_text("# old content\n")
 
     def test_updates_index_title(self, tmp_path: Path) -> None:
         """Retitle the docs index hero with the project name."""
@@ -219,9 +222,10 @@ class TestUpdateCommitizenVersionFiles:
             "packages/docs/package.json",
         ]
 
-    def test_no_op_when_missing(self, tmp_path: Path) -> None:
-        """Do nothing when there is no pyproject.toml."""
-        update_commitizen_version_files(tmp_path, "my_pkg")
+    def test_raises_when_missing(self, tmp_path: Path) -> None:
+        """Raise FileNotFoundError when there is no pyproject.toml."""
+        with pytest.raises(FileNotFoundError):
+            update_commitizen_version_files(tmp_path, "my_pkg")
 
 
 class TestUpdateLicensesSh:
