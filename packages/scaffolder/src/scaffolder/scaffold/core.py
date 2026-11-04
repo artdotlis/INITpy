@@ -23,8 +23,9 @@ from dataclasses import dataclass
 import os
 
 from shared_utils.names import sanitize_package_name
-from shared_utils.files import configure_licenses
-from shared_utils.files import remove_reuse
+from shared_utils.files import set_version
+from scaffolder.scaffold.files import configure_licenses
+from scaffolder.scaffold.files import remove_reuse
 from scaffolder.scaffold.files import (
     amend_docs,
     remove_docs,
@@ -32,7 +33,6 @@ from scaffolder.scaffold.files import (
     update_copyright,
     update_envs,
     update_licenses_sh,
-    set_version,
     update_commitizen_version_files,
     update_tests,
 )
@@ -150,7 +150,7 @@ def run(args: ScaffoldArgs) -> Path:
     correct_core_project(output_path, project_name, package_name, dep_name, description)
 
     # version 0.1.0
-    set_version(output_path)
+    set_version(output_path, "0.1.0")
 
     # scope commitizen version_files to the new package
     update_commitizen_version_files(output_path, package_name)

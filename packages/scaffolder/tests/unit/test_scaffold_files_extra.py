@@ -6,23 +6,29 @@
 
 import json
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 import tomlkit
 from scaffolder.scaffold.files import (
+    _validate_license,
     amend_docs,
     clean_root_md,
+    clear_licenses_dir,
+    configure_licenses,
     correct_core_project,
     remove_docs,
     remove_prod_docker,
-    set_version,
+    remove_reuse,
+    set_license_package_json,
+    set_license_pyproject,
     update_commitizen_version_files,
     update_copyright,
     update_envs,
     update_licenses_sh,
+    update_pyproject_dep_groups,
     update_tests,
 )
-from shared_utils.constants import VERSION
 
 
 class TestAmendDocs:
@@ -177,39 +183,6 @@ jobs:
         assert "packages/scaffolder" not in content
         assert "- name: Run my_pkg tests" in content
         assert "working-directory: packages/my_pkg" in content
-
-
-class TestSetVersion:
-    """Tests for set_version."""
-
-    def test_replaces_version_in_pyproject(self, tmp_path: Path) -> None:
-        """Replace the template version in a pyproject.toml."""
-        p = tmp_path / "pyproject.toml"
-
-        p.write_text(f'[project]\nversion = "{VERSION}"\n')
-        set_version(tmp_path)
-        assert VERSION not in p.read_text()
-        assert "0.1.0" in p.read_text()
-
-    def test_replaces_version_in_package_json(self, tmp_path: Path) -> None:
-        """Replace the template version in a package.json."""
-        p = tmp_path / "package.json"
-
-        p.write_text(f'{{"version": "{VERSION}"}}\n')
-        set_version(tmp_path)
-        assert VERSION not in p.read_text()
-
-    def test_preserves_dependency_version_pins(self, tmp_path: Path) -> None:
-        """Only the project version is replaced, not pinned dependency versions."""
-        p = tmp_path / "pyproject.toml"
-
-        p.write_text(
-            f'[project]\nversion = "{VERSION}"\ndependencies = ["shellcheck-py=={VERSION}.1"]\n'
-        )
-        set_version(tmp_path)
-        content = p.read_text()
-        assert content.startswith('[project]\nversion = "0.1.0"')
-        assert f"shellcheck-py=={VERSION}.1" in content
 
 
 class TestUpdateCommitizenVersionFiles:
@@ -558,3 +531,165 @@ class TestRemoveDocs:
         assert "docs/_build" not in gitignore
         assert not (tmp_path / ".github" / "workflows" / "docs.yml").exists()
         assert (tmp_path / ".github" / "workflows" / "main.yml").exists()
+
+
+class TestUpdatePyprojectDepGroups:
+    """Tests for update_pyproject_dep_groups."""
+
+    def test_adds_mono_group(self, tmp_path: Path) -> None:
+        """Add the package to the mono dependency group."""
+        p = tmp_path / "pyproject.toml"
+        p.write_text('[project]\nname = "x"\n')
+        update_pyproject_dep_groups(p, "my_pkg")
+        doc = tomlkit.parse(p.read_text())
+        assert doc["dependency-groups"]["mono"] == ["my_pkg"]
+
+
+class TestClearLicensesDir:
+    """Tests for clear_licenses_dir."""
+
+    def test_removes_files_from_licenses_dir(self, tmp_path: Path) -> None:
+        """Delete every file inside the LICENSES directory."""
+        lic = tmp_path / "LICENSES"
+        lic.mkdir()
+        (lic / "MIT.txt").write_text("license")
+        (lic / "APACHE.txt").write_text("license")
+        clear_licenses_dir(tmp_path)
+        assert not any(lic.iterdir())
+
+    def test_noop_when_no_licenses_dir(self, tmp_path: Path) -> None:
+        """Do nothing when the LICENSES directory is absent."""
+        clear_licenses_dir(tmp_path)  # should not raise
+
+
+class TestSetLicensePyproject:
+    """Tests for set_license_pyproject."""
+
+    def test_sets_license(self, tmp_path: Path) -> None:
+        """Set the license field in an existing pyproject.toml."""
+        p = tmp_path / "pyproject.toml"
+        p.write_text('[project]\nname = "x"\n')
+        set_license_pyproject(p, "MIT")
+        doc = tomlkit.parse(p.read_text())
+        assert doc["project"]["license"] == "MIT"
+
+    def test_creates_project_when_missing(self, tmp_path: Path) -> None:
+        """Create the project section when it is missing."""
+        p = tmp_path / "pyproject.toml"
+        p.write_text('[build-system]\nrequires = ["setuptools"]\n')
+        set_license_pyproject(p, "MIT")
+        doc = tomlkit.parse(p.read_text())
+        assert doc["project"]["license"] == "MIT"
+
+
+class TestSetLicensePackageJson:
+    """Tests for set_license_package_json."""
+
+    def test_sets_license(self, tmp_path: Path) -> None:
+        """Set the license field in a package.json file."""
+        p = tmp_path / "package.json"
+        p.write_text('{"name": "x"}\n')
+        set_license_package_json(p, "MIT")
+        data = json.loads(p.read_text())
+        assert data["license"] == "MIT"
+
+
+class TestValidateLicense:
+    """Tests for _validate_license."""
+
+    def test_known_license_passes(self) -> None:
+        """Accept a known SPDX license identifier."""
+        _validate_license("MIT")  # should not raise
+
+    def test_unknown_license_raises(self) -> None:
+        """Raise ValueError for an unknown SPDX license identifier."""
+        with pytest.raises(ValueError, match="Unknown SPDX license"):
+            _validate_license("NONEXISTENT_LICENSE_XYZ")
+
+
+class TestConfigureLicenses:
+    """Tests for configure_licenses."""
+
+    def test_configures_licenses(self, tmp_path: Path) -> None:
+        """Clear, download, and set the license in all config files."""
+        pyproject = tmp_path / "pyproject.toml"
+        pyproject.write_text('[project]\nname = "x"\n')
+        pkg_json = tmp_path / "package.json"
+        pkg_json.write_text('{"name": "x"}\n')
+        licenses_dir = tmp_path / "LICENSES"
+        licenses_dir.mkdir()
+        (licenses_dir / "MIT.txt").write_text("x")
+        # LICENSE file must exist (it gets unlinked first by write_license)
+        (tmp_path / "LICENSE").write_text("old")
+
+        with (
+            patch("scaffolder.scaffold.files._validate_license"),
+            patch("scaffolder.scaffold.files.write_license"),
+            patch("scaffolder.scaffold.files.clear_licenses_dir") as mock_clear,
+        ):
+            configure_licenses(tmp_path, "MIT")
+            mock_clear.assert_called_once()
+
+        pydoc = tomlkit.parse(pyproject.read_text())
+        assert pydoc["project"]["license"] == "MIT"
+
+        pkg_data = json.loads(pkg_json.read_text())
+        assert pkg_data["license"] == "MIT"
+
+
+class TestRemoveReuse:
+    """Tests for remove_reuse."""
+
+    def test_removes_reuse_structure(self, tmp_path: Path) -> None:
+        """Delete reuse dirs, REUSE.toml, dep, and script section."""
+        # reuse directories + files
+        (tmp_path / "LICENSES").mkdir()
+        (tmp_path / "LICENSES" / "Unlicense.txt").write_text("x")
+        (tmp_path / "package.json.license").write_text("x")
+        reuse_toml = tmp_path / "packages" / "docs" / "REUSE.toml"
+        reuse_toml.parent.mkdir(parents=True)
+        reuse_toml.write_text("x")
+
+        # keep LICENSE file
+        (tmp_path / "LICENSE").write_text("keep me")
+
+        # pyproject with a reuse dependency in the dev dependency group
+        pyproject = tmp_path / "pyproject.toml"
+        pyproject.write_text(
+            '[project]\nname = "x"\ndependencies = ["requests"]\n'
+            "[dependency-groups]\n"
+            'dev = ["pytest", "reuse ==6.2.0"]\n'
+        )
+
+        # licenses.sh with marked reuse section
+        licenses_sh = tmp_path / "bin" / "lint" / "licenses.sh"
+        licenses_sh.parent.mkdir(parents=True)
+        licenses_sh.write_text(
+            "#!/bin/bash\n"
+            "echo non-reuse\n"
+            "# ===== REUSE:START =====\n"
+            "reuse lint\n"
+            "# ===== REUSE:END =====\n"
+            "echo tail\n"
+        )
+
+        remove_reuse(tmp_path)
+
+        assert not (tmp_path / "LICENSES").exists()
+        assert not (tmp_path / "packages" / "docs" / "REUSE.toml").exists()
+        # .license companions are owned by strip_spdx_headers, not remove_reuse
+        assert (tmp_path / "package.json.license").exists()
+        assert (tmp_path / "LICENSE").read_text() == "keep me"
+
+        pydoc = tomlkit.parse(pyproject.read_text())
+        assert "reuse ==6.2.0" not in pydoc["project"]["dependencies"]
+        assert "requests" in pydoc["project"]["dependencies"]
+        dev_deps = pydoc["dependency-groups"]["dev"]
+        assert "reuse ==6.2.0" not in dev_deps
+        assert "pytest" in dev_deps
+
+        script = licenses_sh.read_text()
+        assert "reuse lint" not in script
+        assert "REUSE:START" not in script
+        assert "echo non-reuse" in script
+        assert "echo tail" in script

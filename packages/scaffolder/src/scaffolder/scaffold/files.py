@@ -11,11 +11,12 @@ import shutil
 import tomlkit
 
 from ruamel.yaml import YAML
-from shared_utils.files import update_pyproject_dep_groups
+from reuse.project import LICENSE_MAP
 from shared_utils.files import update_pyproject_workspace
 from shared_utils.files import update_pyproject_description
 from shared_utils.files import update_package_devcon_name
 from shared_utils.files import update_pyproject_name
+from shared_utils.files import write_license
 from shared_utils.names import package_env_file
 from shared_utils.names import package_env_var
 from pathlib import Path
@@ -182,31 +183,6 @@ def _update_ci_tests(path: Path, package_name: str, /) -> None:
         )
     with main.open("w") as stream:
         yaml.dump(doc, stream)
-
-
-def set_version(path: Path, /) -> None:
-    """Set the project version to ``0.1.0`` in pyproject.toml and package.json.
-
-    Uses tomlkit/json parsers to touch only the ``version`` field so other
-    version strings (e.g. dep pins) are left untouched.
-
-    Args:
-        path: Root of the generated project.
-    """
-    for fpath in path.rglob("*"):
-        if not fpath.is_file() or fpath.name not in ("pyproject.toml", "package.json"):
-            continue
-        if fpath.name == "pyproject.toml":
-            doc = tomlkit.parse(fpath.read_text())
-            project = doc.get("project")
-            if project is not None and "version" in project:
-                project["version"] = "0.1.0"
-            fpath.write_text(tomlkit.dumps(doc))
-        else:
-            data = json.loads(fpath.read_text())
-            if "version" in data:
-                data["version"] = "0.1.0"
-            fpath.write_text(json.dumps(data, indent=2) + "\n")
 
 
 def update_commitizen_version_files(path: Path, package_name: str, /) -> None:
@@ -555,3 +531,149 @@ def _drop_docs_workflow(path: Path, /) -> None:
     workflow = path / ".github" / "workflows" / "docs.yml"
     if workflow.is_file():
         workflow.unlink()
+
+
+def update_pyproject_dep_groups(
+    path: Path,
+    package_name: str,
+    /,
+) -> None:
+    """Add `package_name` to the ``mono`` dependency group.
+
+    Args:
+        path: Path to pyproject.toml.
+        package_name: The package to add.
+    """
+    doc = tomlkit.parse(path.read_text())
+    if "dependency-groups" not in doc:
+        doc["dependency-groups"] = {}
+    doc["dependency-groups"]["mono"] = [package_name]
+    path.write_text(tomlkit.dumps(doc))
+
+
+def clear_licenses_dir(path: Path, /) -> None:
+    """Remove all files from the ``LICENSES/`` directory.
+
+    Args:
+        path: Repository root that contains the ``LICENSES/`` directory.
+    """
+    lic_dir = path / "LICENSES"
+    if lic_dir.is_dir():
+        for file in lic_dir.iterdir():
+            if file.is_file():
+                file.unlink()
+
+
+def _validate_license(license_name: str, /) -> None:
+    """Validate that `license_name` is a known SPDX license identifier.
+
+    Args:
+        license_name: SPDX license identifier to validate.
+
+    Raises:
+        ValueError: If the identifier is not present in the license map.
+    """
+    if license_name not in LICENSE_MAP:
+        raise ValueError(
+            f"Unknown SPDX license: {license_name!r}. "
+            f"Run `reuse fetch` to see supported licenses."
+        )
+
+
+def set_license_pyproject(path: Path, license_name: str, /) -> None:
+    """Set the license field in pyproject.toml.
+
+    Args:
+        path: Path to pyproject.toml.
+        license_name: SPDX license identifier to set.
+    """
+    doc = tomlkit.parse(path.read_text())
+    if "project" not in doc:
+        doc["project"] = {}
+    doc["project"]["license"] = license_name
+    path.write_text(tomlkit.dumps(doc))
+
+
+def set_license_package_json(path: Path, license_name: str, /) -> None:
+    """Set the license field in package.json.
+
+    Args:
+        path: Path to package.json.
+        license_name: SPDX license identifier to set.
+    """
+    data = json.loads(path.read_text())
+    data["license"] = license_name
+    path.write_text(json.dumps(data, indent=2) + "\n")
+
+
+def configure_licenses(path: Path, license_name: str, /) -> None:
+    """Clear ``LICENSES/``, download ``LICENSE``, and set the license fields.
+
+    Args:
+        path: Repository root.
+        license_name: SPDX license identifier to configure.
+    """
+    _validate_license(license_name)
+    clear_licenses_dir(path)
+    write_license(path / "LICENSE", license_name)
+    set_license_pyproject(path / "pyproject.toml", license_name)
+    set_license_package_json(path / "package.json", license_name)
+
+
+_REUSE_START = "# ===== REUSE:START ====="
+_REUSE_END = "# ===== REUSE:END ====="
+
+
+def remove_reuse(path: Path, /) -> None:
+    """Remove reuse tooling, keeping the LICENSE file.
+
+    Args:
+        path: Repository root of the project.
+    """
+    target = path / "LICENSES"
+    if target.is_dir():
+        shutil.rmtree(target)
+    _remove_reuse_files(path)
+    _remove_reuse_dependency(path / "pyproject.toml")
+    _strip_reuse_script(path / "bin" / "lint" / "licenses.sh")
+
+
+def _remove_reuse_files(path: Path, /) -> None:
+    """Delete ``REUSE.toml`` configs."""
+    for fpath in list(path.rglob("*")):
+        if fpath.is_file() and fpath.name.lower() == "reuse.toml":
+            fpath.unlink()
+
+
+def _remove_reuse_dependency(pyproject: Path, /) -> None:
+    """Drop the ``reuse`` dependency from ``pyproject.toml``."""
+    doc = tomlkit.parse(pyproject.read_text())
+    project = doc.get("project")
+    if project is not None and project.get("dependencies") is not None:
+        doc["project"]["dependencies"] = [
+            dep
+            for dep in project["dependencies"]
+            if not (isinstance(dep, str) and dep.strip().lower().startswith("reuse"))
+        ]
+    groups = doc.get("dependency-groups")
+    if groups is not None:
+        for group_name, deps in list(groups.items()):
+            groups[group_name] = [
+                dep
+                for dep in deps
+                if not (isinstance(dep, str) and dep.strip().lower().startswith("reuse"))
+            ]
+    pyproject.write_text(tomlkit.dumps(doc))
+
+
+def _strip_reuse_script(licenses_sh: Path, /) -> None:
+    """Remove the marked reuse section from ``licenses.sh``."""
+    text = licenses_sh.read_text()
+    border = r"[ \t]*#[ \t-]*\n"
+    text = re.sub(
+        rf"(?ms)(?:{border})?{re.escape(_REUSE_START)}.*?{re.escape(_REUSE_END)}\n?(?:{border})?",
+        "",
+        text,
+    )
+    text = re.sub(r"\n\n\n+", "\n\n", text)
+    licenses_sh.write_text(text)
