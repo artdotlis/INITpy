@@ -91,6 +91,21 @@ class TestCreatePackage:
         doc = tomlkit.parse(pyproject.read_text())
         assert doc["tool"]["setuptools"]["packages"]["find"]["include"] == ["my_pkg"]
 
+    def test_updates_pyproject_coverage(self, clone_path: Path) -> None:
+        """Retarget the coverage run section at the new package."""
+        template = clone_path / "packages" / "shared_utils" / "pyproject.toml"
+        template.write_text(
+            TEMPLATE + "[tool.coverage.run]\n"
+            'source = ["shared_utils"]\n'
+            'data_file = ".coverage.shared_utils"\n'
+        )
+        create_package(clone_path, "my_pkg", "A package")
+        pyproject = clone_path / "packages" / "my_pkg" / "pyproject.toml"
+        doc = tomlkit.parse(pyproject.read_text())
+        run = doc["tool"]["coverage"]["run"]
+        assert run["source"] == ["my_pkg"]
+        assert run["data_file"] == ".coverage.my_pkg"
+
 
 class TestCloneRef:
     """Tests for the cloned INITpy ref selection."""

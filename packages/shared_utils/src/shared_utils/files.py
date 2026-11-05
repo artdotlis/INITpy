@@ -178,6 +178,31 @@ def update_pyproject_path(
     path.write_text(tomlkit.dumps(doc))
 
 
+def update_pyproject_coverage(
+    path: Path,
+    package_name: str,
+    /,
+) -> None:
+    """Retarget the coverage run section at `package_name`.
+
+    The scaffolded package's pyproject.toml is copied from shared_utils, so
+    its ``[tool.coverage.run]`` source and data_file still name
+    ``shared_utils``. Point both at the new package.
+
+    Args:
+        path: Path to pyproject.toml.
+        package_name: The package to measure.
+    """
+    doc = tomlkit.parse(path.read_text())
+    run = doc.setdefault("tool", tomlkit.table()).setdefault("coverage", tomlkit.table())
+    if "run" not in doc["tool"]["coverage"]:
+        doc["tool"]["coverage"]["run"] = tomlkit.table()
+    run = doc["tool"]["coverage"]["run"]
+    run["source"] = [package_name]
+    run["data_file"] = f".coverage.{package_name}"
+    path.write_text(tomlkit.dumps(doc))
+
+
 def update_package_authors(path: Path, author_name: str, author_email: str, /) -> None:
     """Replace author info in a package.json file.
 

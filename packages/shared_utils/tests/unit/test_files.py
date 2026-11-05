@@ -19,6 +19,7 @@ from shared_utils.files import (
     update_package_authors,
     update_package_devcon_name,
     update_pyproject_authors,
+    update_pyproject_coverage,
     update_pyproject_description,
     update_pyproject_name,
     update_pyproject_path,
@@ -178,6 +179,34 @@ class TestUpdatePyprojectPath:
         update_pyproject_path(p, "my_pkg")
         doc = tomlkit.parse(p.read_text())
         assert doc["tool"]["setuptools"]["packages"]["find"]["include"] == ["my_pkg"]
+
+
+class TestUpdatePyprojectCoverage:
+    """Tests for update_pyproject_coverage."""
+
+    def test_retargets_source_and_data_file(self, tmp_path: Path) -> None:
+        """Point coverage source and data_file at the new package."""
+        p = tmp_path / "pyproject.toml"
+        p.write_text(
+            "[tool.coverage.run]\n"
+            'source = ["shared_utils"]\n'
+            'data_file = ".coverage.shared_utils"\n'
+        )
+        update_pyproject_coverage(p, "my_pkg")
+        doc = tomlkit.parse(p.read_text())
+        run = doc["tool"]["coverage"]["run"]
+        assert run["source"] == ["my_pkg"]
+        assert run["data_file"] == ".coverage.my_pkg"
+
+    def test_creates_coverage_run_when_missing(self, tmp_path: Path) -> None:
+        """Create the coverage section when it is missing."""
+        p = tmp_path / "pyproject.toml"
+        p.write_text('[project]\nname = "x"\n')
+        update_pyproject_coverage(p, "my_pkg")
+        doc = tomlkit.parse(p.read_text())
+        run = doc["tool"]["coverage"]["run"]
+        assert run["source"] == ["my_pkg"]
+        assert run["data_file"] == ".coverage.my_pkg"
 
 
 class TestUpdatePackageAuthors:
