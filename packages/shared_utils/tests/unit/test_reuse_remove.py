@@ -4,89 +4,77 @@
 
 """Unit tests for shared_utils.reuse_remove."""
 
+import re
 from pathlib import Path
-
 
 import tomlkit
 
 from shared_utils.reuse_remove import remove_reuse
+from shared_utils.versions import is_version_at_least
+
+pytest_plugins = ("tests.fixture.template",)
+
+# Minimum accepted pins for deps left in pyproject.toml after remove_reuse.
+# Kept as min-version baselines only, so a routine dependency bump in the
+# template does not force a test edit.
+MIN_PYTEST = "9.2.0"
+MIN_GRIFFE2MD = "1.5.1"
+
+
+def _pinned_at_least(dependency: str, package: str, minimum: str) -> bool:
+    """Return True when ``dependency`` pins ``package == <v>`` with v >= minimum."""
+    match = re.match(rf"{re.escape(package)} ==([0-9]+(?:\.[0-9]+)+)", dependency)
+    return match is not None and is_version_at_least(match.group(1), minimum)
 
 
 class TestRemoveReuse:
-    """Tests for remove_reuse."""
+    """Tests for remove_reuse against the live template tree."""
 
-    def test_removes_reuse_structure(self, tmp_path: Path) -> None:
-        """Delete reuse dirs, REUSE.toml, dep, and script section."""
-        # reuse directories + files
-        (tmp_path / "LICENSES").mkdir()
-        (tmp_path / "LICENSES" / "Unlicense.txt").write_text("x")
-        (tmp_path / "package.json.license").write_text("x")
-        reuse_toml = tmp_path / "packages" / "docs" / "REUSE.toml"
-        reuse_toml.parent.mkdir(parents=True)
-        reuse_toml.write_text("x")
-
-        # keep LICENSE file
-        (tmp_path / "LICENSE").write_text("keep me")
-
-        # pyproject with a reuse dependency in the dev dependency group
-        pyproject = tmp_path / "pyproject.toml"
-        pyproject.write_text(
-            '[project]\nname = "x"\ndependencies = ["requests"]\n'
-            "[dependency-groups]\n"
-            'dev = ["pytest", "reuse ==6.2.0"]\n'
-        )
-
-        # licenses.sh with marked reuse section
-        licenses_sh = tmp_path / "bin" / "lint" / "licenses.sh"
-        licenses_sh.parent.mkdir(parents=True)
-        licenses_sh.write_text(
-            "#!/bin/bash\n"
-            "echo non-reuse\n"
-            "# ===== REUSE:START =====\n"
-            "reuse lint\n"
-            "# ===== REUSE:END =====\n"
-            "echo tail\n"
-        )
-        # lefthook.yml (always present in the template)
-        (tmp_path / "lefthook.yml").write_text("pre-commit:\n  jobs: []\n")
-
+    def test_removes_reuse_tooling(
+        self,
+        tmp_path: Path,
+        licenses_dir: Path,
+        package_json_license: Path,
+        docs_pkg: Path,
+        pyproject_toml: Path,
+        licenses_sh: Path,
+        lefthook_yml: Path,
+        license_file: Path,
+    ) -> None:
+        """Drop reuse dirs, configs, dep, script section, and lefthook job."""
         remove_reuse(tmp_path)
 
-        assert not (tmp_path / "LICENSES").exists()
-        assert not (tmp_path / "packages" / "docs" / "REUSE.toml").exists()
+        # the LICENSES dir and the docs REUSE.toml are deleted
+        assert not licenses_dir.exists()
+        assert not (docs_pkg / "REUSE.toml").exists()
         # .license companions are owned by strip_spdx_headers, not remove_reuse
-        assert (tmp_path / "package.json.license").exists()
-        assert (tmp_path / "LICENSE").read_text() == "keep me"
+        assert package_json_license.exists()
+        # the LICENSE file itself is kept
+        assert license_file.read_text().strip()
 
-        pydoc = tomlkit.parse(pyproject.read_text())
-        assert "reuse ==6.2.0" not in pydoc["project"]["dependencies"]
-        assert "requests" in pydoc["project"]["dependencies"]
+        pydoc = tomlkit.parse(pyproject_toml.read_text())
+        # project has no dependencies at all; reuse lives only in the dev group
+        assert pydoc["project"].get("dependencies") is None
         dev_deps = pydoc["dependency-groups"]["dev"]
-        assert "reuse ==6.2.0" not in dev_deps
-        assert "pytest" in dev_deps
+        assert not any(str(dep).startswith("reuse") for dep in dev_deps)
+        # pinned dep versions must stay at/above the minimum template baseline
+        assert any(
+            _pinned_at_least(str(dep), "pytest", MIN_PYTEST)
+            for dep in pydoc["dependency-groups"]["test"]
+        )
+        # unrelated groups are untouched
+        assert any(
+            _pinned_at_least(str(dep), "griffe2md", MIN_GRIFFE2MD)
+            for dep in pydoc["dependency-groups"]["docs"]
+        )
 
         script = licenses_sh.read_text()
         assert "reuse lint" not in script
         assert "REUSE:START" not in script
-        assert "echo non-reuse" in script
-        assert "echo tail" in script
+        # non-reuse license checks stay
+        assert "LICENSE file not found" in script
 
-    def test_removes_reuse_lefthook_job(self, tmp_path: Path) -> None:
-        """Drop the *.license fixing job from lefthook.yml."""
-        (tmp_path / "pyproject.toml").write_text('[project]\nname = "x"\n')
-        licenses_sh = tmp_path / "bin" / "lint" / "licenses.sh"
-        licenses_sh.parent.mkdir(parents=True)
-        licenses_sh.write_text("#!/bin/bash\necho x\n")
-        lefthook = tmp_path / "lefthook.yml"
-        lefthook.write_text(
-            "pre-commit:\n"
-            "  jobs:\n"
-            "    - name: license\n"
-            "    - name: fix-all-addable-files\n"
-            "      env:\n"
-            "        ALL_FILES: $(find . -name '*.license' -type f)\n"
-        )
-        remove_reuse(tmp_path)
-        text = lefthook.read_text()
+        # the reuse *.license fixing job is dropped from lefthook too
+        text = lefthook_yml.read_text()
         assert "fix-all-addable-files" not in text
         assert "license" in text

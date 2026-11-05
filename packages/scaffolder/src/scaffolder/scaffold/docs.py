@@ -133,7 +133,7 @@ def _remove_docs_pnpm_workspace(workspace_yaml: Path, /) -> None:
         yaml.dump(doc, stream)
 
 
-_DOCS_MAKE_TARGETS = ("docs", "build-docs", "run-docs", "serve-docs", "docs-ref")
+_DOCS_MAKE_TARGETS = ("build-docs", "run-docs", "serve-docs", "docs-ref")
 _DOCS_TARGET_BLOCK_RE = re.compile(
     rf"^(?:{'|'.join(re.escape(t) for t in _DOCS_MAKE_TARGETS)}):.*?$\n"
     rf"(?:\t[^\n]*$\n?)*\n?",
@@ -142,11 +142,14 @@ _DOCS_TARGET_BLOCK_RE = re.compile(
 
 
 def _drop_docs_make_targets(makefile: Path, /) -> None:
-    """Remove docs build/dev targets from a Makefile, failing on leftovers.
+    """Remove docs build targets from a Makefile.
 
-    Verifies every docs target is present, drops each target block (header,
-    recipe lines and one trailing blank), then fails loudly if the PKG_DOCS
-    variable survives anywhere else — no silent stripping.
+    Verifies every remaining docs target is present, drops each target block
+    (header, recipe lines and one trailing blank), then strips any recipe line
+    in kept targets (e.g. ``exp-run-lock`` / ``exp-run-update``) that still
+    maintains the removed ``packages/docs`` lockfile. ``docs:`` itself is not
+    required — the template has no bare ``docs``/``tests`` targets (replaced by
+    ``dev``).
     """
     text = makefile.read_text()
     missing = [
@@ -155,10 +158,8 @@ def _drop_docs_make_targets(makefile: Path, /) -> None:
     if missing:
         raise ValueError("Makefile missing docs target(s): " + ", ".join(missing))
     text = _DOCS_TARGET_BLOCK_RE.sub("", text)
-    if re.search(r"\$\(PKG_DOCS\)", text):
-        raise ValueError(
-            "Makefile still references $(PKG_DOCS) after dropping docs targets"
-        )
+    # Drop recipe lines in kept targets that maintain the removed docs lockfile.
+    text = re.sub(r"(?m)^\t[^\n]*\$\(PKG_DOCS\)[^\n]*\n", "", text)
     makefile.write_text(text)
 
 

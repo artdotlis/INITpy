@@ -25,6 +25,8 @@ from scaffolder.scaffold.licenses import update_licenses_sh
 from scaffolder.scaffold.skeleton import clean_root_md, remove_prod_docker
 from scaffolder.scaffold.tests import update_tests
 
+pytest_plugins = ("tests.fixture.template",)
+
 
 class TestAmendDocs:
     """Tests for amend_docs."""
@@ -92,118 +94,71 @@ class TestUpdateCopyright:
 
 
 class TestUpdateEnvs:
-    """Tests for update_envs."""
+    """Tests for update_envs (run against live template files)."""
 
-    def test_updates_package_env(self, tmp_path: Path) -> None:
+    def test_updates_package_env(
+        self, tmp_path: Path, package_env: Path, lint_env_sh: Path
+    ) -> None:
         """Repoint the package env variables at the new package."""
-        pkg_env = tmp_path / "package.env"
-        pkg_env.write_text(
-            "PKG_SCAF=packages/scaffolder\nPKG_SHAR=packages/shared_utils\nSCAF_ENV=packages/scaffolder/.env\n"
-        )
-        lint_env = tmp_path / "bin" / "lint" / "lint_env.sh"
-        lint_env.parent.mkdir(parents=True)
-        lint_env.write_text("#!/bin/bash\n$SCAF_ENV\n")
         update_envs(tmp_path, "my_pkg")
-        content = pkg_env.read_text()
+        content = package_env.read_text()
         assert "PKG_MY_" in content  # first 3 chars of "MY_PKG" are "MY_"
         assert "PKG_SHAR" not in content
+        # the lint script is repointed to the same env var
+        assert "MY__ENV" in lint_env_sh.read_text()
 
-    def test_updates_lint_env(self, tmp_path: Path) -> None:
+    def test_updates_lint_env(
+        self, tmp_path: Path, package_env: Path, lint_env_sh: Path
+    ) -> None:
         """Repoint the lint script's env variable at the new package."""
-        pkg_env = tmp_path / "package.env"
-        pkg_env.write_text(
-            "PKG_SCAF=packages/scaffolder\nPKG_SHAR=packages/shared_utils\nSCAF_ENV=packages/scaffolder/.env\n"
-        )
-        lint_env = tmp_path / "bin" / "lint" / "lint_env.sh"
-        lint_env.parent.mkdir(parents=True)
-        lint_env.write_text("#!/bin/bash\n$SCAF_ENV\n")
         update_envs(tmp_path, "my_pkg")
-        assert "$SCAF_ENV" not in lint_env.read_text()
-        assert "MY__ENV" in lint_env.read_text()
+        assert "$SCAF_ENV" not in lint_env_sh.read_text()
+        assert "MY__ENV" in lint_env_sh.read_text()
+        # package.env is repointed to the new package as well
+        assert "PKG_MY_" in package_env.read_text()
 
 
 class TestUpdateTests:
-    """Tests for update_tests."""
+    """Tests for update_tests (run against live template files)."""
 
-    LEFTHOOK = """\
-tests:
-  parallel: true
-  jobs:
-    - name: scaffolder
-      run: bin/install/wrap.sh 'cd $PKG_SHAR && coverage run -m pytest'
-    - name: shared-utils
-      run: bin/install/wrap.sh 'cd $PKG_SCAF && coverage run -m pytest'
-"""
-
-    MAIN = """\
-name: main
-
-on:
-  pull_request:
-  push:
-    branches: [main]
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - name: Run shared_utils tests
-        working-directory: packages/shared_utils
-        run: uv run coverage run -m pytest
-      - name: Run scaffolder tests
-        working-directory: packages/scaffolder
-        run: uv run coverage run -m pytest
-"""
-
-    def _write(self, tmp_path: Path) -> None:
-        (tmp_path / "lefthook.yml").write_text(self.LEFTHOOK)
-        main = tmp_path / ".github" / "workflows" / "main.yml"
-        main.parent.mkdir(parents=True)
-        main.write_text(self.MAIN)
-
-    def test_collapses_lefthook_tests(self, tmp_path: Path) -> None:
+    def test_collapses_lefthook_tests(
+        self, tmp_path: Path, lefthook_yml: Path, main_workflow: Path
+    ) -> None:
         """Collapse the lefthook test jobs to the single package."""
-        self._write(tmp_path)
         update_tests(tmp_path, "my_pkg")
-        content = tmp_path.joinpath("lefthook.yml").read_text()
+        content = lefthook_yml.read_text()
         assert "$PKG_SHAR" not in content
         assert "$PKG_SCAF" not in content
         assert "- name: my_pkg" in content
         assert "cd $PKG_MY_ && coverage run -m pytest" in content
+        # the CI workflow is collapsed to the same package
+        assert "working-directory: packages/my_pkg" in main_workflow.read_text()
 
-    def test_collapses_ci_tests(self, tmp_path: Path) -> None:
-        """Collapse the CI test steps to the single package."""
-        self._write(tmp_path)
+    def test_collapses_ci_tests(
+        self, tmp_path: Path, lefthook_yml: Path, main_workflow: Path
+    ) -> None:
+        """Collapse the CI test steps to the single package (>=1 job matches)."""
         update_tests(tmp_path, "my_pkg")
-        content = tmp_path.joinpath(".github", "workflows", "main.yml").read_text()
+        content = main_workflow.read_text()
         assert "packages/shared_utils" not in content
         assert "packages/scaffolder" not in content
-        assert "- name: Run my_pkg tests" in content
+        # Real template runs tests from 2 jobs (mac_win_test + lin_lint), so the
+        # appended step appears once per job — count generously, never "exactly".
+        assert content.count("- name: Run my_pkg tests") >= 1
         assert "working-directory: packages/my_pkg" in content
+        assert "cd $PKG_MY_ && coverage run -m pytest" in lefthook_yml.read_text()
 
 
 class TestUpdateCommitizenVersionFiles:
-    """Tests for update_commitizen_version_files."""
+    """Tests for update_commitizen_version_files (live root pyproject.toml)."""
 
-    def test_retargets_and_removes_shared_utils(self, tmp_path: Path) -> None:
+    def test_retargets_and_removes_shared_utils(
+        self, tmp_path: Path, pyproject_toml: Path
+    ) -> None:
         """Drop shared_utils entries and rename scaffolder to new package."""
-        p = tmp_path / "pyproject.toml"
-        p.write_text(
-            "[tool.commitizen]\nversion_files = [\n"
-            '  "README.md:^\\\\[!\\\\[release:",\n'
-            '  "packages/shared_utils/src/shared_utils/constants.py:^VERSION",\n'
-            '  "package.json",\n'
-            '  "pyproject.toml",\n'
-            '  "packages/scaffolder/pyproject.toml",\n'
-            '  "packages/shared_utils/pyproject.toml",\n'
-            '  "packages/docs/package.json",\n'
-            "]\n"
-        )
-
         update_commitizen_version_files(tmp_path, "my_pkg")
 
-        doc = tomlkit.parse(p.read_text())
+        doc = tomlkit.parse(pyproject_toml.read_text())
         files = doc["tool"]["commitizen"]["version_files"]
         # README badge entry is kept unchanged
         assert files[0].startswith("README.md:")
@@ -345,122 +300,16 @@ class TestRemoveProdDocker:
 class TestRemoveDocs:
     """Tests for remove_docs."""
 
-    @staticmethod
-    def _write(tmp_path: Path) -> None:
-        """Create a minimal project with docs wiring."""
-        (tmp_path / "packages" / "docs" / "src").mkdir(parents=True)
-        (tmp_path / "packages" / "docs" / "src" / "index.md").write_text("# docs\n")
-        (tmp_path / "packages" / "my_pkg").mkdir(parents=True)
-
-        (tmp_path / "pyproject.toml").write_text(
-            "[tool.uv.workspace]\n"
-            'members = ["packages/*"]\n'
-            'exclude = ["packages/docs"]\n'
-            "\n"
-            "[dependency-groups]\n"
-            'docs = ["griffe2md ==1.1.0"]\n'
-            'test = ["pytest"]\n'
-            "\n"
-            "[tool.vulture]\n"
-            'exclude = ["packages/docs/"]\n'
-            "\n"
-            "[tool.commitizen]\n"
-            'version_files = [\n  "package.json",\n  "packages/docs/package.json",\n]\n'
-        )
-        (tmp_path / "pnpm-workspace.yaml").write_text('packages:\n  - "packages/docs"\n')
-        (tmp_path / "Makefile").write_text(
-            "docs: setup\n"
-            "\t$(UVE) sync --group docs\n"
-            "\n"
-            "build-docs: docs-ref\n"
-            "\tcd $(PKG_DOCS) && $(PNPME) run build\n"
-            "\n"
-            "run-docs: build-docs\n"
-            "\t@echo hi\n"
-            "\n"
-            "serve-docs: build-docs\n"
-            "\tcd $(PKG_DOCS) && $(PNPME) run preview\n"
-            "\n"
-            "docs-ref:\n"
-            "\t$(UVE) run griffe2md -o $(DOCS_REF_DIR)/x.md\n"
-            "\n"
-            "exp-run-lock:\n"
-            "\t$(UVE) lock\n"
-            "\n"
-            "real:\n"
-            "\techo real\n"
-        )
-        (tmp_path / "package.env").write_text(
-            "PKG_MY_=packages/my_pkg\n"
-            "CONFIG_DOCS=packages/docs/.vitepress/config.toml\n"
-            "PKG_DOCS=packages/docs\n"
-            "DOCS_ENV=packages/docs/.env\n"
-        )
-        (tmp_path / "lefthook.yml").write_text(
-            "tests:\n"
-            "    jobs:\n"
-            "        - name: docs\n"
-            "          run: bin/install/wrap.sh 'cd $PKG_DOCS && $PNPME test'\n"
-            "        - name: my_pkg\n"
-            "          run: bin/install/wrap.sh 'cd $PKG_MY_ && pytest'\n"
-        )
-        lint_env = tmp_path / "bin" / "lint" / "lint_env.sh"
-        lint_env.parent.mkdir(parents=True)
-        lint_env.write_text('ENV_FILES=( "$ROOT_ENV" "$MY__ENV" "$DOCS_ENV")\n')
-        clean = tmp_path / "bin" / "install" / "clean.sh"
-        clean.parent.mkdir(parents=True, exist_ok=True)
-        clean.write_text(
-            "# package manager install trees\n"
-            'if [[ -e "$ROOT/node_modules" ]]; then\n'
-            '    rm -rf -- "$ROOT/node_modules"\n'
-            "fi\n"
-            "# ===== DOCS:START =====\n"
-            'if [[ -e "$ROOT/$PKG_DOCS/node_modules" ]]; then\n'
-            '    rm -rf -- "$ROOT/$PKG_DOCS/node_modules"\n'
-            "fi\n"
-            "# docs build output and VitePress workdir (cache/dist only; "
-            ".vitepress source is tracked)\n"
-            'if [[ -e "$ROOT/$PKG_DOCS/.vitepress/.vitepress" ]]; then\n'
-            '    rm -rf -- "$ROOT/$PKG_DOCS/.vitepress/.vitepress"\n'
-            "fi\n"
-            "# ===== DOCS:END =====\n"
-            "# build output\n"
-            'if [[ -e "$ROOT/public" ]]; then\n'
-            '    rm -rf -- "$ROOT/public"\n'
-            "fi\n"
-        )
-        licenses = tmp_path / "bin" / "lint" / "licenses.sh"
-        licenses.parent.mkdir(parents=True, exist_ok=True)
-        licenses.write_text(
-            'LICENSE_FILES=(\n    "$CONFIG_DOCS"\n)\n\n'
-            "IGNORE=(\n"
-            "    '^packages/docs/REUSE\\.toml$'\n"
-            "    '^packages/docs/src/.+\\.md$'\n"
-            "    '^bin/lint/licenses\\.sh$'\n"
-            ")\n"
-        )
-        (tmp_path / ".gitignore").write_text(
-            "# Sphinx documentation\ndocs/_build/\n"
-            "\n"
-            "# VitePress\n.vitepress/.cache/\n.vitepress/dist/\n"
-        )
-        wf = tmp_path / ".github" / "workflows"
-        wf.mkdir(parents=True)
-        (wf / "docs.yml").write_text("name: docs\n")
-        (wf / "main.yml").write_text("name: main\n")
-
-    def test_removes_docs_package_dir(self, tmp_path: Path) -> None:
+    def test_removes_docs_package_dir(self, full_template: Path) -> None:
         """Delete the packages/docs directory."""
-        self._write(tmp_path)
-        remove_docs(tmp_path)
-        assert not (tmp_path / "packages" / "docs").exists()
-        assert (tmp_path / "packages" / "my_pkg").exists()
+        remove_docs(full_template)
+        assert not (full_template / "packages" / "docs").exists()
+        assert (full_template / "packages" / "scaffolder").exists()
 
-    def test_cleans_pyproject(self, tmp_path: Path) -> None:
+    def test_cleans_pyproject(self, full_template: Path) -> None:
         """Strip docs from workspace exclude, dep groups, vulture and commitizen."""
-        self._write(tmp_path)
-        remove_docs(tmp_path)
-        doc = tomlkit.parse((tmp_path / "pyproject.toml").read_text())
+        remove_docs(full_template)
+        doc = tomlkit.parse((full_template / "pyproject.toml").read_text())
         ws = doc["tool"]["uv"]["workspace"]
         assert "exclude" not in ws
         assert "docs" not in doc["dependency-groups"]
@@ -469,19 +318,16 @@ class TestRemoveDocs:
             str(e) for e in doc["tool"]["commitizen"]["version_files"]
         ]
 
-    def test_cleans_pnpm_workspace(self, tmp_path: Path) -> None:
+    def test_cleans_pnpm_workspace(self, full_template: Path) -> None:
         """Remove the docs package from the pnpm workspace."""
-        self._write(tmp_path)
-        remove_docs(tmp_path)
-        assert "packages/docs" not in (tmp_path / "pnpm-workspace.yaml").read_text()
+        remove_docs(full_template)
+        assert "packages/docs" not in (full_template / "pnpm-workspace.yaml").read_text()
 
-    def test_cleans_makefile(self, tmp_path: Path) -> None:
+    def test_cleans_makefile(self, full_template: Path) -> None:
         """Drop docs targets and PKG_DOCS recipe lines from the Makefile."""
-        self._write(tmp_path)
-        remove_docs(tmp_path)
-        makefile = (tmp_path / "Makefile").read_text()
+        remove_docs(full_template)
+        makefile = (full_template / "Makefile").read_text()
         for frag in (
-            "docs:",
             "build-docs:",
             "run-docs:",
             "serve-docs:",
@@ -490,16 +336,13 @@ class TestRemoveDocs:
         ):
             assert frag not in makefile
         assert not makefile.startswith("\n")
-        assert "exp-run-lock:" in makefile
-        assert "real:" in makefile
+        assert "exp-run-lock:\n\t$(UVE) lock\n" in makefile
+        assert "clean:" in makefile
 
     def test_strips_docs_targets_robustly(self, tmp_path: Path) -> None:
         """Drop docs blocks (with and without recipes) and PKG_DOCS lines."""
         makefile = tmp_path / "Makefile"
         makefile.write_text(
-            "docs: setup\n"
-            "\t$(UVE) sync --group docs\n"
-            "\n"
             "dev: setup\n"
             "\techo dev\n"
             "\n"
@@ -517,6 +360,7 @@ class TestRemoveDocs:
             "\n"
             "exp-run-lock:\n"
             "\t$(UVE) lock\n"
+            "\tcd $(PKG_DOCS) && $(PNPME) install --lockfile-only\n"
             "\n"
             "RAN := $(shell echo hi)\n"
             "run-bump: DISABLE_GIT_ADD = 0\n"
@@ -525,7 +369,6 @@ class TestRemoveDocs:
         _drop_docs_make_targets(makefile)
         makefile_text = makefile.read_text()
         for frag in (
-            "docs:",
             "build-docs:",
             "run-docs:",
             "serve-docs:",
@@ -545,8 +388,8 @@ class TestRemoveDocs:
         """Fail loudly when a docs target is absent from the Makefile."""
         makefile = tmp_path / "Makefile"
         makefile.write_text(
-            "docs: setup\n"
-            "\t$(UVE) sync --group docs\n"
+            "build-docs: docs-ref\n"
+            "\tcd $(PKG_DOCS) && $(PNPME) run build\n"
             "\n"
             "docs-ref:\n"
             "\t$(UVE) run griffe2md -o $(DOCS_REF_DIR)/x.md\n"
@@ -554,13 +397,10 @@ class TestRemoveDocs:
         with pytest.raises(ValueError, match="missing docs target"):
             _drop_docs_make_targets(makefile)
 
-    def test_strips_docs_raises_on_pkg_docs_leftover(self, tmp_path: Path) -> None:
-        """Fail loudly when PKG_DOCS survives outside a docs target block."""
+    def test_strips_docs_strips_pkg_docs_leftover(self, tmp_path: Path) -> None:
+        """Strip PKG_DOCS recipe lines in kept targets (exp-run-lock/update)."""
         makefile = tmp_path / "Makefile"
         makefile.write_text(
-            "docs: setup\n"
-            "\t$(UVE) sync --group docs\n"
-            "\n"
             "build-docs: docs-ref\n"
             "\tcd $(PKG_DOCS) && $(PNPME) run build\n"
             "\n"
@@ -576,47 +416,51 @@ class TestRemoveDocs:
             "exp-run-lock:\n"
             "\t$(UVE) lock\n"
             "\tcd $(PKG_DOCS) && $(PNPME) install --lockfile-only\n"
+            "\n"
+            "exp-run-update:\n"
+            "\t$(UVE) lock -U\n"
+            "\tcd $(PKG_DOCS) && $(PNPME) update\n"
         )
-        with pytest.raises(ValueError, match="PKG_DOCS"):
-            _drop_docs_make_targets(makefile)
+        _drop_docs_make_targets(makefile)
+        text = makefile.read_text()
+        assert "PKG_DOCS" not in text
+        assert "exp-run-lock:\n\t$(UVE) lock\n" in text
+        assert "exp-run-update:\n\t$(UVE) lock -U\n" in text
 
-    def test_cleans_env_and_lint_scripts(self, tmp_path: Path) -> None:
+    def test_cleans_env_and_lint_scripts(self, full_template: Path) -> None:
         """Drop docs vars from package.env, lint_env.sh and licenses.sh."""
-        self._write(tmp_path)
-        remove_docs(tmp_path)
-        env = (tmp_path / "package.env").read_text()
+        remove_docs(full_template)
+        env = (full_template / "package.env").read_text()
         assert "DOCS" not in env
-        assert "PKG_MY_" in env
-        lint_env = (tmp_path / "bin" / "lint" / "lint_env.sh").read_text()
+        assert "PKG_SCAF" in env
+        lint_env = (full_template / "bin" / "lint" / "lint_env.sh").read_text()
         assert "DOCS_ENV" not in lint_env
-        clean = (tmp_path / "bin" / "install" / "clean.sh").read_text()
+        clean = (full_template / "bin" / "install" / "clean.sh").read_text()
         assert "PKG_DOCS" not in clean
         assert "DOCS:START" not in clean
         assert "vitepress" not in clean.lower()
         assert 'if [[ -e "$ROOT/node_modules" ]]; then' in clean
         assert 'if [[ -e "$ROOT/public" ]]; then' in clean
-        licenses = (tmp_path / "bin" / "lint" / "licenses.sh").read_text()
+        licenses = (full_template / "bin" / "lint" / "licenses.sh").read_text()
         assert "CONFIG_DOCS" not in licenses
         assert "packages/docs" not in licenses
 
-    def test_cleans_lefthook(self, tmp_path: Path) -> None:
+    def test_cleans_lefthook(self, full_template: Path) -> None:
         """Remove the docs test job from lefthook.yml."""
-        self._write(tmp_path)
-        remove_docs(tmp_path)
-        text = (tmp_path / "lefthook.yml").read_text()
+        remove_docs(full_template)
+        text = (full_template / "lefthook.yml").read_text()
         assert "name: docs" not in text
         assert "PKG_DOCS" not in text
-        assert "my_pkg" in text
+        assert "name: scaffolder" in text
 
-    def test_removes_gitignore_and_workflow(self, tmp_path: Path) -> None:
+    def test_removes_gitignore_and_workflow(self, full_template: Path) -> None:
         """Drop the VitePress ignore blocks and the docs workflow."""
-        self._write(tmp_path)
-        remove_docs(tmp_path)
-        gitignore = (tmp_path / ".gitignore").read_text()
+        remove_docs(full_template)
+        gitignore = (full_template / ".gitignore").read_text()
         assert ".vitepress" not in gitignore
         assert "docs/_build" not in gitignore
-        assert not (tmp_path / ".github" / "workflows" / "docs.yml").exists()
-        assert (tmp_path / ".github" / "workflows" / "main.yml").exists()
+        assert not (full_template / ".github" / "workflows" / "docs.yml").exists()
+        assert (full_template / ".github" / "workflows" / "main.yml").exists()
 
 
 class TestUpdatePyprojectDepGroups:
