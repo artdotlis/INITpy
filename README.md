@@ -75,14 +75,16 @@ All commands must be run within the Dev Container or by passing `CONTAINER=conta
 
 | Category    | Command                       | Action                                                                               |
 | :---------- | :---------------------------- | :----------------------------------------------------------------------------------- |
-| **Setup**   | `make dev`                    | Installs lefthook, syncs all dependencies                                            |
+| **Setup**   | `make dev`                    | Installs tooling, syncs all dependencies, installs lefthook hooks                    |
 | **Active**  | `make run-act`                | Enters the virtual environment shell.                                                |
 | **Build**   | `make run-build`              | Builds all packages as wheels via `uv`.                                              |
 | **Quality** | `make run-checks`             | Runs `lefthook` pre-commit hooks (lint + static analysis)                            |
 | **Test**    | `make run-tests`              | Runs the pytest test suite (incl. coverage) for all packages via `lefthook`.         |
-| **Docs**    | `make run-docs`, `serve-docs` | Builds or serves the VitePress documentation.                                        |
+| **Docs**    | `make run-docs`, `serve-docs` | Builds the VitePress site (CI-style) or builds and serves a local preview.           |
+| **Deps**    | `make run-lock`, `run-update` | Locks or updates the `uv` and `pnpm` lockfiles.                                      |
 | **Release** | `make run-bump`               | Bumps version and updates CHANGELOG.                                                 |
 | **Git**     | `make commit`, `make com`     | Generates commit message with `commitizen` or opens `vim` for editing, then commits. |
+| **Clean**   | `make clean`                  | Removes build artifacts and caches via `bin/install/clean.sh`.                       |
 
 ### ✍️ Commit Messages
 
@@ -117,9 +119,8 @@ Projects land at `SCAF_OUTPUT_DIR/<project-name>` on the host (default `./PROJEC
 
 The API documentation is generated with **griffe2md** and served with **VitePress**.
 
-- **Build:** `make run-docs`
-- **Serve:** `make serve-docs`
-- **Preview:** `make serve-docs`
+- **Build only:** `make run-docs` (also used in CI)
+- **Build + local preview:** `make serve-docs`
 
 ---
 
