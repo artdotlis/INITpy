@@ -47,3 +47,8 @@ def license_file(tmp_path: Path) -> Path:
 @pytest.fixture
 def package_json_license(tmp_path: Path) -> Path:
     return load_template(_TEMPLATE_ROOT, tmp_path, "package.json.license")
+
+
+@pytest.fixture
+def dockerignore(tmp_path: Path) -> Path:
+    return load_template(_TEMPLATE_ROOT, tmp_path, ".dockerignore")

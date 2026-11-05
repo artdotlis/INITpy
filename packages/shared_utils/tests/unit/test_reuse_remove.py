@@ -40,8 +40,9 @@ class TestRemoveReuse:
         licenses_sh: Path,
         lefthook_yml: Path,
         license_file: Path,
+        dockerignore: Path,
     ) -> None:
-        """Drop reuse dirs, configs, dep, script section, and lefthook job."""
+        """Drop reuse dirs, configs, dep, script section, lefthook job, ignore entry."""
         remove_reuse(tmp_path)
 
         # the LICENSES dir and the docs REUSE.toml are deleted
@@ -78,3 +79,8 @@ class TestRemoveReuse:
         text = lefthook_yml.read_text()
         assert "fix-all-addable-files" not in text
         assert "license" in text
+
+        # the dead !LICENSES negation is pruned, the kept LICENSE one stays
+        entries = [line.strip() for line in dockerignore.read_text().splitlines()]
+        assert "!LICENSES" not in entries
+        assert "!LICENSE" in entries
