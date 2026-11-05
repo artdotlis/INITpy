@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Unlicense
 
-"""Unit tests for shared_utils.metadata."""
+"""Unit tests for shared_utils.config.metadata."""
 
 import json
 
@@ -11,9 +11,9 @@ from pathlib import Path
 
 import tomlkit
 
-from shared_utils.metadata import replace_authors
+from shared_utils.config.metadata import replace_authors
 
-from shared_utils.metadata import set_version
+from shared_utils.config.metadata import set_version
 
 
 class TestReplaceAuthors:

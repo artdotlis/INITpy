@@ -2,9 +2,9 @@
 #
 # SPDX-License-Identifier: Unlicense
 
-"""Unit tests for shared_utils.names."""
+"""Unit tests for shared_utils.core.names."""
 
-from shared_utils.names import sanitize_package_name, sanitize_package_name_dep_group
+from shared_utils.core.names import sanitize_package_name, sanitize_package_name_dep_group
 
 
 class TestSanitizePackageName:

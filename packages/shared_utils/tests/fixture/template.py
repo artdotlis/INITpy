@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from shared_utils.template import load_template
+from shared_utils.repo.template import load_template
 
 # packages/shared_utils/tests -> repo root
 _TEMPLATE_ROOT = Path(__file__).resolve().parents[4]

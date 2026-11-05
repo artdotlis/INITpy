@@ -11,7 +11,7 @@ import pytest
 import tomlkit
 from scaffolder.scaffold.package import create_package
 from scaffolder.scaffold.core import clone_ref
-from shared_utils.constants import VERSION
+from shared_utils.core.constants import VERSION
 
 TEMPLATE = """\
 [project]

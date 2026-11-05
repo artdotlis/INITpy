@@ -2,15 +2,15 @@
 #
 # SPDX-License-Identifier: Unlicense
 
-"""Unit tests for shared_utils.reuse_remove."""
+"""Unit tests for shared_utils.licenses.reuse_remove."""
 
 import re
 from pathlib import Path
 
 import tomlkit
 
-from shared_utils.reuse_remove import remove_reuse
-from shared_utils.versions import is_version_at_least
+from shared_utils.licenses.reuse_remove import remove_reuse
+from shared_utils.core.versions import is_version_at_least
 
 pytest_plugins = ("tests.fixture.template",)
 

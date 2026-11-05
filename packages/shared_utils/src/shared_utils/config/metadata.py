@@ -9,8 +9,8 @@ from pathlib import Path
 
 import tomlkit
 
-from shared_utils.package_json import update_package_authors
-from shared_utils.pyproject import update_pyproject_authors
+from shared_utils.config.package_json import update_package_authors
+from shared_utils.config.pyproject import update_pyproject_authors
 
 
 def replace_authors(path: Path, email: str, name: str | None = None, /) -> None:

@@ -7,8 +7,8 @@
 import re
 from pathlib import Path
 
-from shared_utils.names import package_env_file
-from shared_utils.names import package_env_var
+from shared_utils.core.names import package_env_file
+from shared_utils.core.names import package_env_var
 
 
 def update_copyright(path: Path, copyright: str, /) -> None:

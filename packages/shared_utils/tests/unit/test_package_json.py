@@ -2,16 +2,16 @@
 #
 # SPDX-License-Identifier: Unlicense
 
-"""Unit tests for shared_utils.package_json."""
+"""Unit tests for shared_utils.config.package_json."""
 
 import json
 
 from pathlib import Path
 
 
-from shared_utils.package_json import update_package_authors
+from shared_utils.config.package_json import update_package_authors
 
-from shared_utils.package_json import update_package_devcon_name
+from shared_utils.config.package_json import update_package_devcon_name
 
 
 class TestUpdatePackageAuthors:

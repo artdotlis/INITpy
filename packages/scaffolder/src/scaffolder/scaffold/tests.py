@@ -6,9 +6,9 @@
 
 from pathlib import Path
 
-from shared_utils.lefthook import prune_lefthook_hooks
-from shared_utils.lefthook import round_trip_yaml
-from shared_utils.names import package_env_var
+from shared_utils.config.lefthook import prune_lefthook_hooks
+from shared_utils.config.lefthook import round_trip_yaml
+from shared_utils.core.names import package_env_var
 
 
 def update_tests(path: Path, package_name: str, /) -> None:

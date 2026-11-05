@@ -2,26 +2,26 @@
 #
 # SPDX-License-Identifier: Unlicense
 
-"""Unit tests for shared_utils.pyproject."""
+"""Unit tests for shared_utils.config.pyproject."""
 
 from pathlib import Path
 
 
 import tomlkit
 
-from shared_utils.pyproject import clean_pyproject_dependencies
+from shared_utils.config.pyproject import clean_pyproject_dependencies
 
-from shared_utils.pyproject import update_pyproject_authors
+from shared_utils.config.pyproject import update_pyproject_authors
 
-from shared_utils.pyproject import update_pyproject_coverage
+from shared_utils.config.pyproject import update_pyproject_coverage
 
-from shared_utils.pyproject import update_pyproject_description
+from shared_utils.config.pyproject import update_pyproject_description
 
-from shared_utils.pyproject import update_pyproject_name
+from shared_utils.config.pyproject import update_pyproject_name
 
-from shared_utils.pyproject import update_pyproject_path
+from shared_utils.config.pyproject import update_pyproject_path
 
-from shared_utils.pyproject import update_pyproject_workspace
+from shared_utils.config.pyproject import update_pyproject_workspace
 
 
 class TestUpdatePyprojectAuthors:

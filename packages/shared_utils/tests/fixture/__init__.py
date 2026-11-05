@@ -2,4 +2,6 @@
 #
 # SPDX-License-Identifier: Unlicense
 
+"""Test fixtures for shared_utils."""
+
 __all__: list[str] = []

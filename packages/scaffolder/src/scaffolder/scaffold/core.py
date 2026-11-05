@@ -20,16 +20,16 @@ from scaffolder.scaffold.skeleton import remove_prod_docker
 from scaffolder.scaffold.skeleton import remove_projects_output_folder
 from scaffolder.scaffold.skeleton import write_package_files
 from scaffolder.scaffold.tests import update_tests
-from shared_utils.constants import VERSION
-from shared_utils.git import clone_git
-from shared_utils.git import inti_and_commit
-from shared_utils.git import reset_git
-from shared_utils.make import lock_project
-from shared_utils.metadata import replace_authors, set_version
-from shared_utils.names import sanitize_package_name
-from shared_utils.names import sanitize_package_name_dep_group
-from shared_utils.reuse_remove import remove_reuse
-from shared_utils.spdx import strip_spdx_headers
+from shared_utils.core.constants import VERSION
+from shared_utils.repo.git import clone_git
+from shared_utils.repo.git import inti_and_commit
+from shared_utils.repo.git import reset_git
+from shared_utils.repo.make import lock_project
+from shared_utils.config.metadata import replace_authors, set_version
+from shared_utils.core.names import sanitize_package_name
+from shared_utils.core.names import sanitize_package_name_dep_group
+from shared_utils.licenses.reuse_remove import remove_reuse
+from shared_utils.licenses.spdx import strip_spdx_headers
 
 
 def clone_ref() -> str:

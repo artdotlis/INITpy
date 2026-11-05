@@ -11,7 +11,7 @@ from pathlib import Path
 import tomlkit
 from reuse.project import LICENSE_MAP
 
-from shared_utils.spdx import write_license
+from shared_utils.licenses.spdx import write_license
 
 
 def update_licenses_sh(path: Path, /) -> None:

@@ -2,13 +2,13 @@
 #
 # SPDX-License-Identifier: Unlicense
 
-"""Unit tests for shared_utils.git and shared_utils.make."""
+"""Unit tests for shared_utils.git and shared_utils.repo.make."""
 
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-from shared_utils.git import reset_git, inti_and_commit, clone_git
-from shared_utils.make import lock_project
+from shared_utils.repo.git import reset_git, inti_and_commit, clone_git
+from shared_utils.repo.make import lock_project
 
 
 class TestResetGit:
@@ -53,7 +53,7 @@ class TestLockProject:
         """Run ``make run-lock`` inheriting CONTAINER from the env."""
         with (
             patch("subprocess.run") as mock_run,
-            patch("shared_utils.make._tools_available", return_value=True),
+            patch("shared_utils.repo.make._tools_available", return_value=True),
             patch.dict("os.environ", {"CONTAINER": "container"}),
         ):
             mock_run.return_value = MagicMock(returncode=0)
@@ -67,7 +67,7 @@ class TestLockProject:
         """Run ``make setup`` first when uv or pnpm are missing."""
         with (
             patch("subprocess.run") as mock_run,
-            patch("shared_utils.make._tools_available", return_value=False),
+            patch("shared_utils.repo.make._tools_available", return_value=False),
         ):
             mock_run.return_value = MagicMock(returncode=0)
             lock_project(Path("/tmp"))

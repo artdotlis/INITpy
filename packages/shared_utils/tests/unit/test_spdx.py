@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Unlicense
 
-"""Unit tests for shared_utils.spdx."""
+"""Unit tests for shared_utils.licenses.spdx."""
 
 from pathlib import Path
 
@@ -11,11 +11,11 @@ from unittest.mock import patch
 
 from reuse.comment import PythonCommentStyle
 
-from shared_utils.spdx import _find_spdx_block
+from shared_utils.licenses.spdx import _find_spdx_block
 
-from shared_utils.spdx import strip_spdx_headers
+from shared_utils.licenses.spdx import strip_spdx_headers
 
-from shared_utils.spdx import write_license
+from shared_utils.licenses.spdx import write_license
 
 
 class TestFindSpdxBlock:
@@ -90,7 +90,7 @@ class TestStripSpdxHeaders:
         """Leave the file unchanged when no comment style is detected."""
         f = tmp_path / "file.py"
         f.write_text("# Contains SPDX somewhere\nprint('hi')\n")
-        with patch("shared_utils.spdx.get_comment_style", return_value=None):
+        with patch("shared_utils.licenses.spdx.get_comment_style", return_value=None):
             strip_spdx_headers(tmp_path)
         # File should be unchanged since get_comment_style returned None
         assert f.read_text() == "# Contains SPDX somewhere\nprint('hi')\n"
@@ -117,6 +117,6 @@ class TestWriteLicense:
         """Download the license text into the target file."""
         lic_file = tmp_path / "LICENSE"
         lic_file.write_text("old content")
-        with patch("shared_utils.spdx.put_license_in_file") as mock_put:
+        with patch("shared_utils.licenses.spdx.put_license_in_file") as mock_put:
             write_license(lic_file, "MIT")
             mock_put.assert_called_once_with("MIT", lic_file)

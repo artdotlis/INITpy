@@ -2,12 +2,12 @@
 #
 # SPDX-License-Identifier: Unlicense
 
-"""Unit tests for shared_utils.lefthook."""
+"""Unit tests for shared_utils.config.lefthook."""
 
 from pathlib import Path
 
 
-from shared_utils.lefthook import remove_lefthook_jobs
+from shared_utils.config.lefthook import remove_lefthook_jobs
 
 
 class TestRemoveLefthookJobs:

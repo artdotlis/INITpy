@@ -8,10 +8,10 @@ from pathlib import Path
 
 import tomlkit
 
-from shared_utils.package_json import update_package_devcon_name
-from shared_utils.pyproject import update_pyproject_description
-from shared_utils.pyproject import update_pyproject_name
-from shared_utils.pyproject import update_pyproject_workspace
+from shared_utils.config.package_json import update_package_devcon_name
+from shared_utils.config.pyproject import update_pyproject_description
+from shared_utils.config.pyproject import update_pyproject_name
+from shared_utils.config.pyproject import update_pyproject_workspace
 
 
 def correct_core_project(

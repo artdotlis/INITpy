@@ -2,4 +2,6 @@
 #
 # SPDX-License-Identifier: Unlicense
 
+"""Tests for scaffolder."""
+
 __all__: list[str] = []

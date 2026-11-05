@@ -2,9 +2,6 @@
 #
 # SPDX-License-Identifier: Unlicense
 
-"""Shared utility library for packages in this repository.
-
-Private - not intended for public PyPI distribution.
-"""
+"""Shared utility library for packages in this repository. Private."""
 
 __all__: list[str] = []

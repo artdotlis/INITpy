@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from shared_utils.template import load_template
+from shared_utils.repo.template import load_template
 
 # packages/scaffolder/tests/fixture -> repo root
 _TEMPLATE_ROOT = Path(__file__).resolve().parents[4]

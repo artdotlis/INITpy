@@ -4,11 +4,11 @@
 
 """Package creation for scaffolding."""
 
-from shared_utils.pyproject import update_pyproject_path
-from shared_utils.pyproject import update_pyproject_coverage
-from shared_utils.pyproject import clean_pyproject_dependencies
-from shared_utils.pyproject import update_pyproject_description
-from shared_utils.pyproject import update_pyproject_name
+from shared_utils.config.pyproject import update_pyproject_path
+from shared_utils.config.pyproject import update_pyproject_coverage
+from shared_utils.config.pyproject import clean_pyproject_dependencies
+from shared_utils.config.pyproject import update_pyproject_description
+from shared_utils.config.pyproject import update_pyproject_name
 import shutil
 
 from pathlib import Path

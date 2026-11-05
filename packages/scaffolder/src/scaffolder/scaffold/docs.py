@@ -11,9 +11,9 @@ from pathlib import Path
 import tomlkit
 from tomlkit import TOMLDocument
 
-from shared_utils.lefthook import remove_lefthook_jobs
-from shared_utils.lefthook import round_trip_yaml
-from shared_utils.scripts import strip_marked_script_block
+from shared_utils.config.lefthook import remove_lefthook_jobs
+from shared_utils.config.lefthook import round_trip_yaml
+from shared_utils.config.scripts import strip_marked_script_block
 
 
 def amend_docs(path: Path, package_name: str, project_name: str, /) -> None:

@@ -9,8 +9,8 @@ from pathlib import Path
 
 import tomlkit
 
-from shared_utils.lefthook import remove_lefthook_jobs
-from shared_utils.scripts import strip_marked_script_block
+from shared_utils.config.lefthook import remove_lefthook_jobs
+from shared_utils.config.scripts import strip_marked_script_block
 
 
 _REUSE_START = "# ===== REUSE:START ====="
