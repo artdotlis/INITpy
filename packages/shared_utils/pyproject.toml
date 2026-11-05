@@ -10,7 +10,8 @@ description = "Shared library for packages."
 readme = "README.md"
 requires-python = ">=3.13,<4"
 dependencies = [
-  "tomlkit ==0.15.2"
+  "tomlkit ==0.15.2",
+  "ruamel.yaml ==0.19.1"
 ]
 authors = [
     { name = "artdotlis", email = "artdotlis@pm.me" }

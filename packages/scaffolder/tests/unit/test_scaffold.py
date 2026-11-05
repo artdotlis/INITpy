@@ -2,11 +2,11 @@
 #
 # SPDX-License-Identifier: Unlicense
 
-"""Unit tests for scaffolder.scaffold.files."""
+"""Unit tests for scaffolder.scaffold.skeleton."""
 
 from pathlib import Path
 
-from scaffolder.scaffold.files import write_package_files
+from scaffolder.scaffold.skeleton import write_package_files
 
 
 class TestWritePackageFiles:

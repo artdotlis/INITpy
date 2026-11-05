@@ -786,7 +786,6 @@ version = "0.11.0"
 source = { editable = "packages/scaffolder" }
 dependencies = [
     { name = "reuse" },
-    { name = "ruamel-yaml" },
     { name = "shared-utils" },
     { name = "tomlkit" },
 ]
@@ -794,7 +793,6 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "reuse", specifier = "==6.3.0" },
-    { name = "ruamel-yaml", specifier = "==0.19.1" },
     { name = "shared-utils", editable = "packages/shared_utils" },
     { name = "tomlkit", specifier = "==0.15.2" },
 ]
@@ -804,11 +802,15 @@ name = "shared-utils"
 version = "0.11.0"
 source = { editable = "packages/shared_utils" }
 dependencies = [
+    { name = "ruamel-yaml" },
     { name = "tomlkit" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "tomlkit", specifier = "==0.15.2" }]
+requires-dist = [
+    { name = "ruamel-yaml", specifier = "==0.19.1" },
+    { name = "tomlkit", specifier = "==0.15.2" },
+]
 
 [[package]]
 name = "shellcheck-py"

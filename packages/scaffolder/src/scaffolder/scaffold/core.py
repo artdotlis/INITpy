@@ -4,38 +4,32 @@
 
 """Core scaffold orchestration and CLI."""
 
-from scaffolder.scaffold.files import remove_projects_output_folder
-from shared_utils.constants import VERSION
-from shared_utils.make import lock_project
-from shared_utils.files import strip_spdx_headers
-from shared_utils.names import sanitize_package_name_dep_group
-from scaffolder.scaffold.files import correct_core_project
-from shared_utils.files import replace_authors
-from scaffolder.scaffold.files import clean_root_md
-from scaffolder.scaffold.files import write_package_files
-from shared_utils.git import inti_and_commit
-from scaffolder.scaffold.package import create_package
-from shared_utils.git import reset_git
-from shared_utils.git import clone_git
 from pathlib import Path
 from dataclasses import dataclass
 
 import os
 
+from scaffolder.scaffold.config import correct_core_project
+from scaffolder.scaffold.config import update_commitizen_version_files
+from scaffolder.scaffold.docs import amend_docs, remove_docs
+from scaffolder.scaffold.env import update_copyright, update_envs
+from scaffolder.scaffold.licenses import configure_licenses, update_licenses_sh
+from scaffolder.scaffold.package import create_package
+from scaffolder.scaffold.skeleton import clean_root_md
+from scaffolder.scaffold.skeleton import remove_prod_docker
+from scaffolder.scaffold.skeleton import remove_projects_output_folder
+from scaffolder.scaffold.skeleton import write_package_files
+from scaffolder.scaffold.tests import update_tests
+from shared_utils.constants import VERSION
+from shared_utils.git import clone_git
+from shared_utils.git import inti_and_commit
+from shared_utils.git import reset_git
+from shared_utils.make import lock_project
+from shared_utils.metadata import replace_authors, set_version
 from shared_utils.names import sanitize_package_name
-from shared_utils.files import set_version
-from scaffolder.scaffold.files import configure_licenses
-from scaffolder.scaffold.files import remove_reuse
-from scaffolder.scaffold.files import (
-    amend_docs,
-    remove_docs,
-    remove_prod_docker,
-    update_copyright,
-    update_envs,
-    update_licenses_sh,
-    update_commitizen_version_files,
-    update_tests,
-)
+from shared_utils.names import sanitize_package_name_dep_group
+from shared_utils.reuse_remove import remove_reuse
+from shared_utils.spdx import strip_spdx_headers
 
 
 def clone_ref() -> str:

@@ -1,0 +1,85 @@
+# SPDX-FileCopyrightText: 2026 Artur Lissin
+#
+# SPDX-License-Identifier: Unlicense
+
+"""SPDX header and license helpers."""
+
+from pathlib import Path
+
+from reuse.comment import CommentStyle
+from reuse.comment import get_comment_style
+from reuse.download import put_license_in_file
+from reuse.header import contains_reuse_info
+
+
+def _find_spdx_block(
+    text: str, style_cls: type[CommentStyle], /
+) -> tuple[int, str] | None:
+    """Find the first SPDX comment block in `text`.
+
+    Scans every newline boundary so it works even when the file starts
+    with a shebang or other non-comment content (the same approach
+    reuse's internal ``_find_first_spdx_comment`` uses).
+
+    Args:
+        text: File content to scan.
+        style_cls: Comment style to match against.
+
+    Returns:
+        A tuple of the block start offset and the comment block, or
+        ``None`` if no SPDX block is found.
+    """
+    if style_cls is None:
+        return None
+    start = 0
+    while start < len(text):
+        try:
+            comment = style_cls.comment_at_first_character(text[start:])
+        except Exception:
+            nxt = text.find("\n", start)
+            start = (nxt + 1) if nxt != -1 else len(text)
+            continue
+        if contains_reuse_info(comment):
+            return start, comment
+        nxt = text.find("\n", start)
+        if nxt == -1:
+            break
+        start = nxt + 1
+    return None
+
+
+def strip_spdx_headers(path: Path, /) -> None:
+    """Remove SPDX headers and .license files from a directory tree.
+
+    Uses reuse's CommentStyle to find and remove the first SPDX comment
+    block. Handles shebangs and preprocessor directives correctly by
+    scanning every newline boundary.
+
+    Args:
+        path: Root directory to scan
+    """
+    for fpath in path.rglob("*"):
+        if fpath.is_file() and fpath.name.endswith(".license"):
+            fpath.unlink()
+        elif fpath.is_file() and "SPDX" in (text := fpath.read_text()):
+            style_cls = get_comment_style(fpath)
+            if style_cls is None:
+                continue
+            found = _find_spdx_block(text, style_cls)
+            if found is None:
+                continue
+            start, comment_block = found
+            before = text[:start]
+            after = text[start + len(comment_block) :].lstrip()
+            fpath.write_text(before + after)
+
+
+def write_license(path: Path, license_name: str, /) -> None:
+    """Download and write the SPDX license text to a file.
+
+    Args:
+        path: Path to the target license file.
+        license_name: SPDX license identifier to fetch.
+    """
+    path.unlink()
+    put_license_in_file(license_name, path)
