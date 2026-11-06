@@ -33,9 +33,15 @@ class TestUpdateEnvs:
         update_envs(tmp_path, "my_pkg")
 
         content = package_env.read_text()
-        assert "PKG_MY_" in content  # first 3 chars of "MY_PKG" are "MY_"
-        assert "PKG_SHAR" not in content
+        assert "PKG_MY_=packages/my_pkg" in content
+        assert "MY__ENV=packages/my_pkg" in content
+        for stale in (
+            "PKG_SCAF=packages/scaffolder",
+            "PKG_SHAR=packages/shared_utils",
+            "SCAF_ENV=packages/scaffolder/.env",
+        ):
+            assert stale not in content
 
         lint_env = lint_env_sh.read_text()
-        assert "$SCAF_ENV" not in lint_env
-        assert "MY__ENV" in lint_env
+        assert '"$MY__ENV"' in lint_env
+        assert '"$SCAF_ENV"' not in lint_env

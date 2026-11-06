@@ -41,7 +41,10 @@ class TestAmendDocs:
         doc = tomlkit.parse(config.read_text())
         assert doc["site"]["title"] == "NewProject"
         links = doc["vitepress"]["themeConfig"].get("socialLinks", [])
-        assert all("artdotlis" not in str(link.get("link", "")) for link in links)
+        assert all(
+            not str(link.get("link", "")).startswith("https://github.com/artdotlis")
+            for link in links
+        )
 
 
 class TestRemoveDocs:
@@ -143,15 +146,16 @@ class TestRemoveDocs:
         assert "DOCS" not in env
         assert "PKG_SCAF" in env
         lint_env = (docs_template / "bin" / "lint" / "lint_env.sh").read_text()
-        assert "DOCS_ENV" not in lint_env
+        assert '"$DOCS_ENV"' not in lint_env
         clean = (docs_template / "bin" / "install" / "clean.sh").read_text()
         assert "PKG_DOCS" not in clean
-        assert "DOCS:START" not in clean
+        assert "# ===== DOCS:START =====" not in clean
+        assert "# ===== DOCS:END =====" not in clean
         assert "vitepress" not in clean.lower()
         assert 'if [[ -e "$ROOT/node_modules" ]]; then' in clean
         assert 'if [[ -e "$ROOT/public" ]]; then' in clean
         licenses = (docs_template / "bin" / "lint" / "licenses.sh").read_text()
-        assert "CONFIG_DOCS" not in licenses
+        assert '"$CONFIG_DOCS"' not in licenses
         assert "packages/docs" not in licenses
 
     def test_cleans_lefthook(self, docs_template: Path) -> None:
@@ -167,7 +171,9 @@ class TestRemoveDocs:
         remove_docs(docs_template)
         gitignore = (docs_template / ".gitignore").read_text()
         assert ".vitepress" not in gitignore
-        assert "docs/_build" not in gitignore
+        assert "docs/_build/" not in gitignore
+        assert ".vitepress/dist/" not in gitignore
+        assert ".vitepress/.cache/" not in gitignore
         assert "# VitePress" not in gitignore
         assert "# Sphinx documentation" not in gitignore
         assert not (docs_template / ".github" / "workflows" / "docs.yml").exists()

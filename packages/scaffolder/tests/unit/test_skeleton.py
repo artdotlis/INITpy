@@ -78,6 +78,7 @@ class TestRemoveProdDocker:
     ) -> None:
         """Drop the prod setup and promote the dev compose to root."""
         env_files = (dot_env, package_env)
+        before = {env_file: env_file.read_text() for env_file in env_files}
         if not with_env:
             for env_file in env_files:
                 env_file.unlink()
@@ -87,12 +88,18 @@ class TestRemoveProdDocker:
         assert not dockerfile.exists()
         assert (tmp_path / "docker-compose.yml").exists()
         assert not dev_compose.exists()
+        assert ', "dev.docker-compose.yml"' not in devcontainer_json.read_text()
         config = json.loads(devcontainer_json.read_text())
         assert config["dockerComposeFile"] == ["../docker-compose.yml"]
         for env_file in env_files:
-            text = env_file.read_text() if env_file.exists() else ""
-            assert "SCAF_OUTPUT_DIR" not in text
-            assert "mounted into the deploy container" not in text
+            if not with_env:
+                assert not env_file.exists()
+                continue
+            text = env_file.read_text()
+            assert "# Host folder mounted into the deploy container as /scaf" not in text
+            assert "SCAF_OUTPUT_DIR=./PROJECTS\n" not in text
+            # Only those two lines go; every other assignment survives.
+            assert len(text.splitlines()) == len(before[env_file].splitlines()) - 2
 
 
 class TestWritePackageFiles:
