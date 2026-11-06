@@ -7,7 +7,6 @@
 from pathlib import Path
 
 import pytest
-
 from shared_utils.repo.template import load_template
 
 # packages/scaffolder/tests/fixture -> repo root
@@ -31,23 +30,13 @@ def clone_path(shared_utils_pyproject: Path) -> Path:
 
 
 @pytest.fixture
-def pnpm_workspace_yaml(tmp_path: Path) -> Path:
-    return load_template(_TEMPLATE_ROOT, tmp_path, "pnpm-workspace.yaml")
-
-
-@pytest.fixture
-def makefile(tmp_path: Path) -> Path:
-    return load_template(_TEMPLATE_ROOT, tmp_path, "Makefile")
-
-
-@pytest.fixture
-def gitignore(tmp_path: Path) -> Path:
-    return load_template(_TEMPLATE_ROOT, tmp_path, ".gitignore")
-
-
-@pytest.fixture
 def lefthook_yml(tmp_path: Path) -> Path:
     return load_template(_TEMPLATE_ROOT, tmp_path, "lefthook.yml")
+
+
+@pytest.fixture
+def dot_env(tmp_path: Path) -> Path:
+    return load_template(_TEMPLATE_ROOT, tmp_path, ".env")
 
 
 @pytest.fixture
@@ -63,11 +52,6 @@ def lint_env_sh(tmp_path: Path) -> Path:
 @pytest.fixture
 def licenses_sh(tmp_path: Path) -> Path:
     return load_template(_TEMPLATE_ROOT, tmp_path, "bin/lint/licenses.sh")
-
-
-@pytest.fixture
-def clean_sh(tmp_path: Path) -> Path:
-    return load_template(_TEMPLATE_ROOT, tmp_path, "bin/install/clean.sh")
 
 
 @pytest.fixture
@@ -96,18 +80,8 @@ def main_workflow(tmp_path: Path) -> Path:
 
 
 @pytest.fixture
-def docs_workflow(tmp_path: Path) -> Path:
-    return load_template(_TEMPLATE_ROOT, tmp_path, ".github/workflows/docs.yml")
-
-
-@pytest.fixture
 def docs_pkg(tmp_path: Path) -> Path:
     return load_template(_TEMPLATE_ROOT, tmp_path, "packages/docs")
-
-
-@pytest.fixture
-def scaffolder_pkg(tmp_path: Path) -> Path:
-    return load_template(_TEMPLATE_ROOT, tmp_path, "packages/scaffolder")
 
 
 @pytest.fixture

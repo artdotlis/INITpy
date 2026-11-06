@@ -63,7 +63,7 @@ check_name_occurrence() {
     if [[ "$(grep -cwe "$make_reg" "$ROOT/Makefile")" -gt 0 ]]; then
         return 0
     fi
-    if [[ "$(grep -cwe "$docker_reg" "$ROOT/Dockerfile")" -gt 0 ]]; then
+    if [[ -f "$ROOT/Dockerfile" && "$(grep -cwe "$docker_reg" "$ROOT/Dockerfile")" -gt 0 ]]; then
         return 0
     fi
     if [[ "$(grep -cwe "$docker_reg" "$ROOT/docker-compose.yml")" -gt 0 ]]; then
@@ -148,7 +148,7 @@ cmd='{
 if ! check_name_rev_occurrence "$ROOT/Makefile" "$cmd"; then
     exit 1
 fi
-if ! check_name_rev_occurrence "$ROOT/Dockerfile" "$cmd"; then
+if [[ -f "$ROOT/Dockerfile" ]] && ! check_name_rev_occurrence "$ROOT/Dockerfile" "$cmd"; then
     exit 1
 fi
 if ! check_name_rev_occurrence "$ROOT/docker-compose.yml" "$cmd"; then

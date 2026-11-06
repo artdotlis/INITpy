@@ -4,7 +4,6 @@
 
 """Scaffold skeleton file operations."""
 
-import json
 import shutil
 from pathlib import Path
 
@@ -58,12 +57,33 @@ def remove_projects_output_folder(path: Path, /) -> None:
         shutil.rmtree(output_path) if output_path.is_dir() else output_path.unlink()
 
 
+_SCAF_OUTPUT_NOTE = "# Host folder mounted into the deploy container as /scaf"
+
+
+def _drop_scaf_output_var(env_file: Path, /) -> None:
+    """Drop the scaffolder output variable and its note from an env file.
+
+    Args:
+        env_file: Env file to rewrite; absent files are ignored.
+    """
+    if not env_file.is_file():
+        return
+    lines = env_file.read_text().splitlines(keepends=True)
+    kept = [
+        line
+        for line in lines
+        if not line.startswith(("SCAF_OUTPUT_DIR=", _SCAF_OUTPUT_NOTE))
+    ]
+    env_file.write_text("".join(kept))
+
+
 def remove_prod_docker(path: Path, /) -> None:
     """Remove the production Docker setup and promote the dev compose.
 
     Deletes the root production ``Dockerfile`` and compose file, moves the
-    dev compose up to the repo root, and points the devcontainer at the
-    single (dev) compose.
+    dev compose up to the repo root, points the devcontainer at the single
+    (dev) compose, and drops the scaffolder output variable only that
+    compose used.
 
     Args:
         path: Root of the generated project.
@@ -75,10 +95,12 @@ def remove_prod_docker(path: Path, /) -> None:
     root_compose = path / "docker-compose.yml"
     shutil.move(str(dev_compose), str(root_compose))
 
+    for name in (".env", "package.env"):
+        _drop_scaf_output_var(path / name)
+
     devcontainer = path / ".devcontainer" / "devcontainer.json"
-    data = json.loads(devcontainer.read_text())
-    data["dockerComposeFile"] = ["../docker-compose.yml"]
-    devcontainer.write_text(json.dumps(data, indent=2) + "\n")
+    text = devcontainer.read_text().replace(', "dev.docker-compose.yml"', "")
+    devcontainer.write_text(text)
 
 
 def clean_root_md(path: Path, project_name: str, /) -> None:
