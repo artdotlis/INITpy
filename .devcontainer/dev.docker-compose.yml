@@ -23,7 +23,6 @@ services:
                 BIN_DEPLOY_PREP: ${BIN_DEPLOY_PREP}
                 BIN_DEPLOY_REQ: ${BIN_DEPLOY_REQ}
                 BIN_DEPLOY_USER: ${BIN_DEPLOY_USER}
-                BIN_DEPLOY_ENTRY_DEV: ${BIN_DEPLOY_ENTRY_DEV}
         volumes:
             - ${SSH_AUTH_SOCK:-/dev/null}:/ssh-agent:ro
             - .:/workspace:cached

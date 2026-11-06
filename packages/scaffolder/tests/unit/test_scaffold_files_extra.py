@@ -260,14 +260,6 @@ class TestRemoveProdDocker:
             '{"name": "init", "dockerComposeFile": '
             '["../docker-compose.yml", "dev.docker-compose.yml"]}\n'
         )
-        (tmp_path / "package.env").write_text(
-            "BIN_DEPLOY_PREP=x\nBIN_DEPLOY_HEALTH=y\nBIN_DEPLOY_ENTRY_PROD=z\n"
-        )
-        deploy = tmp_path / "bin" / "deploy"
-        deploy.mkdir(parents=True)
-        (deploy / "entry_prod.sh").write_text("x")
-        (deploy / "health.sh").write_text("y")
-        (deploy / "entry_dev.sh").write_text("z")
 
     def test_removes_prod_docker_and_promotes_dev(self, tmp_path: Path) -> None:
         """Drop the prod Dockerfile and promote the dev compose to root."""
@@ -283,18 +275,6 @@ class TestRemoveProdDocker:
         remove_prod_docker(tmp_path)
         data = json.loads((tmp_path / ".devcontainer" / "devcontainer.json").read_text())
         assert data["dockerComposeFile"] == ["../docker-compose.yml"]
-
-    def test_drops_prod_only_env_and_scripts(self, tmp_path: Path) -> None:
-        """Remove prod-only env vars and deploy scripts."""
-        self._write(tmp_path)
-        remove_prod_docker(tmp_path)
-        env = (tmp_path / "package.env").read_text()
-        assert "BIN_DEPLOY_HEALTH" not in env
-        assert "BIN_DEPLOY_ENTRY_PROD" not in env
-        assert "BIN_DEPLOY_PREP" in env
-        assert not (tmp_path / "bin" / "deploy" / "entry_prod.sh").exists()
-        assert not (tmp_path / "bin" / "deploy" / "health.sh").exists()
-        assert (tmp_path / "bin" / "deploy" / "entry_dev.sh").exists()
 
 
 class TestRemoveDocs:

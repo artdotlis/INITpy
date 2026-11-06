@@ -15,13 +15,10 @@ ENV HISTFILESIZE=0
 ARG BIN_DEPLOY_PREP
 ARG BIN_DEPLOY_REQ
 ARG BIN_DEPLOY_USER
-ARG BIN_DEPLOY_ENTRY_DEV
 
 COPY . /app
 
 WORKDIR /app
-
-COPY ./${BIN_DEPLOY_ENTRY_DEV} /entry_dev.sh
 
 RUN dnf clean all && dnf install -y bash
 RUN bash "./${BIN_DEPLOY_PREP}" && bash "./${BIN_DEPLOY_REQ}" && bash "./${BIN_DEPLOY_USER}"
@@ -36,8 +33,6 @@ RUN mkdir -p ${WORK_DIR} && \
 RUN git config --global --add safe.directory ${WORK_DIR}
 RUN dnf install -y openssh openssh-clients
 
-HEALTHCHECK --interval=60s --timeout=6s --retries=1 CMD exit 0
-
 USER ${USERNAME}
 
-ENTRYPOINT ["/bin/bash", "/entry_dev.sh"]
+ENTRYPOINT ["sleep", "infinity"]

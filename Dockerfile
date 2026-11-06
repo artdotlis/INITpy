@@ -34,8 +34,6 @@ ENV HOME_MAIN="/home/${USERNAME}"
 ENV HOME="${HOME_MAIN}"
 ENV PATH="${HOME_MAIN}/.local/bin:${PATH}"
 ENV CONTAINER="container"
-ARG BIN_DEPLOY_ENTRY_PROD
-ARG BIN_DEPLOY_HEALTH
 
 RUN dnf clean all && dnf install -y bash
 
@@ -48,15 +46,11 @@ COPY ./${BIN_DEPLOY_REQ} /req.sh
 COPY ./${BIN_DEPLOY_USER} /user.sh
 
 COPY --from=appbuilder /app/dist /build
-COPY ./${BIN_DEPLOY_ENTRY_PROD} /entry.sh
-COPY ./${BIN_DEPLOY_HEALTH} /health.sh
 
 WORKDIR /build
 RUN bash /prep.sh && rm /prep.sh
 RUN bash /req.sh && rm /req.sh
 RUN bash /user.sh && rm /user.sh
-
-HEALTHCHECK --interval=5m --timeout=3s CMD /health.sh
 
 # stage wheels into the user's home, then drop to the user exactly once
 RUN mkdir -p "${HOME_MAIN}/wheels" && \
@@ -70,4 +64,4 @@ RUN pip install --no-cache-dir "${HOME_MAIN}"/wheels/*.whl && rm -rf "${HOME_MAI
 
 WORKDIR ${HOME_MAIN}
 
-ENTRYPOINT ["/bin/sh", "/entry.sh"]
+ENTRYPOINT ["sleep", "infinity"]
