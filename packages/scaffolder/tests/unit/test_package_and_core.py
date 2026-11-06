@@ -4,64 +4,16 @@
 
 """Unit tests for scaffolder.scaffold.package and core."""
 
-from collections.abc import Iterator
-from contextlib import ExitStack
 from pathlib import Path
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
-import pytest
 import tomlkit
 from scaffolder.scaffold.package import create_package
 from scaffolder.scaffold.core import ScaffoldArgs, clone_ref, run
 from shared_utils.core.constants import VERSION
 
-pytest_plugins = ("tests.fixture.template",)
-
-CORE = "scaffolder.scaffold.core"
-
-
-@pytest.fixture
-def pipeline() -> Iterator[tuple[dict[str, MagicMock], list[str]]]:
-    """Patch every run() collaborator and record the call order."""
-    names = [
-        "clone_git",
-        "reset_git",
-        "remove_projects_output_folder",
-        "create_package",
-        "write_package_files",
-        "amend_docs",
-        "update_envs",
-        "update_copyright",
-        "update_tests",
-        "clean_root_md",
-        "replace_authors",
-        "correct_core_project",
-        "set_version",
-        "update_commitizen_version_files",
-        "strip_spdx_headers",
-        "configure_licenses",
-        "remove_prod_docker",
-        "update_licenses_sh",
-        "remove_reuse",
-        "remove_docs",
-        "lock_project",
-        "init_and_commit",
-    ]
-    with ExitStack() as stack:
-        mocks = {name: stack.enter_context(patch(f"{CORE}.{name}")) for name in names}
-        order: list[str] = []
-
-        def _record(name: str) -> object:
-            def _side_effect(*args: object, **kwargs: object) -> None:
-                del args, kwargs
-                order.append(name)
-
-            return _side_effect
-
-        for name, mock in mocks.items():
-            mock.side_effect = _record(name)
-        yield mocks, order
+pytest_plugins = ("tests.fixture.mock", "tests.fixture.template")
 
 
 def _args(tmp_path: Path, **overrides: object) -> ScaffoldArgs:
@@ -79,12 +31,6 @@ def _args(tmp_path: Path, **overrides: object) -> ScaffoldArgs:
     }
     kwargs.update(overrides)
     return ScaffoldArgs(**kwargs)  # type: ignore[arg-type]
-
-
-@pytest.fixture
-def clone_path(shared_utils_pyproject: Path) -> Path:
-    """Clone root seeded with the live shared_utils pyproject."""
-    return shared_utils_pyproject.parents[2]
 
 
 class TestCreatePackage:

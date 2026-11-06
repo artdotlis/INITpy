@@ -13,6 +13,8 @@ import pytest
 
 from scaffolder.main import run_cli
 
+pytest_plugins = ("tests.fixture.env",)
+
 # Canonical prompt answers, in prompt order: name, description, output dir,
 # author, email, copyright, license, use reuse, use docs.
 _PROJECT, _DESCRIPTION, _OUTPUT = "proj", "desc", "/tmp/out"
@@ -83,11 +85,6 @@ def _drive(
 
 class TestRunCli:
     """Tests for the interactive run_cli entry point."""
-
-    @pytest.fixture(autouse=True)
-    def clear_scaf_output_dir(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        """Unset SCAF_OUTPUT_DIR so the output prompt is always shown."""
-        monkeypatch.delenv("SCAF_OUTPUT_DIR", raising=False)
 
     def test_successful_flow(self) -> None:
         """Test the happy-path interactive CLI flow."""

@@ -25,6 +25,12 @@ def shared_utils_pyproject(tmp_path: Path) -> Path:
 
 
 @pytest.fixture
+def clone_path(shared_utils_pyproject: Path) -> Path:
+    """Clone root seeded with the live shared_utils pyproject."""
+    return shared_utils_pyproject.parents[2]
+
+
+@pytest.fixture
 def pnpm_workspace_yaml(tmp_path: Path) -> Path:
     return load_template(_TEMPLATE_ROOT, tmp_path, "pnpm-workspace.yaml")
 
