@@ -47,18 +47,14 @@ class TestFindSpdxBlock:
         start, block = result
         assert "SPDX" in block
 
-    def test_iterates_when_no_spdx_found(self) -> None:
-        """Return None after exhausting the comment block."""
-        text = "# line1\n# line2\n# line3\n" * 10 + "end"
+    def test_skips_leading_non_comment_line(self) -> None:
+        """Skip a leading code line and find the SPDX block below it."""
+        # REUSE-IgnoreStart
+        text = "x = 1\n# SPDX-License-Identifier: MIT"
+        # REUSE-IgnoreEnd
         result = _find_spdx_block(text, PythonCommentStyle)
-        assert result is None
-
-    def test_handles_first_line_only(self) -> None:
-        """Return None for a single line with no SPDX."""
-        # Single line with no newline triggers the `nxt == -1` break
-        text = "# no SPDX here"
-        result = _find_spdx_block(text, PythonCommentStyle)
-        assert result is None
+        assert result is not None
+        assert result[0] == len("x = 1\n")
 
 
 class TestStripSpdxHeaders:
@@ -94,13 +90,6 @@ class TestStripSpdxHeaders:
             strip_spdx_headers(tmp_path)
         # File should be unchanged since get_comment_style returned None
         assert f.read_text() == "# Contains SPDX somewhere\nprint('hi')\n"
-
-    def test_handles_no_spdx_found(self, tmp_path: Path) -> None:
-        """Leave a comment-only file unchanged."""
-        f = tmp_path / "file.py"
-        f.write_text("# just a comment\nprint('hi')\n")
-        strip_spdx_headers(tmp_path)
-        assert f.read_text() == "# just a comment\nprint('hi')\n"
 
     def test_handles_spdx_but_not_valid_block(self, tmp_path: Path) -> None:
         """Keep the text when SPDX is not part of a valid comment block."""

@@ -6,6 +6,7 @@
 
 import json
 from pathlib import Path
+from typing import Any, Callable
 from unittest.mock import patch
 
 import pytest
@@ -23,56 +24,37 @@ from scaffolder.scaffold.licenses import set_license_package_json
 from scaffolder.scaffold.licenses import set_license_pyproject
 from scaffolder.scaffold.licenses import update_licenses_sh
 from scaffolder.scaffold.skeleton import clean_root_md, remove_prod_docker
+from scaffolder.scaffold.skeleton import remove_projects_output_folder
 from scaffolder.scaffold.tests import update_tests
 
 pytest_plugins = ("tests.fixture.template",)
 
 
 class TestAmendDocs:
-    """Tests for amend_docs."""
+    """Tests for amend_docs (run against the live docs package)."""
 
-    @staticmethod
-    def _write_docs(tmp_path: Path, index: str = "name: INITpy\n") -> None:
-        """Create the default scaffolded docs files."""
-        index_md = tmp_path / "packages" / "docs" / "src" / "index.md"
-        index_md.parent.mkdir(parents=True, exist_ok=True)
-        index_md.write_text(index)
-        config = tmp_path / "packages" / "docs" / ".vitepress" / "config.toml"
-        config.parent.mkdir(parents=True, exist_ok=True)
-        config.write_text('[site]\ntitle = "INIT - Python"\n')
-        ref_index = tmp_path / "packages" / "docs" / "src" / "ref" / "index.md"
-        ref_index.parent.mkdir(parents=True, exist_ok=True)
-        ref_index.write_text("# old content\n")
-
-    def test_updates_index_title(self, tmp_path: Path) -> None:
+    def test_updates_index_title(self, tmp_path: Path, docs_pkg: Path) -> None:
         """Retitle the docs index hero with the project name."""
-        self._write_docs(tmp_path, "hero:\n    name: INITpy\n\ncontent")
         amend_docs(tmp_path, "my_pkg", "NewProject")
-        index = tmp_path / "packages" / "docs" / "src" / "index.md"
+        index = docs_pkg / "src" / "index.md"
         assert "name: NewProject" in index.read_text()
+        assert "name: INITpy" not in index.read_text()
 
-    def test_updates_ref_index_when_exists(self, tmp_path: Path) -> None:
+    def test_updates_ref_index(self, tmp_path: Path, docs_pkg: Path) -> None:
         """Rewrite the module reference index for the single package."""
-        ref_index = tmp_path / "packages" / "docs" / "src" / "ref" / "index.md"
-        ref_index.parent.mkdir(parents=True)
-        ref_index.write_text("# old content\n")
-        self._write_docs(tmp_path)
         amend_docs(tmp_path, "my_pkg", "NewProject")
-        content = ref_index.read_text()
+        content = (docs_pkg / "src" / "ref" / "index.md").read_text()
         assert "- [my_pkg](my_pkg)" in content
+        assert "shared_utils" not in content
 
-    def test_updates_config_title_and_drops_repo_link(self, tmp_path: Path) -> None:
+    def test_updates_config_title_and_drops_repo_link(
+        self, tmp_path: Path, docs_pkg: Path
+    ) -> None:
         """Set the site title and drop the template repo social link in config."""
-        self._write_docs(tmp_path)
-        config = tmp_path / "packages" / "docs" / ".vitepress" / "config.toml"
-        config.write_text(
-            '[site]\ntitle = "INIT - Python"\n'
-            '[vitepress]\nbase = "/INITpy/"\n'
-            "[vitepress.themeConfig]\n"
-            '[[vitepress.themeConfig.socialLinks]]\nicon = "github"\n'
-            'link = "https://github.com/artdotlis/INITpy"\n'
-        )
+        config = docs_pkg / ".vitepress" / "config.toml"
+
         amend_docs(tmp_path, "my_pkg", "NewProject")
+
         doc = tomlkit.parse(config.read_text())
         assert doc["site"]["title"] == "NewProject"
         links = doc["vitepress"]["themeConfig"].get("socialLinks", [])
@@ -82,71 +64,94 @@ class TestAmendDocs:
 class TestUpdateCopyright:
     """Tests for update_copyright."""
 
-    def test_updates_package_env(self, tmp_path: Path) -> None:
+    def test_updates_package_env(self, tmp_path: Path, package_env: Path) -> None:
         """Replace the COPYRIGHT value in package.env."""
-        pkg_env = tmp_path / "package.env"
-        pkg_env.write_text('COPYRIGHT="Artur Lissin"\nPYV=3.13\n')
         update_copyright(tmp_path, "New Owner")
-        content = pkg_env.read_text()
+        content = package_env.read_text()
         assert 'COPYRIGHT="New Owner"' in content
         assert "Artur Lissin" not in content
-        assert "PYV=3.13" in content
+        assert "PYV=" in content
 
 
 class TestUpdateEnvs:
     """Tests for update_envs (run against live template files)."""
 
-    def test_updates_package_env(
+    def test_repoints_env_files(
         self, tmp_path: Path, package_env: Path, lint_env_sh: Path
     ) -> None:
-        """Repoint the package env variables at the new package."""
+        """Repoint package.env and the lint script at the new package."""
         update_envs(tmp_path, "my_pkg")
+
         content = package_env.read_text()
         assert "PKG_MY_" in content  # first 3 chars of "MY_PKG" are "MY_"
         assert "PKG_SHAR" not in content
-        # the lint script is repointed to the same env var
-        assert "MY__ENV" in lint_env_sh.read_text()
 
-    def test_updates_lint_env(
-        self, tmp_path: Path, package_env: Path, lint_env_sh: Path
-    ) -> None:
-        """Repoint the lint script's env variable at the new package."""
-        update_envs(tmp_path, "my_pkg")
-        assert "$SCAF_ENV" not in lint_env_sh.read_text()
-        assert "MY__ENV" in lint_env_sh.read_text()
-        # package.env is repointed to the new package as well
-        assert "PKG_MY_" in package_env.read_text()
+        lint_env = lint_env_sh.read_text()
+        assert "$SCAF_ENV" not in lint_env
+        assert "MY__ENV" in lint_env
 
 
 class TestUpdateTests:
     """Tests for update_tests (run against live template files)."""
 
-    def test_collapses_lefthook_tests(
+    def test_collapses_tests_to_single_package(
         self, tmp_path: Path, lefthook_yml: Path, main_workflow: Path
     ) -> None:
-        """Collapse the lefthook test jobs to the single package."""
+        """Collapse the lefthook jobs and the CI steps to the one package."""
         update_tests(tmp_path, "my_pkg")
-        content = lefthook_yml.read_text()
-        assert "$PKG_SHAR" not in content
-        assert "$PKG_SCAF" not in content
-        assert "- name: my_pkg" in content
-        assert "cd $PKG_MY_ && coverage run -m pytest" in content
-        # the CI workflow is collapsed to the same package
-        assert "working-directory: packages/my_pkg" in main_workflow.read_text()
 
-    def test_collapses_ci_tests(
-        self, tmp_path: Path, lefthook_yml: Path, main_workflow: Path
-    ) -> None:
-        """Collapse the CI test steps to the single package (>=1 job matches)."""
+        hooks = lefthook_yml.read_text()
+        assert "$PKG_SHAR" not in hooks
+        assert "$PKG_SCAF" not in hooks
+        assert "- name: my_pkg" in hooks
+        assert "cd $PKG_MY_ && coverage run -m pytest" in hooks
+
+        ci = main_workflow.read_text()
+        assert "packages/shared_utils" not in ci
+        assert "packages/scaffolder" not in ci
+        assert "working-directory: packages/my_pkg" in ci
+        # The real template runs tests from several jobs, so the appended
+        # step appears once per job — count generously, never "exactly".
+        assert ci.count("- name: Run my_pkg tests") >= 1
+
+    def test_skips_jobs_without_step_list(self, tmp_path: Path) -> None:
+        """Leave jobs whose steps are not a list untouched."""
+        (tmp_path / "lefthook.yml").write_text("tests: {jobs: [{name: x, run: y}]}\n")
+        workflow = tmp_path / ".github" / "workflows" / "main.yml"
+        workflow.parent.mkdir(parents=True)
+        workflow.write_text(
+            "jobs:\n"
+            "  reusable:\n"
+            "    uses: ./.github/workflows/other.yml\n"
+            "  real:\n"
+            "    steps:\n"
+            "      - run: uv run pytest\n"
+        )
         update_tests(tmp_path, "my_pkg")
-        content = main_workflow.read_text()
-        assert "packages/shared_utils" not in content
-        assert "packages/scaffolder" not in content
-        # Real template runs tests from 2 jobs (mac_win_test + lin_lint), so the
-        # appended step appears once per job — count generously, never "exactly".
-        assert content.count("- name: Run my_pkg tests") >= 1
-        assert "working-directory: packages/my_pkg" in content
-        assert "cd $PKG_MY_ && coverage run -m pytest" in lefthook_yml.read_text()
+        content = workflow.read_text()
+        assert "uses: ./.github/workflows/other.yml" in content
+        assert "uv run pytest" not in content
+        assert content.count("Run my_pkg tests") == 1
+
+
+def _drop_tool_table(doc: Any) -> None:
+    """Remove the whole [tool] table."""
+    _ = doc.pop("tool")
+
+
+def _drop_commitizen_table(doc: Any) -> None:
+    """Remove the [tool.commitizen] table."""
+    _ = doc["tool"].pop("commitizen")
+
+
+def _make_version_files_a_string(doc: Any) -> None:
+    """Replace the version_files list with a bare string."""
+    doc["tool"]["commitizen"]["version_files"] = "pyproject.toml"
+
+
+def _drop_version_files(doc: Any) -> None:
+    """Remove version_files from the [tool.commitizen] table."""
+    _ = doc["tool"]["commitizen"].pop("version_files")
 
 
 class TestUpdateCommitizenVersionFiles:
@@ -175,6 +180,28 @@ class TestUpdateCommitizenVersionFiles:
         """Raise FileNotFoundError when there is no pyproject.toml."""
         with pytest.raises(FileNotFoundError):
             update_commitizen_version_files(tmp_path, "my_pkg")
+
+    @pytest.mark.parametrize(
+        "mutate",
+        [
+            pytest.param(_drop_tool_table, id="no-tool-table"),
+            pytest.param(_drop_commitizen_table, id="no-commitizen"),
+            pytest.param(_make_version_files_a_string, id="version-files-not-a-list"),
+            pytest.param(_drop_version_files, id="no-version-files"),
+        ],
+    )
+    def test_leaves_incomplete_pyproject_untouched(
+        self, tmp_path: Path, pyproject_toml: Path, mutate: Callable[[Any], None]
+    ) -> None:
+        """Skip the rewrite when the commitizen version_files block is absent."""
+        doc = tomlkit.parse(pyproject_toml.read_text())
+        mutate(doc)
+        pyproject_toml.write_text(tomlkit.dumps(doc))
+        before = pyproject_toml.read_text()
+
+        update_commitizen_version_files(tmp_path, "my_pkg")
+
+        assert pyproject_toml.read_text() == before
 
 
 class TestUpdateLicensesSh:
@@ -221,15 +248,17 @@ class TestCleanRootMd:
 class TestCorrectCoreProject:
     """Tests for correct_core_project."""
 
-    def test_updates_all_files(self, tmp_path: Path) -> None:
-        """Apply project metadata to the root config files."""
-        pyproject = tmp_path / "pyproject.toml"
-        pyproject.write_text('[project]\nname = "old"\ndependencies = ["x"]\n')
-        pkg_json = tmp_path / "package.json"
-        pkg_json.write_text('{"name": "old"}\n')
-        devcontainer = tmp_path / ".devcontainer" / "devcontainer.json"
-        devcontainer.parent.mkdir(parents=True)
-        devcontainer.write_text('{"name": "old"}\n')
+    def test_updates_all_files(
+        self,
+        tmp_path: Path,
+        pyproject_toml: Path,
+        package_json: Path,
+        devcontainer_json: Path,
+    ) -> None:
+        """Apply project metadata to the live root config files."""
+        pyproject = pyproject_toml
+        pkg_json = package_json
+        devcontainer = devcontainer_json
 
         correct_core_project(tmp_path, "NewProject", "my_pkg", "my-pkg", "New desc")
 
@@ -246,50 +275,62 @@ class TestCorrectCoreProject:
         assert dc_data["name"] == "NewProject"
 
 
+class TestRemoveProjectsOutputFolder:
+    """Tests for remove_projects_output_folder."""
+
+    def test_removes_directory(self, tmp_path: Path) -> None:
+        """Delete the PROJECTS directory and its contents."""
+        projects = tmp_path / "PROJECTS"
+        (projects / "demo").mkdir(parents=True)
+        remove_projects_output_folder(tmp_path)
+        assert not projects.exists()
+
+    def test_removes_file_named_projects(self, tmp_path: Path) -> None:
+        """Unlink a PROJECTS path that is a plain file."""
+        (tmp_path / "PROJECTS").write_text("stale")
+        remove_projects_output_folder(tmp_path)
+        assert not (tmp_path / "PROJECTS").exists()
+
+    def test_noop_without_projects(self, tmp_path: Path) -> None:
+        """Do nothing when there is no PROJECTS path."""
+        remove_projects_output_folder(tmp_path)
+        assert list(tmp_path.iterdir()) == []
+
+
 class TestRemoveProdDocker:
     """Tests for remove_prod_docker."""
 
-    @staticmethod
-    def _write(tmp_path: Path) -> None:
-        (tmp_path / "Dockerfile").write_text("# prod\n")
-        (tmp_path / "docker-compose.yml").write_text("prod:\n")
-        dev_dir = tmp_path / ".devcontainer"
-        dev_dir.mkdir(parents=True)
-        (dev_dir / "dev.docker-compose.yml").write_text("dev:\n")
-        (dev_dir / "devcontainer.json").write_text(
-            '{"name": "init", "dockerComposeFile": '
-            '["../docker-compose.yml", "dev.docker-compose.yml"]}\n'
-        )
-
-    def test_removes_prod_docker_and_promotes_dev(self, tmp_path: Path) -> None:
+    def test_removes_prod_docker_and_promotes_dev(
+        self,
+        tmp_path: Path,
+        dockerfile: Path,
+        dev_compose: Path,
+        devcontainer_json: Path,
+    ) -> None:
         """Drop the prod Dockerfile and promote the dev compose to root."""
-        self._write(tmp_path)
         remove_prod_docker(tmp_path)
-        assert not (tmp_path / "Dockerfile").exists()
-        assert (tmp_path / "docker-compose.yml").read_text() == "dev:\n"
-        assert not (tmp_path / ".devcontainer" / "dev.docker-compose.yml").exists()
 
-    def test_devcontainer_points_at_single_compose(self, tmp_path: Path) -> None:
-        """Collapse dockerComposeFile to the root (dev) compose."""
-        self._write(tmp_path)
-        remove_prod_docker(tmp_path)
-        data = json.loads((tmp_path / ".devcontainer" / "devcontainer.json").read_text())
-        assert data["dockerComposeFile"] == ["../docker-compose.yml"]
+        assert not dockerfile.exists()
+        promoted = tmp_path / "docker-compose.yml"
+        assert promoted.exists()
+        assert not dev_compose.exists()
+        config = json.loads(devcontainer_json.read_text())
+        assert config["dockerComposeFile"] == ["../docker-compose.yml"]
 
 
 class TestRemoveDocs:
     """Tests for remove_docs."""
 
-    def test_removes_docs_package_dir(self, full_template: Path) -> None:
+    def test_removes_docs_package_dir(self, docs_template: Path) -> None:
         """Delete the packages/docs directory."""
-        remove_docs(full_template)
-        assert not (full_template / "packages" / "docs").exists()
-        assert (full_template / "packages" / "scaffolder").exists()
+        remove_docs(docs_template)
+        assert not (docs_template / "packages" / "docs").exists()
+        assert (docs_template / "packages" / "scaffolder").exists()
 
-    def test_cleans_pyproject(self, full_template: Path) -> None:
+    def test_cleans_pyproject(self, docs_template: Path) -> None:
         """Strip docs from workspace exclude, dep groups, vulture and commitizen."""
-        remove_docs(full_template)
-        doc = tomlkit.parse((full_template / "pyproject.toml").read_text())
+        remove_docs(docs_template)
+        doc = tomlkit.parse((docs_template / "pyproject.toml").read_text())
         ws = doc["tool"]["uv"]["workspace"]
         assert "exclude" not in ws
         assert "docs" not in doc["dependency-groups"]
@@ -298,15 +339,15 @@ class TestRemoveDocs:
             str(e) for e in doc["tool"]["commitizen"]["version_files"]
         ]
 
-    def test_cleans_pnpm_workspace(self, full_template: Path) -> None:
+    def test_cleans_pnpm_workspace(self, docs_template: Path) -> None:
         """Remove the docs package from the pnpm workspace."""
-        remove_docs(full_template)
-        assert "packages/docs" not in (full_template / "pnpm-workspace.yaml").read_text()
+        remove_docs(docs_template)
+        assert "packages/docs" not in (docs_template / "pnpm-workspace.yaml").read_text()
 
-    def test_cleans_makefile(self, full_template: Path) -> None:
+    def test_cleans_makefile(self, docs_template: Path) -> None:
         """Drop docs targets and PKG_DOCS recipe lines from the Makefile."""
-        remove_docs(full_template)
-        makefile = (full_template / "Makefile").read_text()
+        remove_docs(docs_template)
+        makefile = (docs_template / "Makefile").read_text()
         for frag in (
             "build-docs:",
             "run-docs:",
@@ -377,70 +418,40 @@ class TestRemoveDocs:
         with pytest.raises(ValueError, match="missing docs target"):
             _drop_docs_make_targets(makefile)
 
-    def test_strips_docs_strips_pkg_docs_leftover(self, tmp_path: Path) -> None:
-        """Strip PKG_DOCS recipe lines in kept targets (exp-run-lock/update)."""
-        makefile = tmp_path / "Makefile"
-        makefile.write_text(
-            "build-docs: docs-ref\n"
-            "\tcd $(PKG_DOCS) && $(PNPME) run build\n"
-            "\n"
-            "run-docs: build-docs\n"
-            "\t@echo hi\n"
-            "\n"
-            "serve-docs: build-docs\n"
-            "\tcd $(PKG_DOCS) && $(PNPME) run preview\n"
-            "\n"
-            "docs-ref:\n"
-            "\t$(UVE) run griffe2md -o $(DOCS_REF_DIR)/x.md\n"
-            "\n"
-            "exp-run-lock:\n"
-            "\t$(UVE) lock\n"
-            "\tcd $(PKG_DOCS) && $(PNPME) install --lockfile-only\n"
-            "\n"
-            "exp-run-update:\n"
-            "\t$(UVE) lock -U\n"
-            "\tcd $(PKG_DOCS) && $(PNPME) update\n"
-        )
-        _drop_docs_make_targets(makefile)
-        text = makefile.read_text()
-        assert "PKG_DOCS" not in text
-        assert "exp-run-lock:\n\t$(UVE) lock\n" in text
-        assert "exp-run-update:\n\t$(UVE) lock -U\n" in text
-
-    def test_cleans_env_and_lint_scripts(self, full_template: Path) -> None:
+    def test_cleans_env_and_lint_scripts(self, docs_template: Path) -> None:
         """Drop docs vars from package.env, lint_env.sh and licenses.sh."""
-        remove_docs(full_template)
-        env = (full_template / "package.env").read_text()
+        remove_docs(docs_template)
+        env = (docs_template / "package.env").read_text()
         assert "DOCS" not in env
         assert "PKG_SCAF" in env
-        lint_env = (full_template / "bin" / "lint" / "lint_env.sh").read_text()
+        lint_env = (docs_template / "bin" / "lint" / "lint_env.sh").read_text()
         assert "DOCS_ENV" not in lint_env
-        clean = (full_template / "bin" / "install" / "clean.sh").read_text()
+        clean = (docs_template / "bin" / "install" / "clean.sh").read_text()
         assert "PKG_DOCS" not in clean
         assert "DOCS:START" not in clean
         assert "vitepress" not in clean.lower()
         assert 'if [[ -e "$ROOT/node_modules" ]]; then' in clean
         assert 'if [[ -e "$ROOT/public" ]]; then' in clean
-        licenses = (full_template / "bin" / "lint" / "licenses.sh").read_text()
+        licenses = (docs_template / "bin" / "lint" / "licenses.sh").read_text()
         assert "CONFIG_DOCS" not in licenses
         assert "packages/docs" not in licenses
 
-    def test_cleans_lefthook(self, full_template: Path) -> None:
+    def test_cleans_lefthook(self, docs_template: Path) -> None:
         """Remove the docs test job from lefthook.yml."""
-        remove_docs(full_template)
-        text = (full_template / "lefthook.yml").read_text()
+        remove_docs(docs_template)
+        text = (docs_template / "lefthook.yml").read_text()
         assert "name: docs" not in text
         assert "PKG_DOCS" not in text
         assert "name: scaffolder" in text
 
-    def test_removes_gitignore_and_workflow(self, full_template: Path) -> None:
+    def test_removes_gitignore_and_workflow(self, docs_template: Path) -> None:
         """Drop the VitePress ignore blocks and the docs workflow."""
-        remove_docs(full_template)
-        gitignore = (full_template / ".gitignore").read_text()
+        remove_docs(docs_template)
+        gitignore = (docs_template / ".gitignore").read_text()
         assert ".vitepress" not in gitignore
         assert "docs/_build" not in gitignore
-        assert not (full_template / ".github" / "workflows" / "docs.yml").exists()
-        assert (full_template / ".github" / "workflows" / "main.yml").exists()
+        assert not (docs_template / ".github" / "workflows" / "docs.yml").exists()
+        assert (docs_template / ".github" / "workflows" / "main.yml").exists()
 
 
 class TestUpdatePyprojectDepGroups:
@@ -507,15 +518,9 @@ class TestSetLicensePackageJson:
 class TestSetLicenseLicensesSh:
     """Tests for set_license_licenses_sh."""
 
-    @staticmethod
-    def _write(tmp_path: Path) -> Path:
-        sh = tmp_path / "licenses.sh"
-        sh.write_text('SOFTWARE_LIC="Unlicense"\nDATA_LIC="CC0-1.0"\n')
-        return sh
-
-    def test_sets_software_lic(self, tmp_path: Path) -> None:
+    def test_sets_software_lic(self, licenses_sh: Path) -> None:
         """Replace the default SOFTWARE_LIC with the user's choice."""
-        sh = self._write(tmp_path)
+        sh = licenses_sh
         set_license_licenses_sh(sh, "MIT")
         text = sh.read_text()
         assert 'SOFTWARE_LIC="MIT"' in text
@@ -545,20 +550,16 @@ class TestValidateLicense:
 class TestConfigureLicenses:
     """Tests for configure_licenses."""
 
-    def test_configures_licenses(self, tmp_path: Path) -> None:
+    def test_configures_licenses(
+        self,
+        tmp_path: Path,
+        pyproject_toml: Path,
+        package_json: Path,
+        licenses_sh: Path,
+    ) -> None:
         """Clear, download, and set the license in all config files."""
-        pyproject = tmp_path / "pyproject.toml"
-        pyproject.write_text('[project]\nname = "x"\n')
-        pkg_json = tmp_path / "package.json"
-        pkg_json.write_text('{"name": "x"}\n')
-        licenses_dir = tmp_path / "LICENSES"
-        licenses_dir.mkdir()
-        (licenses_dir / "MIT.txt").write_text("x")
-        # LICENSE file must exist (it gets unlinked first by write_license)
-        (tmp_path / "LICENSE").write_text("old")
-        licenses_sh = tmp_path / "bin" / "lint" / "licenses.sh"
-        licenses_sh.parent.mkdir(parents=True)
-        licenses_sh.write_text('SOFTWARE_LIC="Unlicense"\nDATA_LIC="CC0-1.0"\n')
+        pyproject = pyproject_toml
+        pkg_json = package_json
 
         with (
             patch("scaffolder.scaffold.licenses._validate_license"),

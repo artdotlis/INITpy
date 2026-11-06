@@ -133,6 +133,6 @@ tests:
         - name: docs
           run: bin/install/wrap.sh 'cd $PKG_DOCS && $PNPME test'
         - name: scaffolder
-          run: bin/install/wrap.sh 'cd $PKG_SCAF && coverage run -m pytest'
+          run: bin/install/wrap.sh 'cd $PKG_SCAF && coverage run -m pytest && coverage report'
         - name: shared-utils
-          run: bin/install/wrap.sh 'cd $PKG_SHAR && coverage run -m pytest'
+          run: bin/install/wrap.sh 'cd $PKG_SHAR && coverage run -m pytest && coverage report'

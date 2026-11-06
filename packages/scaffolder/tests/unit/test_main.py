@@ -13,6 +13,50 @@ import pytest
 
 from scaffolder.main import run_cli
 
+# Canonical prompt answers, in prompt order: name, description, output dir,
+# author, email, copyright, license, use reuse, use docs.
+_PROJECT, _DESCRIPTION, _OUTPUT = "proj", "desc", "/tmp/out"
+_ANSWERS = [
+    _PROJECT,
+    _DESCRIPTION,
+    _OUTPUT,
+    "Author",
+    "a@b.com",
+    "Copyright",
+    "MIT",
+    "",
+    "",
+]
+NAME, DESCRIPTION, OUTPUT, AUTHOR, EMAIL, COPYRIGHT, LICENSE, REUSE, DOCS = range(9)
+
+
+def _inputs(
+    *,
+    retried: dict[int, list[str]] | None = None,
+    accepted: dict[int, str] | None = None,
+    skipped: tuple[int, ...] = (),
+    output: str = _OUTPUT,
+) -> str:
+    """Build run_cli stdin lines from the canonical answers.
+
+    Args:
+        retried: Rejected answers to try before the accepted answer index.
+        accepted: Answers replacing the canonical value at that index.
+        skipped: Prompt indexes not asked (for example a preset output dir).
+        output: Answer used for the output-dir prompt.
+    """
+    answers = list(_ANSWERS)
+    answers[OUTPUT] = output
+    for index, value in (accepted or {}).items():
+        answers[index] = value
+    seq: list[str] = []
+    for index, answer in enumerate(answers):
+        if index in skipped:
+            continue
+        seq.extend((retried or {}).get(index, []))
+        seq.append(answer)
+    return "\n".join(seq) + "\n"
+
 
 def _drive(
     inputs: str,
@@ -47,178 +91,98 @@ class TestRunCli:
 
     def test_successful_flow(self) -> None:
         """Test the happy-path interactive CLI flow."""
-        inputs = (
-            "test_proj\n"  # project name (≥3 chars)
-            "A description\n"  # description (non-empty)
-            "/tmp/output\n"  # output dir (non-empty)
-            "Test Author\n"  # author name
-            "test@example.com\n"  # author email
-            "Test Copyright\n"  # copyright holder
-            "MIT\n"  # valid license
-            "n\n"  # use reuse tooling → no
-            "\n"  # keep docs subpackage → default yes
-        )
-        mock = _drive(inputs, return_value=Path("/tmp/output/test_proj"))
+        mock = _drive(_inputs(accepted={REUSE: "n"}), return_value=Path("/tmp/x"))
         mock.assert_called_once()
-        call_kwargs = mock.call_args[0][0]
-        assert call_kwargs.project_name == "test_proj"
-        assert call_kwargs.output_dir == "/tmp/output"
-        assert call_kwargs.license_name == "MIT"
-        assert call_kwargs.copyright == "Test Copyright"
-        assert call_kwargs.use_reuse is False
-        assert call_kwargs.use_docs is True
+        args = mock.call_args[0][0]
+        assert args.project_name == _PROJECT
+        assert args.output_dir == _OUTPUT
+        assert args.description == _DESCRIPTION
+        assert args.license_name == "MIT"
+        assert args.copyright == "Copyright"
+        assert args.use_reuse is False
+        assert args.use_docs is True
 
     def test_scaf_output_prefix_skips_prompt(self) -> None:
         """When SCAF_OUTPUT_DIR is set it is used as the output prefix."""
-        inputs = (
-            "test_proj\n"  # project name
-            "A description\n"  # description
-            "Test Author\n"  # author name
-            "test@example.com\n"  # author email
-            "Test Copyright\n"  # copyright holder
-            "MIT\n"  # valid license
-            "\n"  # use reuse tooling → default yes
-            "\n"  # keep docs subpackage → default yes
-        )
         mock = _drive(
-            inputs,
+            _inputs(skipped=(OUTPUT,)),
             scaf_output_dir="/scaf",
-            return_value=Path("/scaf/test_proj"),
+            return_value=Path("/scaf/proj"),
         )
         assert mock.call_args[0][0].output_dir == "/scaf"
 
-    def test_short_name_rejected(self) -> None:
-        """Test that project names <3 chars are rejected."""
-        inputs = (
-            "ab\n"  # too short, rejected
-            "valid_name\n"  # ≥3 chars, accepted
-            "A desc\n"
-            "/tmp/out\n"
-            "Author\n"
-            "a@b.com\n"
-            "Copyright\n"
-            "MIT\n"
-            "\n"  # use reuse tooling → default yes
-            "\n"  # keep docs → default yes
-        )
-        assert _drive(inputs, return_value=Path("/tmp/out/valid_name")).call_count == 1
+    @pytest.mark.parametrize(
+        ("index", "rejected_values"),
+        [
+            pytest.param(NAME, ["ab"], id="short-name"),
+            pytest.param(NAME, ["", "x"], id="three-char-name"),
+            pytest.param(DESCRIPTION, [""], id="empty-description"),
+            pytest.param(OUTPUT, [""], id="empty-output"),
+            pytest.param(AUTHOR, [""], id="empty-author"),
+            pytest.param(EMAIL, [""], id="empty-email"),
+            pytest.param(LICENSE, ["INVALID"], id="invalid-license"),
+            pytest.param(REUSE, ["maybe"], id="invalid-reuse"),
+            pytest.param(DOCS, ["maybe"], id="invalid-docs"),
+        ],
+    )
+    def test_rejected_answer_is_retried(
+        self, index: int, rejected_values: list[str]
+    ) -> None:
+        """Re-prompt after a rejected answer, then accept the retried value."""
+        mock = _drive(_inputs(retried={index: rejected_values}), return_value=Path("/x"))
+        mock.assert_called_once()
+        args = mock.call_args[0][0]
+        assert args.project_name == _PROJECT
+        assert args.description == _DESCRIPTION
+        assert args.output_dir == _OUTPUT
+        assert args.author_name == "Author"
+        assert args.author_email == "a@b.com"
+        assert args.license_name == "MIT"
 
-    def test_invalid_license_retries(self) -> None:
-        """Test that invalid license prompts again."""
-        inputs = (
-            "proj\n"
-            "desc\n"
-            "/tmp/out\n"
-            "Author\n"
-            "a@b.com\n"
-            "Copyright\n"
-            "INVALID\n"  # invalid
-            "MIT\n"  # valid, accepted
-            "\n"  # use reuse tooling → default yes
-            "\n"  # keep docs → default yes
+    @pytest.mark.parametrize("answer", ["y", "yes", "YES"])
+    def test_explicit_yes_answers_keep_both(self, answer: str) -> None:
+        """Explicit y/yes answers keep reuse tooling and the docs subpackage."""
+        mock = _drive(
+            _inputs(accepted={REUSE: answer, DOCS: answer}),
+            return_value=Path("/x"),
         )
-        assert _drive(inputs, return_value=Path("/tmp/out/proj")).call_count == 1
+        args = mock.call_args[0][0]
+        assert args.use_reuse is True
+        assert args.use_docs is True
 
-    def test_empty_description_rejected(self) -> None:
-        """Test that empty description is rejected."""
-        inputs = (
-            "proj\n"
-            "\n"  # empty, rejected
-            "desc\n"  # non-empty, accepted
-            "/tmp/out\n"
-            "Author\n"
-            "a@b.com\n"
-            "Copyright\n"
-            "MIT\n"
-            "\n"  # use reuse tooling → default yes
-            "\n"  # keep docs → default yes
-        )
-        assert _drive(inputs, return_value=Path("/tmp/out/proj")).call_count == 1
-
-    def test_empty_output_rejected(self) -> None:
-        """Test that empty output dir is rejected."""
-        inputs = (
-            "proj\n"
-            "desc\n"
-            "\n"  # empty, rejected
-            "/tmp/out\n"  # non-empty, accepted
-            "Author\n"
-            "a@b.com\n"
-            "Copyright\n"
-            "MIT\n"
-            "\n"  # use reuse tooling → default yes
-            "\n"  # keep docs → default yes
-        )
-        assert _drive(inputs, return_value=Path("/tmp/out/proj")).call_count == 1
-
-    def test_empty_author_rejected(self) -> None:
-        """Test that empty author name is rejected."""
-        inputs = (
-            "proj\n"
-            "desc\n"
-            "/tmp/out\n"
-            "\n"  # empty, rejected
-            "Author\n"  # non-empty, accepted
-            "a@b.com\n"
-            "Copyright\n"
-            "MIT\n"
-            "\n"  # use reuse tooling → default yes
-            "\n"  # keep docs → default yes
-        )
-        assert _drive(inputs, return_value=Path("/tmp/out/proj")).call_count == 1
-
-    def test_empty_email_rejected(self) -> None:
-        """Test that empty author email is rejected."""
-        inputs = (
-            "proj\n"
-            "desc\n"
-            "/tmp/out\n"
-            "Author\n"
-            "\n"  # empty, rejected
-            "a@b.com\n"  # non-empty, accepted
-            "Copyright\n"
-            "MIT\n"
-            "\n"  # use reuse tooling → default yes
-            "\n"  # keep docs → default yes
-        )
-        assert _drive(inputs, return_value=Path("/tmp/out/proj")).call_count == 1
+    def test_no_answers_drop_both(self) -> None:
+        """Explicit 'n' answers drop the reuse tooling and the docs subpackage."""
+        mock = _drive(_inputs(accepted={REUSE: "n", DOCS: "n"}), return_value=Path("/x"))
+        args = mock.call_args[0][0]
+        assert args.use_reuse is False
+        assert args.use_docs is False
 
     def test_run_exception_handled(self) -> None:
         """Test that exceptions from run() are re-raised."""
-        inputs = "proj\ndesc\n/tmp/out\nAuthor\na@b.com\nCopyright\nMIT\n\n\n"
         with pytest.raises(RuntimeError, match="test error"):
-            _drive(inputs, exc=RuntimeError("test error"))
+            _drive(_inputs(), exc=RuntimeError("test error"))
 
-    def test_invalid_use_reuse_retries(self) -> None:
-        """Test that an invalid reuse answer prompts again."""
-        inputs = (
-            "proj\n"
-            "desc\n"
-            "/tmp/out\n"
-            "Author\n"
-            "a@b.com\n"
-            "Copyright\n"
-            "MIT\n"
-            "maybe\n"  # invalid, rejected
-            "n\n"  # valid, accepted
-            "\n"  # keep docs → default yes
-        )
-        mock = _drive(inputs, return_value=Path("/tmp/out/proj"))
-        assert mock.call_args[0][0].use_reuse is False
+    def test_failure_removes_partial_output_dir(self, tmp_path: Path) -> None:
+        """A failed run deletes the partially scaffolded output directory."""
+        partial = tmp_path / _PROJECT
+        partial.mkdir()
+        (partial / "leftover.txt").write_text("x")
+        with pytest.raises(RuntimeError, match="test error"):
+            _drive(_inputs(output=str(tmp_path)), exc=RuntimeError("test error"))
+        assert not partial.exists()
 
-    def test_invalid_use_docs_retries_and_applies(self) -> None:
-        """An invalid docs answer retries; 'n' drops the docs subpackage."""
-        inputs = (
-            "proj\n"
-            "desc\n"
-            "/tmp/out\n"
-            "Author\n"
-            "a@b.com\n"
-            "Copyright\n"
-            "MIT\n"
-            "\n"  # use reuse tooling → default yes
-            "maybe\n"  # invalid docs, rejected
-            "n\n"  # remove docs
-        )
-        mock = _drive(inputs, return_value=Path("/tmp/out/proj"))
-        assert mock.call_args[0][0].use_docs is False
+    def test_failure_removes_partial_output_file(self, tmp_path: Path) -> None:
+        """A failed run unlinks a partial output path that is a file."""
+        partial = tmp_path / _PROJECT
+        partial.write_text("x")
+        with pytest.raises(RuntimeError, match="test error"):
+            _drive(_inputs(output=str(tmp_path)), exc=RuntimeError("test error"))
+        assert not partial.exists()
+
+    def test_failure_without_partial_output_keeps_tree(self, tmp_path: Path) -> None:
+        """Leave unrelated files in place when nothing was scaffolded."""
+        keep = tmp_path / "keep.txt"
+        keep.write_text("x")
+        with pytest.raises(RuntimeError, match="test error"):
+            _drive(_inputs(output=str(tmp_path)), exc=RuntimeError("test error"))
+        assert keep.exists()

@@ -20,6 +20,11 @@ def pyproject_toml(tmp_path: Path) -> Path:
 
 
 @pytest.fixture
+def shared_utils_pyproject(tmp_path: Path) -> Path:
+    return load_template(_TEMPLATE_ROOT, tmp_path, "packages/shared_utils/pyproject.toml")
+
+
+@pytest.fixture
 def pnpm_workspace_yaml(tmp_path: Path) -> Path:
     return load_template(_TEMPLATE_ROOT, tmp_path, "pnpm-workspace.yaml")
 
@@ -60,6 +65,26 @@ def clean_sh(tmp_path: Path) -> Path:
 
 
 @pytest.fixture
+def package_json(tmp_path: Path) -> Path:
+    return load_template(_TEMPLATE_ROOT, tmp_path, "package.json")
+
+
+@pytest.fixture
+def devcontainer_json(tmp_path: Path) -> Path:
+    return load_template(_TEMPLATE_ROOT, tmp_path, ".devcontainer/devcontainer.json")
+
+
+@pytest.fixture
+def dev_compose(tmp_path: Path) -> Path:
+    return load_template(_TEMPLATE_ROOT, tmp_path, ".devcontainer/dev.docker-compose.yml")
+
+
+@pytest.fixture
+def dockerfile(tmp_path: Path) -> Path:
+    return load_template(_TEMPLATE_ROOT, tmp_path, "Dockerfile")
+
+
+@pytest.fixture
 def main_workflow(tmp_path: Path) -> Path:
     return load_template(_TEMPLATE_ROOT, tmp_path, ".github/workflows/main.yml")
 
@@ -80,8 +105,8 @@ def scaffolder_pkg(tmp_path: Path) -> Path:
 
 
 @pytest.fixture
-def full_template(tmp_path: Path) -> Path:
-    """Materialize every live template piece into one shared temp tree."""
+def docs_template(tmp_path: Path) -> Path:
+    """Materialize the live template pieces used by docs removal."""
     for rel in (
         "pyproject.toml",
         "pnpm-workspace.yaml",

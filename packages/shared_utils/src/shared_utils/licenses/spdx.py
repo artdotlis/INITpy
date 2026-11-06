@@ -29,8 +29,6 @@ def _find_spdx_block(
         A tuple of the block start offset and the comment block, or
         ``None`` if no SPDX block is found.
     """
-    if style_cls is None:
-        return None
     start = 0
     while start < len(text):
         try:

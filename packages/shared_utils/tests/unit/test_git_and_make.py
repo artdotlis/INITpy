@@ -8,7 +8,7 @@ from pathlib import Path
 from unittest.mock import patch, MagicMock
 
 from shared_utils.repo.git import reset_git, inti_and_commit, clone_git
-from shared_utils.repo.make import lock_project
+from shared_utils.repo.make import _tools_available, lock_project
 
 
 class TestResetGit:
@@ -102,3 +102,17 @@ class TestCloneGit:
             clone_git(target, "https://example.com/repo.git")
             assert mock_rmtree.call_count == 1
             assert mock_run.call_count == 1
+
+
+class TestToolsAvailable:
+    """Tests for _tools_available."""
+
+    def test_true_when_both_tools_present(self) -> None:
+        """Return True when uv and pnpm resolve on PATH."""
+        with patch("shutil.which", return_value="/usr/bin/tool"):
+            assert _tools_available() is True
+
+    def test_false_when_a_tool_is_missing(self) -> None:
+        """Return False when either tool is missing."""
+        with patch("shutil.which", side_effect=[None, "/usr/bin/pnpm"]):
+            assert _tools_available() is False

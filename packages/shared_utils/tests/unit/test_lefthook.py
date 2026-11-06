@@ -5,67 +5,59 @@
 """Unit tests for shared_utils.config.lefthook."""
 
 from pathlib import Path
+from typing import Any
 
+import yaml
 
 from shared_utils.config.lefthook import remove_lefthook_jobs
 
+pytest_plugins = ("tests.fixture.template",)
+
+
+def _load(path: Path) -> dict[str, Any]:
+    """Parse a lefthook file into plain data."""
+    return yaml.safe_load(path.read_text())
+
 
 class TestRemoveLefthookJobs:
-    """Tests for remove_lefthook_jobs (pruning empty hooks and groups)."""
+    """Tests for remove_lefthook_jobs against the live lefthook.yml."""
 
-    def test_removes_hook_left_without_jobs(self, tmp_path: Path) -> None:
-        """Drop a hook when removing its last job leaves it empty."""
+    def test_removes_job_and_keeps_siblings(self, lefthook_yml: Path) -> None:
+        """Drop the named job but keep the hook and its other jobs."""
+        remove_lefthook_jobs(lefthook_yml, "docs")
+        names = [job["name"] for job in _load(lefthook_yml)["tests"]["jobs"]]
+        assert "docs" not in names
+        assert "scaffolder" in names
+        assert "shared-utils" in names
+
+    def test_drops_emptied_group(self, lefthook_yml: Path) -> None:
+        """Remove a group whose last job is gone, keeping its siblings."""
+        remove_lefthook_jobs(lefthook_yml, "license")
+        names = [job["name"] for job in _load(lefthook_yml)["pre-commit"]["jobs"]]
+        assert "add" not in names
+        assert "check" in names
+        assert "fix" in names
+
+    def test_drops_hook_when_all_jobs_gone(self, lefthook_yml: Path) -> None:
+        """Remove the hook once its last job is removed."""
+        for job in ("docs", "scaffolder", "shared-utils"):
+            remove_lefthook_jobs(lefthook_yml, job)
+        assert "tests" not in _load(lefthook_yml)
+
+    def test_keeps_hook_with_commands(self, lefthook_yml: Path) -> None:
+        """Leave command-only hooks such as commit-msg untouched."""
+        remove_lefthook_jobs(lefthook_yml, "docs")
+        assert "commitizen" in _load(lefthook_yml)["commit-msg"]["commands"]
+
+    def test_keeps_non_dict_job_entries(self, tmp_path: Path) -> None:
+        """Keep job entries that are not mappings instead of dropping them."""
         lefthook = tmp_path / "lefthook.yml"
         lefthook.write_text(
-            "pre-push:\n"
-            "    piped: true\n"
+            "pre-commit:\n"
             "    jobs:\n"
+            "        - just-a-string\n"
             "        - name: docs\n"
             "          run: x\n"
         )
         remove_lefthook_jobs(lefthook, "docs")
-        assert "pre-push" not in lefthook.read_text()
-
-    def test_removes_empty_group_and_keeps_siblings(self, tmp_path: Path) -> None:
-        """Drop an emptied group entry but keep the hook and its other jobs."""
-        lefthook = tmp_path / "lefthook.yml"
-        lefthook.write_text(
-            "pre-commit:\n"
-            "    jobs:\n"
-            "        - name: check\n"
-            "          group:\n"
-            "              jobs:\n"
-            "                  - name: docs\n"
-            "                    run: x\n"
-            "        - name: other\n"
-            "          run: y\n"
-        )
-        remove_lefthook_jobs(lefthook, "docs")
-        text = lefthook.read_text()
-        assert "pre-commit" in text
-        assert "check" not in text
-        assert "name: other" in text
-
-    def test_removes_hook_when_group_emptied(self, tmp_path: Path) -> None:
-        """Drop the hook when its only group ends up empty."""
-        lefthook = tmp_path / "lefthook.yml"
-        lefthook.write_text(
-            "pre-commit:\n"
-            "    jobs:\n"
-            "        - name: check\n"
-            "          group:\n"
-            "              jobs:\n"
-            "                  - name: docs\n"
-            "                    run: x\n"
-        )
-        remove_lefthook_jobs(lefthook, "docs")
-        assert "pre-commit" not in lefthook.read_text()
-
-    def test_keeps_hook_with_commands(self, tmp_path: Path) -> None:
-        """Keep a hook that only has commands (no jobs) untouched."""
-        lefthook = tmp_path / "lefthook.yml"
-        lefthook.write_text(
-            "commit-msg:\n    commands:\n        commitizen:\n            run: cz\n"
-        )
-        remove_lefthook_jobs(lefthook, "docs")
-        assert "commitizen" in lefthook.read_text()
+        assert _load(lefthook)["pre-commit"]["jobs"] == ["just-a-string"]

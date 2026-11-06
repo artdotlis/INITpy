@@ -26,4 +26,4 @@ The library is built alongside the rest of the repository when you run `make run
 
 This is an internal library, so you import functions directly from its submodules, for example `from shared_utils.core.names import sanitize_package_name`.
 
-The submodules are `core` (constants, package naming, versions), `config` (`pyproject.toml`, `package.json`, `lefthook.yml`, script-block editing), `licenses` (SPDX headers, REUSE), and `repo` (git, Makefile, template files).
+The submodules are `core` (constants, package naming, versions), `config` (`pyproject.toml`, `package.json`, `lefthook.yml`, script-block editing, recursive author and version rewriting), `licenses` (SPDX headers, REUSE), and `repo` (git, Makefile, template files).

@@ -9,7 +9,11 @@ from pathlib import Path
 
 import tomlkit
 
-from shared_utils.licenses.reuse_remove import remove_reuse
+from shared_utils.licenses.reuse_remove import (
+    _prune_dockerignore,
+    _remove_reuse_dependency,
+    remove_reuse,
+)
 from shared_utils.core.versions import is_version_at_least
 
 pytest_plugins = ("tests.fixture.template",)
@@ -84,3 +88,44 @@ class TestRemoveReuse:
         entries = [line.strip() for line in dockerignore.read_text().splitlines()]
         assert "!LICENSES" not in entries
         assert "!LICENSE" in entries
+
+
+class TestRemoveReuseHelpers:
+    """Tests for the individual remove_reuse helpers."""
+
+    def test_prune_dockerignore_without_file(self, tmp_path: Path) -> None:
+        """Do nothing when the repository has no .dockerignore."""
+        _prune_dockerignore(tmp_path / ".dockerignore")
+
+    def test_prune_dockerignore_drops_negation(self, dockerignore: Path) -> None:
+        """Drop the dead !LICENSES negation from the live .dockerignore."""
+        assert "!LICENSES" in dockerignore.read_text()
+        _prune_dockerignore(dockerignore)
+        entries = [line.strip() for line in dockerignore.read_text().splitlines()]
+        assert "!LICENSES" not in entries
+        assert "!LICENSE" in entries
+
+    def test_remove_reuse_dependency_strips_project_deps(
+        self, pyproject_toml: Path
+    ) -> None:
+        """Strip reuse from the project deps and the dev group alike."""
+        doc = tomlkit.parse(pyproject_toml.read_text())
+        doc["project"]["dependencies"] = ["reuse ==6.0.0", "tomlkit"]
+        doc["dependency-groups"]["dev"].append("reuse ==6.0.0")
+        pyproject_toml.write_text(tomlkit.dumps(doc))
+
+        _remove_reuse_dependency(pyproject_toml)
+
+        result = tomlkit.parse(pyproject_toml.read_text())
+        assert result["project"]["dependencies"] == ["tomlkit"]
+        assert not any(
+            str(dep).startswith("reuse") for dep in result["dependency-groups"]["dev"]
+        )
+
+    def test_remove_reuse_dependency_without_project_deps(
+        self, pyproject_toml: Path
+    ) -> None:
+        """Keep a pyproject that has no project dependencies valid."""
+        _remove_reuse_dependency(pyproject_toml)
+        result = tomlkit.parse(pyproject_toml.read_text())
+        assert result["project"].get("dependencies") is None

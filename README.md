@@ -54,6 +54,8 @@ make run-act
 
 ```text
 INITpy/
+├-- .devcontainer/      # Dev Container definition
+├-- .github/            # CI workflows
 ├-- bin/                # Tooling shell scripts
 ├-- configs/            # Tooling & Linting configurations
 ├-- packages/           # Your Python packages (Monorepo)
@@ -61,6 +63,10 @@ INITpy/
 │   ├-- scaffolder/
 │   └-- shared_utils/
 ├-- PROJECTS/           # Default scaffolder output (kept via inner .gitignore)
+├-- LICENSES/           # REUSE license texts
+├-- Dockerfile          # Production container
+├-- docker-compose.yml  # Deploy service definition
+├-- lefthook.yml        # Git hook definitions
 ├-- pyproject.toml      # The heart of the project
 └-- Makefile            # Command scaffolder (requires CONTAINER=container)
 ```
@@ -73,18 +79,18 @@ INITpy/
 
 All commands must be run within the Dev Container or by passing `CONTAINER=container`.
 
-| Category    | Command                       | Action                                                                               |
-| :---------- | :---------------------------- | :----------------------------------------------------------------------------------- |
-| **Setup**   | `make dev`                    | Installs tooling, syncs all dependencies, installs lefthook hooks                    |
-| **Active**  | `make run-act`                | Enters the virtual environment shell.                                                |
-| **Build**   | `make run-build`              | Builds all packages as wheels via `uv`.                                              |
-| **Quality** | `make run-checks`             | Runs `lefthook` pre-commit hooks (lint + static analysis)                            |
-| **Test**    | `make run-tests`              | Runs the pytest test suite (incl. coverage) for all packages via `lefthook`.         |
-| **Docs**    | `make run-docs`, `serve-docs` | Builds the VitePress site (CI-style) or builds and serves a local preview.           |
-| **Deps**    | `make run-lock`, `run-update` | Locks or updates the `uv` and `pnpm` lockfiles.                                      |
-| **Release** | `make run-bump`               | Bumps version and updates CHANGELOG.                                                 |
-| **Git**     | `make commit`, `make com`     | Generates commit message with `commitizen` or opens `vim` for editing, then commits. |
-| **Clean**   | `make clean`                  | Removes build artifacts and caches via `bin/install/clean.sh`.                       |
+| Category    | Command                                   | Action                                                                               |
+| :---------- | :---------------------------------------- | :----------------------------------------------------------------------------------- |
+| **Setup**   | `make setup`, `make dev`                  | Installs tooling; `dev` also syncs all dependencies and installs lefthook hooks.     |
+| **Active**  | `make run-act`                            | Enters the virtual environment shell.                                                |
+| **Build**   | `make run-build`                          | Builds all packages as wheels via `uv`.                                              |
+| **Quality** | `make run-checks`                         | Runs `lefthook` pre-commit hooks (lint + static analysis)                            |
+| **Test**    | `make run-tests`                          | Runs the pytest suite and enforces the coverage floor for all packages.              |
+| **Docs**    | `make run-docs`, `serve-docs`, `docs-ref` | Builds and serves the VitePress site, or regenerates the API reference partials.     |
+| **Deps**    | `make run-lock`, `run-update`             | Locks or updates the `uv` and `pnpm` lockfiles.                                      |
+| **Release** | `make run-bump`                           | Bumps version and updates CHANGELOG.                                                 |
+| **Git**     | `make commit`, `make com`                 | Generates commit message with `commitizen` or opens `vim` for editing, then commits. |
+| **Clean**   | `make clean`                              | Removes build artifacts and caches via `bin/install/clean.sh`.                       |
 
 ### ✍️ Commit Messages
 
