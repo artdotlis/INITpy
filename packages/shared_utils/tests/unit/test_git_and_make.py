@@ -7,7 +7,7 @@
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-from shared_utils.repo.git import reset_git, inti_and_commit, clone_git
+from shared_utils.repo.git import reset_git, init_and_commit, clone_git
 from shared_utils.repo.make import _tools_available, lock_project
 
 
@@ -23,15 +23,15 @@ class TestResetGit:
         assert not git_dir.exists()
 
 
-class TestIntiAndCommit:
-    """Tests for inti_and_commit."""
+class TestInitAndCommit:
+    """Tests for init_and_commit."""
 
     def test_initializes_repo_and_commits(self, tmp_path: Path) -> None:
         """Initialize a repo, stage files, and create the initial commit."""
         # Mock subprocess to avoid real git
         with patch("subprocess.run") as mock_run:
             mock_run.return_value = MagicMock(returncode=0)
-            inti_and_commit(tmp_path, "Author", "a@b.com")
+            init_and_commit(tmp_path, "Author", "a@b.com")
             assert mock_run.call_count == 3
             args_list = [c[0][0] for c in mock_run.call_args_list]
             assert args_list[0] == ["git", "init"]

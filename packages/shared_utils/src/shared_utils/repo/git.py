@@ -40,7 +40,7 @@ def reset_git(path: Path, /) -> None:
     shutil.rmtree(path / ".git")
 
 
-def inti_and_commit(path: Path, author_name: str, author_email: str, /) -> None:
+def init_and_commit(path: Path, author_name: str, author_email: str, /) -> None:
     """Initialize a git repository in `path` and create the initial commit.
 
     Runs ``git init``, stages all files, and commits with the message

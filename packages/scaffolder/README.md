@@ -41,11 +41,11 @@ scaffolder
 
 ### In the production container
 
-The root `docker-compose.yml` `deploy` service mounts `${SCAF_OUTPUT_DIR}` (default `./PROJECTS`) at `/scaf` and exposes it to the CLI as `SCAF_OUTPUT_DIR`. The CLI uses it as a fixed prefix: the output-directory prompt is skipped and the project name is appended.
+The root `docker-compose.yml` `scaffolder` service mounts `${SCAF_OUTPUT_DIR}` (default `./PROJECTS`) at `/scaf` and exposes it to the CLI as `SCAF_OUTPUT_DIR`. The CLI uses it as a fixed prefix: the output-directory prompt is skipped and the project name is appended.
 
 ```bash
 docker compose up -d
-docker compose exec -it deploy scaffolder
+docker compose exec -it scaffolder scaffolder
 ```
 
 Projects land at `SCAF_OUTPUT_DIR/<project-name>` (default `./PROJECTS/<project-name>`).

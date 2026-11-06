@@ -22,7 +22,7 @@ export DISABLE_GIT_ADD
 
 setup:
 	bash $(ROOT_MAKEFILE)/$(BIN_INSTALL_UV)
-	bash $(ROOT_MAKEFILE)/$(BIN_INSTALL_PNMP)
+	bash $(ROOT_MAKEFILE)/$(BIN_INSTALL_PNPM)
 
 dev: setup
 	$(UVE) sync --frozen --all-groups

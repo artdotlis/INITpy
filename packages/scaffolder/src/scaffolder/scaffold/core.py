@@ -22,7 +22,7 @@ from scaffolder.scaffold.skeleton import write_package_files
 from scaffolder.scaffold.tests import update_tests
 from shared_utils.core.constants import VERSION
 from shared_utils.repo.git import clone_git
-from shared_utils.repo.git import inti_and_commit
+from shared_utils.repo.git import init_and_commit
 from shared_utils.repo.git import reset_git
 from shared_utils.repo.make import lock_project
 from shared_utils.config.metadata import replace_authors, set_version
@@ -181,7 +181,7 @@ def run(args: ScaffoldArgs) -> Path:
 
     # init and commit
     print("[scaffolder] committing generated project ...")
-    inti_and_commit(output_path, author_name, author_email)
+    init_and_commit(output_path, author_name, author_email)
 
     print(f"[scaffolder] done: {output_path}")
     return output_path

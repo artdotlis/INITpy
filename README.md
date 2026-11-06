@@ -65,7 +65,7 @@ INITpy/
 ├-- PROJECTS/           # Default scaffolder output (kept via inner .gitignore)
 ├-- LICENSES/           # REUSE license texts
 ├-- Dockerfile          # Production container
-├-- docker-compose.yml  # Deploy service definition
+├-- docker-compose.yml  # Scaffolder service definition
 ├-- lefthook.yml        # Git hook definitions
 ├-- pyproject.toml      # The heart of the project
 └-- Makefile            # Command scaffolder (requires CONTAINER=container)
@@ -105,7 +105,7 @@ The `make commit`/`make com` target:
 
 ## 🪄 Running the Scaffolder (Production)
 
-The `deploy` service provides a **production** container with the interactive `scaffolder` CLI, and mounts a host folder at `/scaf` (exposed to the CLI as `SCAF_OUTPUT_DIR`).
+The `scaffolder` service provides a **production** container with the interactive `scaffolder` CLI, and mounts a host folder at `/scaf` (exposed to the CLI as `SCAF_OUTPUT_DIR`).
 
 - **Host folder:** `SCAF_OUTPUT_DIR`, set at `docker compose up` time (default `./PROJECTS`).
 - **Mount:** `${SCAF_OUTPUT_DIR}:/scaf`; inside the container `SCAF_OUTPUT_DIR=/scaf`.
@@ -114,7 +114,7 @@ The `deploy` service provides a **production** container with the interactive `s
 ```bash
 USER_UID=$(id -u) USER_GID=$(id -g) SCAF_OUTPUT_DIR=/some/host/folder docker compose up -d
 
-docker compose exec -it deploy scaffolder
+docker compose exec -it scaffolder scaffolder
 ```
 
 Projects land at `SCAF_OUTPUT_DIR/<project-name>` on the host (default `./PROJECTS/<project-name>`).

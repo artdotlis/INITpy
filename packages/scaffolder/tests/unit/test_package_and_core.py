@@ -46,7 +46,7 @@ def pipeline() -> Iterator[tuple[dict[str, MagicMock], list[str]]]:
         "remove_reuse",
         "remove_docs",
         "lock_project",
-        "inti_and_commit",
+        "init_and_commit",
     ]
     with ExitStack() as stack:
         mocks = {name: stack.enter_context(patch(f"{CORE}.{name}")) for name in names}
@@ -193,7 +193,7 @@ class TestRun:
         mocks["update_copyright"].assert_called_once_with(result, "2026 Ann")
         mocks["configure_licenses"].assert_called_once_with(result, "MIT")
         mocks["set_version"].assert_called_once_with(result, "0.1.0")
-        mocks["inti_and_commit"].assert_called_once_with(result, "Ann", "ann@example.com")
+        mocks["init_and_commit"].assert_called_once_with(result, "Ann", "ann@example.com")
 
     def test_runs_steps_in_order(
         self, tmp_path: Path, pipeline: tuple[dict[str, MagicMock], list[str]]
@@ -221,7 +221,7 @@ class TestRun:
             "remove_prod_docker",
             "update_licenses_sh",
             "lock_project",
-            "inti_and_commit",
+            "init_and_commit",
         ]
 
     def test_keeps_docs_and_reuse_when_requested(
