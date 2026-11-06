@@ -7,6 +7,7 @@
 from pathlib import Path
 
 from scaffolder.scaffold.tests import update_tests
+from shared_utils.config.lefthook import round_trip_yaml
 
 pytest_plugins = ("tests.fixture.template",)
 
@@ -23,16 +24,20 @@ class TestUpdateTests:
         hooks = lefthook_yml.read_text()
         assert "$PKG_SHAR" not in hooks
         assert "$PKG_SCAF" not in hooks
-        assert "- name: my_pkg" in hooks
-        assert "cd $PKG_MY_ && coverage run -m pytest" in hooks
+        assert "run: bin/install/wrap.sh 'cd $PKG_MY_ && coverage run -m pytest'" in hooks
 
         ci = main_workflow.read_text()
         assert "packages/shared_utils" not in ci
         assert "packages/scaffolder" not in ci
-        assert "working-directory: packages/my_pkg" in ci
         # The real template runs tests from several jobs, so the appended
-        # step appears once per job — count generously, never "exactly".
-        assert ci.count("- name: Run my_pkg tests") >= 1
+        # step appears once per job.
+        doc = round_trip_yaml().load(ci)
+        steps = [step for job in doc["jobs"].values() for step in job.get("steps", [])]
+        assert {
+            "name": "Run my_pkg tests",
+            "working-directory": "packages/my_pkg",
+            "run": "uv run coverage run -m pytest",
+        } in steps
 
     def test_skips_jobs_without_step_list(self, tmp_path: Path) -> None:
         """Leave jobs whose steps are not a list untouched."""

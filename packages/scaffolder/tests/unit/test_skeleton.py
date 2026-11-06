@@ -116,6 +116,8 @@ class TestWritePackageFiles:
         assert (pkg / "tests" / "unit").is_dir()
 
         placeholder = (pkg / "tests" / "unit" / "test_my_pkg.py").read_text()
-        assert "test_placeholder" in placeholder
-        assert "assert False" in placeholder
-        assert "TODO" in placeholder
+        assert placeholder == (
+            "\ndef test_placeholder() -> None:\n"
+            "    # TODO finish tests\n"
+            "    assert False\n"
+        )

@@ -27,7 +27,7 @@ class TestAmendDocs:
         """Rewrite the module reference index for the single package."""
         amend_docs(tmp_path, "my_pkg", "NewProject")
         content = (docs_pkg / "src" / "ref" / "index.md").read_text()
-        assert "- [my_pkg](my_pkg)" in content
+        assert content.startswith("# Reference\n\n- [my_pkg](my_pkg)\n")
         assert "shared_utils" not in content
 
     def test_updates_config_title_and_drops_repo_link(
@@ -168,5 +168,7 @@ class TestRemoveDocs:
         gitignore = (docs_template / ".gitignore").read_text()
         assert ".vitepress" not in gitignore
         assert "docs/_build" not in gitignore
+        assert "# VitePress" not in gitignore
+        assert "# Sphinx documentation" not in gitignore
         assert not (docs_template / ".github" / "workflows" / "docs.yml").exists()
         assert (docs_template / ".github" / "workflows" / "main.yml").exists()

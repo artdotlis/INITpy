@@ -26,15 +26,19 @@ pytest_plugins = ("tests.fixture.template",)
 class TestUpdateLicensesSh:
     """Tests for update_licenses_sh."""
 
-    def test_adds_exit_on_failure(self, tmp_path: Path) -> None:
-        """Insert an early error exit after the shebang."""
-        sh = tmp_path / "bin" / "lint" / "licenses.sh"
-        sh.parent.mkdir(parents=True)
-        sh.write_text("#!/bin/bash\necho hello\n")
+    def test_adds_exit_on_failure(self, tmp_path: Path, licenses_sh: Path) -> None:
+        """Insert an early error exit right after the shebang."""
         update_licenses_sh(tmp_path)
-        content = sh.read_text()
-        assert "exit 1" in content
-        assert content.startswith("#!/bin/bash")
+
+        lines = licenses_sh.read_text().splitlines(keepends=True)
+        assert lines[0].startswith("#!")
+        assert "".join(lines[1:5]) == (
+            "# TODO: Complete license implementation before use.\n"
+            "# This script should fail until licenses are properly configured.\n"
+            'echo "Licenses are not configured. Complete license implementation '
+            'before use." >&2\n'
+            "exit 1\n"
+        )
 
     def test_raises_when_file_missing(self, tmp_path: Path) -> None:
         """Raise FileNotFoundError when licenses.sh is absent."""
