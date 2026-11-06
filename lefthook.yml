@@ -66,7 +66,7 @@ pre-commit:
                     glob: '*.sh'
                     run: bin/install/wrap.sh check-shebang-scripts-are-executable -- {staged_files}
                   - name: oxlint
-                    glob: '*.{js,jsx,ts,tsx,cjs,mjs,mts,cts}'
+                    glob: '*.{js,jsx,ts,tsx,cjs,mjs,mts,cts,vue}'
                     run: bin/install/wrap.sh oxlint -- {staged_files} || true
         - name: fix
           group:
