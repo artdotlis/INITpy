@@ -8,6 +8,8 @@ set -euo pipefail
 echo "prep setup"
 dnf clean all && rm -rf /var/cache/dnf
 update-ca-trust extract
+echo "update"
+dnf -y update
 dnf upgrade -y
 dnf -y install epel-release
 dnf -y install dnf-plugins-core
