@@ -1,0 +1,18 @@
+{
+  "customizations": {},
+  "dockerComposeFile": [
+    "../docker-compose.yml",
+    "dev.docker-compose.yml"
+  ],
+  "initializeCommand": "if [ ! -f .env ]; then cat package.env > .env; fi",
+  "name": "{{ project_name }}",
+  "postAttachCommand": "make dev",
+  "remoteUser": "devu",
+  "runServices": [
+    "dev"
+  ],
+  "service": "dev",
+  "shutdownAction": "stopCompose",
+  "updateRemoteUserUID": true,
+  "workspaceFolder": "/workspace"
+}

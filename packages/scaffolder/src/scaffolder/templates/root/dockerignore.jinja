@@ -1,0 +1,41 @@
+# SPDX-FileCopyrightText: 2026 Artur Lissin
+#
+# SPDX-License-Identifier: CC0-1.0
+
+*
+
+!/packages
+!/bin
+!/configs
+
+!Makefile
+
+!README.md
+!LICENSE
+{% if use_reuse %}!LICENSES
+{% endif %}
+
+!package.env
+
+# root files needed by `make build` (uv + pnpm workspace)
+!pyproject.toml
+!uv.lock
+!package.json
+!pnpm-lock.yaml
+!pnpm-workspace.yaml
+
+# Anything pulled in by `!packages`, `!bin`, `!configs` that must not reach the
+# build context. These are regenerated inside the container.
+**/.venv
+**/__pycache__
+**/*.py[cod]
+**/.mypy_cache
+**/.ruff_cache
+**/.pytest_cache
+**/.coverage
+**/.coverage.*
+**/dist
+**/node_modules
+**/.pnpm
+**/.pnpm-store
+**/*.egg-info

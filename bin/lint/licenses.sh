@@ -91,6 +91,7 @@ IGNORE=(
     '^configs/prompt/'
     '^configs/REUSE\.toml$'
     '^packages/docs/REUSE\.toml$'
+    '^packages/scaffolder/REUSE\.toml$'
     '^packages/docs/src/.+\.md$'
     'uv\.lock$'
     'pnpm-lock\.yaml$'

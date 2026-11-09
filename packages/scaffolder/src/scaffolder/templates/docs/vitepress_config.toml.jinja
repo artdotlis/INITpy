@@ -1,0 +1,49 @@
+# SPDX-FileCopyrightText: {{ year }} {{ copyright_holder }}
+#
+# SPDX-License-Identifier: CC0-1.0
+
+# VitePress config
+
+[site]
+title = "{{ project_name }}"
+description = "INITpy documentation"
+
+[vitepress]
+base = "/INITpy/"
+cleanUrls = true
+lastUpdated = true
+srcDir = "src"
+theme = "./theme"
+
+[vitepress.markdown.theme]
+light = "vitesse-light"
+dark = "vitesse-dark"
+
+[vitepress.themeConfig]
+socialLinks = []
+license = "Unlicense"
+
+[vitepress.themeConfig.logo]
+value = "🛠️"
+
+[vitepress.themeConfig.search]
+provider = "local"
+
+[[vitepress.themeConfig.nav]]
+text = "Home"
+link = "/"
+
+[[vitepress.themeConfig.nav]]
+text = "About"
+link = "/about/"
+
+[[vitepress.themeConfig.nav]]
+text = "License"
+link = "/license/"
+
+[[vitepress.themeConfig.nav]]
+text = "API"
+link = "/ref/"
+
+[[vitepress.themeConfig.footer]]
+copyright = "Copyright © 2026 Artur Lissin"

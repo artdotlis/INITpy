@@ -13,17 +13,13 @@ authors = [
 ]
 requires-python = ">=3.13,<4"
 dependencies = [
+  "jinja2 ==3.1.6",
   "shared_utils",
-  "reuse ==6.3.0",
-  "tomlkit ==0.15.2"
+  "reuse ==6.3.0"
 ]
 
 [project.scripts]
 scaffolder = "scaffolder.main:run_cli"
-
-[tool.setuptools.packages.find]
-where = ["src"]
-include = ["scaffolder"]
 
 [build-system]
 requires = ["uv_build>=0.11.26,<0.14.0"]

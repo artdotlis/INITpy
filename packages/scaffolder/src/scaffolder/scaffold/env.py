@@ -4,46 +4,27 @@
 
 """Environment variable updates for a generated project."""
 
-import re
 from pathlib import Path
+from typing import Any
 
-from shared_utils.core.names import package_env_file
-from shared_utils.core.names import package_env_var
-
-
-def update_copyright(path: Path, copyright: str, /) -> None:
-    """Set COPYRIGHT in the project's ``package.env``.
-
-    Args:
-        path: Root of the generated project.
-        copyright: Copyright holder of the new project.
-    """
-    package_env = path / "package.env"
-    content = package_env.read_text()
-    content = re.sub(r"^COPYRIGHT=.*$", f'COPYRIGHT="{copyright}"', content, flags=re.M)
-    package_env.write_text(content)
+from scaffolder.template import render_template
 
 
-def update_envs(path: Path, package_name: str, /) -> None:
-    """Point package env variables at the new package.
+def update_envs(path: Path, package_name: str, context: dict[str, Any], /) -> None:
+    """Render the root ``package.env`` and ``bin/lint/lint_env.sh``.
+
+    Both files are whole-file templates keyed on the package name and the
+    ``use_docs`` flag, so the docs-conditional wiring is produced in one
+    pass instead of string edits.
 
     Args:
         path: Root of the generated project.
         package_name: The package being scaffolded.
+        context: Template variables (``package_env_var``,
+            ``package_env_file``, ``copyright_holder``, ``year``,
+            ``use_docs``).
     """
-    package_env = path / "package.env"
-    content = package_env.read_text()
-    content = content.replace(
-        "PKG_SCAF=packages/scaffolder",
-        f"{package_env_var(package_name)}=packages/{package_name}",
+    (path / "package.env").write_text(render_template("root/package.env.jinja", context))
+    (path / "bin" / "lint" / "lint_env.sh").write_text(
+        render_template("lint/lint_env.sh.jinja", context)
     )
-    content = content.replace("PKG_SHAR=packages/shared_utils", "")
-    content = content.replace(
-        "SCAF_ENV=packages/scaffolder/.env",
-        f"{package_env_file(package_name)}=packages/{package_name}",
-    )
-    package_env.write_text(content)
-    lint_env = path / "bin" / "lint" / "lint_env.sh"
-    content = lint_env.read_text()
-    content = content.replace("SCAF_ENV", package_env_file(package_name))
-    lint_env.write_text(content)

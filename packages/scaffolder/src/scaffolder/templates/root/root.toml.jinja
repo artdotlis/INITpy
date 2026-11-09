@@ -1,0 +1,205 @@
+# SPDX-FileCopyrightText: {{ year }} {{ copyright_holder }}
+#
+# SPDX-License-Identifier: CC0-1.0
+
+[project]
+classifiers = ["Private :: Do Not Upload"]
+name = "{{ project_name }}"
+version = "{{ version }}"
+description = "{{ description }}"
+readme = "README.md"
+license = "{{ license }}"
+keywords = ["python", "skeleton"]
+requires-python = ">=3.13,<4"
+
+[[project.authors]]
+name = "{{ author_name }}"
+email = "{{ author_email }}"
+[tool.uv]
+exclude-newer = "3 days"
+package = false
+default-groups = ["mono"]
+
+[tool.setuptools]
+py-modules = []
+
+[tool.uv.sources.{{ package_name }}]
+workspace = true
+
+[tool.uv.workspace]
+members = ["packages/*"]
+{% if use_docs %}exclude = [
+  "packages/docs"
+]
+{% endif %}
+
+[dependency-groups]
+mono = ["{{ dep_name }}"]
+{% if use_reuse %}dev = [
+  "commitizen ==4.19.3",
+  "pyrefly ==1.4.0",
+  "ruff ==0.17.3",
+  "codespell ==2.4.3",
+  "shellcheck-py ==0.11.0.1",
+  "pre-commit-hooks ==6.0.0",
+  "vulture ==2.16",
+  # license
+  "reuse ==6.3.0",
+  # commit hooks
+  "lefthook ==2.2.2",
+  # types
+]
+{% else %}dev = ["commitizen ==4.19.3", "pyrefly ==1.4.0", "ruff ==0.17.3", "codespell ==2.4.3", "shellcheck-py ==0.11.0.1", "pre-commit-hooks ==6.0.0", "vulture ==2.16", "lefthook ==2.2.2"]
+{% endif %}{% if use_docs and use_reuse %}docs = [
+  "griffe2md ==1.5.1",
+]
+{% elif use_docs %}docs = ["griffe2md ==1.5.1"]
+{% endif %}test = ["pytest ==9.2.0", "coverage ==7.17.0"]
+
+[tool.codespell]
+count = ''
+ignore-words = "configs/lint/ignore.txt"
+quiet-level = 3
+skip = '.vscore,.tox,*~,*.cache,*.lock,venv,*ignore.txt,./public/*'
+
+[tool.commitizen]
+major_version_zero = true
+name = "cz_conventional_commits"
+tag_format = "v$version"
+update_changelog_on_bump = true
+version_files = ["README.md:^\\[!\\[release:", "package.json", "pyproject.toml", "packages/{{ package_name }}/pyproject.toml"{% if use_docs %}, "packages/docs/package.json"{% endif %}]
+version_provider = "uv"
+version_type = "semver"
+
+[tool.pyrefly]
+preset = "strict"
+project-includes = [
+  "packages/**/*.py",
+]
+
+project-excludes = [
+  "**/__pycache__/**",
+  "**/.tox/**",
+  "**/.venv/**",
+  "**/build/**",
+  "**/dist/**",
+  "configs/**",
+]
+search-path = [
+  "packages/scaffolder/src",
+  "packages/shared_utils/src",
+]
+python-version = "3.13"
+python-platform = "linux"
+skip-interpreter-query = false
+check-unannotated-defs = true
+infer-return-types = "checked"
+
+[tool.pyrefly.errors]
+bad-return = true
+bad-assignment = true
+implicit-any = true
+unsupported-operation = true
+unused-ignore = true
+
+[tool.ruff]
+line-length = 90
+target-version = "py313"
+exclude = [
+  ".git",
+  ".ruff_cache",
+  ".tox",
+  ".venv",
+  "__pypackages__",
+  "__pycache__",
+  "build",
+  "dist",
+  "venv",
+]
+
+[tool.ruff.lint]
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+fixable = [
+  "A",
+  "B",
+  "C",
+  "D",
+  "E",
+  "F",
+  "G",
+  "I",
+  "N",
+  "Q",
+  "S",
+  "T",
+  "W",
+  "ANN",
+  "ARG",
+  "BLE",
+  "COM",
+  "DJ",
+  "DTZ",
+  "EM",
+  "ERA",
+  "EXE",
+  "FBT",
+  "ICN",
+  "INP",
+  "ISC",
+  "NPY",
+  "PD",
+  "PGH",
+  "PIE",
+  "PL",
+  "PT",
+  "PTH",
+  "PYI",
+  "RET",
+  "RSE",
+  "RUF",
+  "SIM",
+  "SLF",
+  "TCH",
+  "TID",
+  "TRY",
+  "UP",
+  "YTT",
+]
+ignore = [
+  "TRY003",
+  "N818",
+  "D100",
+  "D101",
+  "D102",
+  "D103",
+  "D104",
+  "D105",
+  "D106",
+  "D107",
+]
+select = ["E", "F", "B", "C90", "S", "PT", "ARG", "PTH", "TRY", "RUF", "N", "D"]
+unfixable = []
+
+[tool.ruff.lint.mccabe]
+max-complexity = 11
+
+[tool.ruff.lint.per-file-ignores]
+"**/tests/*" = ["S101"]
+
+[tool.ruff.lint.pylint]
+max-args = 8
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.vulture]
+paths = ["configs/lint/whitelist.py","packages/shared_utils/src", "packages/scaffolder/src"]
+{% if use_docs %}exclude = ["packages/docs/"]
+{% else %}exclude = []
+{% endif %}ignore_decorators = ["@*"]
+ignore_names = ["model_config", "formatwarning", "skip_tests"]
+make_whitelist = true
+min_confidence = 60
+sort_by_size = true
+verbose = false

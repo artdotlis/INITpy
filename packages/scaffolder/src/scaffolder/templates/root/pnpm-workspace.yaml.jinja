@@ -1,0 +1,40 @@
+# SPDX-FileCopyrightText: {{ year }} {{ copyright_holder }}
+#
+# SPDX-License-Identifier: CC0-1.0
+
+# Root level pnpm workspace configuration
+saveExact: true
+minimumReleaseAge: 4320
+minimumReleaseAgeStrict: true
+
+lockfile: true
+preferFrozenLockfile: true
+{% if use_docs %}
+
+packages:
+    - 'packages/docs'
+
+# Define catalog of dependency versions (source of truth)
+catalog:
+    oxlint: '^1.89.0'
+    prettier: '^3.9.10'
+    '@types/node': '^24.0.0'
+    typescript: '^7.0.2'
+    toml: '^5.0.1'
+    vitepress: '^1.6.4'
+    vitest: '^2.1.9'
+allowBuilds:
+    esbuild: true
+{% else %}
+
+catalog:
+  oxlint: '^1.89.0'
+  prettier: '^3.9.10'
+  '@types/node': '^24.0.0'
+  typescript: '^7.0.2'
+  toml: '^5.0.1'
+  vitepress: '^1.6.4'
+  vitest: '^2.1.9'
+allowBuilds:
+  esbuild: true
+{% endif %}

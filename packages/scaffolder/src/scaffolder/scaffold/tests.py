@@ -5,57 +5,31 @@
 """Test wiring (lefthook + CI) for a generated project."""
 
 from pathlib import Path
+from typing import Any
 
-from shared_utils.config.lefthook import prune_lefthook_hooks
-from shared_utils.config.lefthook import round_trip_yaml
-from shared_utils.core.names import package_env_var
+from scaffolder.template import render_template
 
 
-def update_tests(path: Path, package_name: str, /) -> None:
-    """Wire the scaffolded package into lefthook and CI test config.
+def update_tests(path: Path, context: dict[str, Any], /) -> None:
+    """Render the lefthook and CI workflow from whole-file templates.
+
+    Both ``lefthook.yml`` and ``.github/workflows/main.yml`` are produced
+    from their templates in one pass (hook jobs, the reuse ``fix`` job, the
+    single-package ``tests`` job, and the CI pytest steps).
 
     Args:
         path: Root of the generated project.
-        package_name: The package being scaffolded.
+        context: Template variables (``package_name``, ``package_env_var``,
+            ``use_reuse``, ``use_docs``, ``year``, ``copyright_holder``).
     """
-    _update_lefthook_tests(path, package_name)
-    _update_ci_tests(path, package_name)
-
-
-def _update_lefthook_tests(path: Path, package_name: str, /) -> None:
-    """Replace lefthook.yml test jobs with the single scaffolded package."""
-    abbr = package_env_var(package_name)
-    run_cmd = f"bin/install/wrap.sh 'cd ${abbr} && coverage run -m pytest'"
-    lefthook = path / "lefthook.yml"
-    yaml = round_trip_yaml()
-    doc = yaml.load(lefthook.read_text())
-    doc["tests"]["jobs"] = [{"name": package_name, "run": run_cmd}]
-    prune_lefthook_hooks(doc)
-    with lefthook.open("w") as stream:
-        yaml.dump(doc, stream)
-
-
-def _update_ci_tests(path: Path, package_name: str, /) -> None:
-    """Collapse CI test steps to the single scaffolded package."""
-    main = path / ".github" / "workflows" / "main.yml"
-    yaml = round_trip_yaml()
-    doc = yaml.load(main.read_text())
-    for job in doc.get("jobs", {}).values():
-        steps = job.get("steps")
-        if not isinstance(steps, list):
-            continue
-        # Drop any step that runs pytest (from a prior scaffold)
-        steps[:] = [
-            step
-            for step in steps
-            if isinstance(step, dict) and "pytest" not in step.get("run", "")
-        ]
-        steps.append(
-            {
-                "name": f"Run {package_name} tests",
-                "working-directory": f"packages/{package_name}",
-                "run": "uv run coverage run -m pytest",
-            }
+    (path / "lefthook.yml").write_text(
+        render_template("root/lefthook.yml.jinja", context)
+    )
+    (path / ".github" / "workflows" / "main.yml").write_text(
+        render_template(
+            "github/main.yml.jinja",
+            context,
+            variable_start_string="[[",
+            variable_end_string="]]",
         )
-    with main.open("w") as stream:
-        yaml.dump(doc, stream)
+    )

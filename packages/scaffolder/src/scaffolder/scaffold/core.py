@@ -6,14 +6,14 @@
 
 from pathlib import Path
 from dataclasses import dataclass
+from datetime import datetime
 
 import os
 
 from scaffolder.scaffold.config import correct_core_project
-from scaffolder.scaffold.config import update_commitizen_version_files
 from scaffolder.scaffold.docs import amend_docs, remove_docs
-from scaffolder.scaffold.env import update_copyright, update_envs
-from scaffolder.scaffold.licenses import configure_licenses, update_licenses_sh
+from scaffolder.scaffold.env import update_envs
+from scaffolder.scaffold.licenses import configure_licenses
 from scaffolder.scaffold.package import create_package
 from scaffolder.scaffold.skeleton import clean_root_md
 from scaffolder.scaffold.skeleton import remove_prod_docker
@@ -25,9 +25,10 @@ from shared_utils.repo.git import clone_git
 from shared_utils.repo.git import init_and_commit
 from shared_utils.repo.git import reset_git
 from shared_utils.repo.make import lock_project
-from shared_utils.config.metadata import replace_authors, set_version
 from shared_utils.core.names import sanitize_package_name
 from shared_utils.core.names import sanitize_package_name_dep_group
+from shared_utils.core.names import package_env_file
+from shared_utils.core.names import package_env_var
 from shared_utils.licenses.reuse_remove import remove_reuse
 from shared_utils.licenses.spdx import strip_spdx_headers
 
@@ -93,6 +94,26 @@ def run(args: ScaffoldArgs) -> Path:
     output_path = Path(output_dir) / project_name
     output_path.mkdir(parents=True, exist_ok=True)
 
+    package_ctx = {
+        "package_name": package_name,
+        "version": "0.1.0",
+        "description": description,
+        "author_name": author_name,
+        "author_email": author_email,
+        "copyright_holder": copyright,
+        "year": datetime.now().year,
+    }
+    root_ctx = {
+        **package_ctx,
+        "project_name": project_name,
+        "dep_name": dep_name,
+        "license": license_name,
+        "package_env_var": package_env_var(package_name),
+        "package_env_file": package_env_file(package_name),
+        "use_reuse": use_reuse,
+        "use_docs": use_docs,
+    }
+
     # clone INITpy at the tag matching this scaffolder's release
     print(f"[scaffolder] cloning INITpy at {clone_ref()} ...")
     clone_git(output_path, "https://github.com/artdotlis/INITpy.git", clone_ref())
@@ -106,7 +127,7 @@ def run(args: ScaffoldArgs) -> Path:
 
     # create package
     print(f"[scaffolder] creating package {package_name} ...")
-    create_package(output_path, package_name, description)
+    create_package(output_path, package_name, package_ctx)
 
     # write package files
     print("[scaffolder] writing package files ...")
@@ -115,39 +136,25 @@ def run(args: ScaffoldArgs) -> Path:
     # amend docs / vitepress
     if use_docs:
         print("[scaffolder] amending docs ...")
-        amend_docs(output_path, package_name, project_name)
+        amend_docs(output_path, root_ctx)
     else:
         print("[scaffolder] skipping docs (requested removal) ...")
 
-    # update env vars
+    # update env vars (package.env + lint_env.sh whole-file templates)
     print("[scaffolder] updating env vars ...")
-    update_envs(output_path, package_name)
-
-    # replace copyright holder in package.env
-    print("[scaffolder] updating copyright ...")
-    update_copyright(output_path, copyright)
+    update_envs(output_path, package_name, root_ctx)
 
     # single package test wiring in lefthook + CI
     print("[scaffolder] wiring tests ...")
-    update_tests(output_path, package_name)
+    update_tests(output_path, root_ctx)
 
     # clean root README and CHANGELOG
     print("[scaffolder] cleaning README and CHANGELOG ...")
     clean_root_md(output_path, project_name)
 
-    # replace authors and project name
-    print("[scaffolder] replacing authors ...")
-    replace_authors(output_path, author_email, author_name)
-
-    # replace project name
+    # render root config files + JSON metadata (name, authors, license, version)
     print("[scaffolder] configuring project ...")
-    correct_core_project(output_path, project_name, package_name, dep_name, description)
-
-    # version 0.1.0
-    set_version(output_path, "0.1.0")
-
-    # scope commitizen version_files to the new package
-    update_commitizen_version_files(output_path, package_name)
+    correct_core_project(output_path, root_ctx)
 
     # strip SPDX + .license
     print("[scaffolder] stripping SPDX headers ...")
@@ -160,10 +167,6 @@ def run(args: ScaffoldArgs) -> Path:
     # remove production docker; dev compose becomes the root one
     print("[scaffolder] removing production docker ...")
     remove_prod_docker(output_path)
-
-    # licenses.sh
-    print("[scaffolder] updating licenses.sh ...")
-    update_licenses_sh(output_path)
 
     # strip reuse tooling unless requested
     if not use_reuse:

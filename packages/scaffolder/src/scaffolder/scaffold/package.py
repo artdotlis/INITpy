@@ -4,39 +4,31 @@
 
 """Package creation for scaffolding."""
 
-from shared_utils.config.pyproject import update_pyproject_path
-from shared_utils.config.pyproject import update_pyproject_coverage
-from shared_utils.config.pyproject import clean_pyproject_dependencies
-from shared_utils.config.pyproject import update_pyproject_description
-from shared_utils.config.pyproject import update_pyproject_name
 import shutil
 
 from pathlib import Path
+from typing import Any
+
+from scaffolder.template import render_template
 
 
-def create_package(path: Path, package_name: str, description: str, /) -> None:
-    """Create a new package, copy its pyproject, and clean ``packages/``.
+def create_package(path: Path, package_name: str, context: dict[str, Any], /) -> None:
+    """Create a new package and write its ``pyproject.toml``.
 
-    Creates the package source tree, seeds ``pyproject.toml`` from
-    ``shared_utils``, and removes every other top-level package except
-    the new one and ``docs``.
+    Creates the package source tree, renders the package ``pyproject.toml``
+    from its whole-file template, and removes every other top-level package
+    except the new one and ``docs``.
 
     Args:
         path: Root of the generated project.
         package_name: Name of the package to create.
-        description: Description written to the package's pyproject.toml.
+        context: Template variables for the package pyproject.
     """
     pkg_dir = path / "packages" / package_name
     (pkg_dir / "src" / package_name).mkdir(parents=True, exist_ok=True)
-    shutil.copy2(
-        path / "packages" / "shared_utils" / "pyproject.toml",
-        pkg_dir / "pyproject.toml",
+    (pkg_dir / "pyproject.toml").write_text(
+        render_template("root/package.toml.jinja", context)
     )
-    update_pyproject_name(pkg_dir / "pyproject.toml", package_name)
-    update_pyproject_description(pkg_dir / "pyproject.toml", description)
-    clean_pyproject_dependencies(pkg_dir / "pyproject.toml")
-    update_pyproject_path(pkg_dir / "pyproject.toml", package_name)
-    update_pyproject_coverage(pkg_dir / "pyproject.toml", package_name)
     for item in (path / "packages").iterdir():
         if item.name not in ("docs", package_name):
-            shutil.rmtree(item) if item.is_dir() else item.unlink()
+            shutil.rmtree(item)
