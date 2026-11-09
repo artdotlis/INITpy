@@ -10,8 +10,12 @@ endif
 
 RAN := $(shell awk 'BEGIN{srand();printf("%d", 65536*rand())}')
 ROOT_MAKEFILE := $(abspath $(patsubst %/, %, $(dir $(abspath $(lastword $(MAKEFILE_LIST))))))
-$(shell $(ROOT_MAKEFILE)/bin/install/create_env_mk.sh 2>/dev/null || true)
--include .env.mk
+# Env comes straight from package.env (+ nested *.env), no generated file.
+define NL
+
+
+endef
+$(eval $(subst |,$(NL),$(shell $(ROOT_MAKEFILE)/bin/install/env.sh | tr '\n' '|')))
 
 .EXPORT_ALL_VARIABLES:
 

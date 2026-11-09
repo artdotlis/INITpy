@@ -7,15 +7,8 @@
 set -euo pipefail
 
 ROOT="$(dirname "$(realpath "$0")")/../.."
-ENV_MK="$ROOT/.env.mk"
-
-# Ensure .env.mk exists (regenerates if missing)
-if [[ ! -f "$ENV_MK" ]]; then
-    "./create_env_mk.sh" "$ROOT/package.env" > "$ENV_MK" 2>/dev/null || true
-fi
-
 set -a
-source "$ROOT/bin/install/load_env_mk.sh"
+source "$ROOT/bin/install/env.sh"
 
 # Activate Python virtual environment if present
 if [[ -d ".venv/bin" ]]; then

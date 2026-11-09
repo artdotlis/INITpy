@@ -3,12 +3,13 @@
 # SPDX-FileCopyrightText: 2026 Artur Lissin
 #
 # SPDX-License-Identifier: Unlicense
+
 set -euo pipefail
 
 ROOT="$(dirname "$(realpath "$0")")/../.."
 set -a
 
-source "$ROOT/bin/install/load_env_mk.sh"
+source "$ROOT/bin/install/env.sh"
 
 echo "$PNPM_HOME"
 echo "$PNPM_VERSION"

@@ -15,7 +15,6 @@
 
 # local env and makefile cache
 /.env
-/.env.mk
 /.secrets
 
 # https://github.com/github/gitignore

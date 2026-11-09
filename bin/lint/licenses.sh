@@ -126,8 +126,8 @@ else
 fi
 
 SOFTWARE=(
+    '^.+\.sh$'
     '^packages/.+\.py$'
-    '^packages/.+\.sh$'
     '^packages/.+\.(js|ts|mts)$'
     '^packages/.+\.css$'
     '^packages/.+\.html$'

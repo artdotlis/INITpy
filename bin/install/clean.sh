@@ -9,7 +9,7 @@ set -eo pipefail
 ROOT="$(dirname "$(realpath "$0")")/../.."
 set -a
 
-source "$ROOT/bin/install/load_env_mk.sh"
+source "$ROOT/bin/install/env.sh"
 
 echo "Cleaning project tool directories..."
 
@@ -47,25 +47,10 @@ if [[ -e "$ROOT/node_modules" ]]; then
     rm -rf -- "$ROOT/node_modules"
 fi
 
-# ===== DOCS:START =====
-if [[ -e "$ROOT/$PKG_DOCS/node_modules" ]]; then
-    echo "  removing docs node_modules"
-    rm -rf -- "$ROOT/$PKG_DOCS/node_modules"
-fi
-
-# docs build output and VitePress workdir (cache/dist only; .vitepress source is tracked)
-if [[ -e "$ROOT/$PKG_DOCS/.vitepress/.vitepress" ]]; then
-    echo "  removing vitepress workdir"
-    rm -rf -- "$ROOT/$PKG_DOCS/.vitepress/.vitepress"
-fi
-# ===== DOCS:END =====
-
 # build output
 if [[ -e "$ROOT/public" ]]; then
     echo "  removing public"
     rm -rf -- "$ROOT/public"
 fi
-
-[[ -f "$ROOT/.env.mk" ]] && echo "  removing .env.mk" && rm -f "$ROOT/.env.mk"
 
 echo "Done."
