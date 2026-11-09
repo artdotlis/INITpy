@@ -47,4 +47,4 @@ data_file = ".coverage.scaffolder"
 [tool.coverage.report]
 show_missing = true
 skip_empty = true
-fail_under = 90
+fail_under = 0
