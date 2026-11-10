@@ -43,10 +43,6 @@ def _validate_license(license_name: str, /) -> None:
 def configure_licenses(path: Path, license_name: str, /) -> None:
     """Clear ``LICENSES/`` and download the ``LICENSE`` file.
 
-    The software license is rendered into the files that carry it (root
-    ``pyproject.toml``, ``package.json`` and ``bin/lint/licenses.sh``) by the
-    whole-file templates, so only the license document itself is written here.
-
     Args:
         path: Root of the generated project.
         license_name: SPDX license identifier to configure.

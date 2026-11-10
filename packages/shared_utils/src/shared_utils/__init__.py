@@ -2,6 +2,6 @@
 #
 # SPDX-License-Identifier: Unlicense
 
-"""Shared utility library for packages in this repository. Private."""
+"""Shared, private utility library for this repository."""
 
 __all__: list[str] = []

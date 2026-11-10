@@ -16,10 +16,7 @@ def _tools_available() -> bool:
 
 
 def lock_project(path: Path, /) -> None:
-    """Lock project dependencies via the template Makefile.
-
-    Runs ``make setup`` first when uv or pnpm are missing (the lock
-    target needs both), then the ``make run-lock`` target.
+    """Lock project dependencies via ``make run-lock``.
 
     Args:
         path: Directory containing the Makefile to run.

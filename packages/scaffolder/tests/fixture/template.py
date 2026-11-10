@@ -75,11 +75,7 @@ class Template:
         return _REPO_ROOT / self.target
 
     def load(self) -> JinjaTemplate:
-        """Load (read + compile) this template from the templates directory.
-
-        Returns the compiled Jinja template. Raises ``TemplateNotFound`` if the
-        file is missing and ``TemplateSyntaxError`` if the source is malformed.
-        """
+        """Load (read + compile) this template from the templates directory."""
         start, end = self._delimiters()
         return load_template(self.name, start, end)
 

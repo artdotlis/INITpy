@@ -16,8 +16,7 @@ def amend_docs(path: Path, context: dict[str, Any], /) -> None:
 
     Args:
         path: Root of the generated project.
-        context: Template variables (``project_name``, ``package_name``,
-            ``copyright_holder``, ``year``).
+        context: Template variables.
     """
     (path / "packages" / "docs" / "src" / "index.md").write_text(
         render_template("docs/index.md.jinja", context)
@@ -33,13 +32,18 @@ def amend_docs(path: Path, context: dict[str, Any], /) -> None:
 def remove_docs(path: Path, /) -> None:
     """Remove the ``docs`` subpackage and its workflow.
 
-    Deletes ``packages/docs`` and the docs GitHub Actions workflow. The
-    docs-conditional wiring in ``package.env``, ``lint_env.sh``,
-    ``licenses.sh``, the ``Makefile``, and ``.gitignore`` is already absent
-    because those files are rendered from their ``use_docs``-aware templates.
-
     Args:
         path: Root of the generated project.
+
+    Raises:
+        FileNotFoundError: If the docs package or workflow file is absent.
     """
-    shutil.rmtree(path / "packages" / "docs")
-    (path / ".github" / "workflows" / "docs.yml").unlink()
+    docs_dir = path / "packages" / "docs"
+    if not docs_dir.is_dir():
+        raise FileNotFoundError(f"docs package missing: {docs_dir}")
+    shutil.rmtree(docs_dir)
+
+    docs_yml = path / ".github" / "workflows" / "docs.yml"
+    if not docs_yml.is_file():
+        raise FileNotFoundError(f"docs workflow missing: {docs_yml}")
+    docs_yml.unlink()

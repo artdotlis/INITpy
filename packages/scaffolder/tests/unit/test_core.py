@@ -80,7 +80,7 @@ class TestRun:
     ) -> None:
         """Sanitize the project name into the package and dep-group names."""
         mocks, _ = pipeline
-        result = run(_args(tmp_path))
+        run(_args(tmp_path))
         assert mocks["create_package"].call_args.args[1] == "my_project_pkg"
         pkg_ctx = mocks["create_package"].call_args.args[2]
         assert pkg_ctx["package_name"] == "my_project_pkg"

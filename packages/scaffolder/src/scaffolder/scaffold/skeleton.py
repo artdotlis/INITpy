@@ -53,12 +53,7 @@ def remove_projects_output_folder(path: Path, /) -> None:
 
 
 def remove_prod_docker(path: Path, /) -> None:
-    """Remove the production Docker setup and promote the dev compose.
-
-    Deletes the root production ``Dockerfile`` and moves the dev compose
-    (``.devcontainer/dev.docker-compose.yml``) up to the repo root as
-    ``docker-compose.yml``. The devcontainer and env files are rendered from
-    whole-file templates, so no further edits are needed here.
+    """Remove the production ``Dockerfile`` and promote the dev compose.
 
     Args:
         path: Root of the generated project.

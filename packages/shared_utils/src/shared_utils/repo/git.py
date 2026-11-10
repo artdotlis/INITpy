@@ -12,9 +12,6 @@ from pathlib import Path
 def clone_git(path: Path, template_url: str, ref: str = "dev", /) -> None:
     """Clone `template_url` into `path` from the given `ref` (branch or tag).
 
-    Removes `path` first if it already exists, and creates parent
-    directories as needed.
-
     Args:
         path: Destination directory for the clone.
         template_url: Git repository URL to clone.
@@ -36,16 +33,18 @@ def reset_git(path: Path, /) -> None:
 
     Args:
         path: The project directory to reset.
+
+    Raises:
+        FileNotFoundError: If the ``.git`` directory is absent.
     """
-    shutil.rmtree(path / ".git")
+    git_dir = path / ".git"
+    if not git_dir.is_dir():
+        raise FileNotFoundError(f".git directory missing: {git_dir}")
+    shutil.rmtree(git_dir)
 
 
 def init_and_commit(path: Path, author_name: str, author_email: str, /) -> None:
-    """Initialize a git repository in `path` and create the initial commit.
-
-    Runs ``git init``, stages all files, and commits with the message
-    ``init`` while skipping pre-commit hooks. A local author identity is
-    supplied so the commit works without a global git config.
+    """Initialize a git repository in `path` and make the initial commit.
 
     Args:
         path: The project directory to commit.

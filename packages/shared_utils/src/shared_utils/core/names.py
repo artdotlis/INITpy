@@ -59,7 +59,7 @@ def package_env_var(package_name: str, /) -> str:
         package_name: The package name.
 
     Returns:
-        The env var string, for example ``PKG_SCAF``.
+        The env var string, for example ``PKG_ABC``.
     """
     return f"PKG_{package_abbrev(package_name)}"
 
@@ -71,6 +71,6 @@ def package_env_file(package_name: str, /) -> str:
         package_name: The package name.
 
     Returns:
-        The env-file variable, for example ``SCAF_ENV``.
+        The env-file variable, for example ``ABC_ENV``.
     """
     return f"{package_abbrev(package_name)}_ENV"

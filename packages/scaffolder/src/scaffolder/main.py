@@ -4,7 +4,6 @@
 
 """Scaffolder CLI - generate INITpy-based projects."""
 
-from scaffolder.scaffold.core import ScaffoldArgs, run
 import os
 import random
 import shutil
@@ -13,31 +12,19 @@ from pathlib import Path
 
 from reuse.project import LICENSE_MAP
 
+from scaffolder.scaffold.core import ScaffoldArgs, run
 
-def _prompt_use_reuse() -> bool:
-    """Ask whether to keep reuse tooling; default yes (empty = y)."""
+
+def _prompt_yes_no(prompt: str, /) -> bool:
+    """Prompt until y or n is entered; empty input counts as yes."""
     while True:
-        raw = input("Use reuse tooling? [Y/n] ").strip()
+        raw = input(prompt).strip()
         if raw == "":
             return True
-        normalization = raw.lower()
-        if normalization in ("y", "yes"):
+        normalized = raw.lower()
+        if normalized in ("y", "yes"):
             return True
-        if normalization in ("n", "no"):
-            return False
-        print("❌ Please answer y or n", file=sys.stderr)
-
-
-def _prompt_use_docs() -> bool:
-    """Ask whether to keep the docs subpackage; default yes (empty = y)."""
-    while True:
-        raw = input("Keep docs subpackage? [Y/n] ").strip()
-        if raw == "":
-            return True
-        normalization = raw.lower()
-        if normalization in ("y", "yes"):
-            return True
-        if normalization in ("n", "no"):
+        if normalized in ("n", "no"):
             return False
         print("❌ Please answer y or n", file=sys.stderr)
 
@@ -92,8 +79,8 @@ def run_cli() -> None:
     author_email = _prompt_non_empty("Author email: ")
     copyright = _prompt_non_empty("Copyright holder: ")
     license_name = _prompt_license()
-    use_reuse = _prompt_use_reuse()
-    use_docs = _prompt_use_docs()
+    use_reuse = _prompt_yes_no("Use reuse tooling? [Y/n] ")
+    use_docs = _prompt_yes_no("Keep docs subpackage? [Y/n] ")
 
     try:
         result = run(

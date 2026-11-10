@@ -14,18 +14,11 @@ _CI_WORKFLOWS = ("github/mac_win_test.yml.jinja", "github/lin_lint.yml.jinja")
 
 
 def update_tests(path: Path, context: dict[str, Any], /) -> None:
-    """Render the lefthook and CI workflows from whole-file templates.
-
-    ``lefthook.yml`` and the two CI workflow files
-    (``.github/workflows/mac_win_test.yml`` and
-    ``.github/workflows/lin_lint.yml``) are produced from their templates in one
-    pass (hook jobs, the reuse ``fix`` job, the single-package ``tests`` job,
-    and the CI pytest steps).
+    """Render the lefthook and CI workflow files from whole-file templates.
 
     Args:
         path: Root of the generated project.
-        context: Template variables (``package_name``, ``package_env_var``,
-            ``use_reuse``, ``use_docs``, ``year``, ``copyright_holder``).
+        context: Template variables.
     """
     (path / "lefthook.yml").write_text(
         render_template("root/lefthook.yml.jinja", context)

@@ -15,10 +15,6 @@ from scaffolder.template import render_template
 def create_package(path: Path, package_name: str, context: dict[str, Any], /) -> None:
     """Create a new package and write its ``pyproject.toml``.
 
-    Creates the package source tree, renders the package ``pyproject.toml``
-    from its whole-file template, and removes every other top-level package
-    except the new one and ``docs``.
-
     Args:
         path: Root of the generated project.
         package_name: Name of the package to create.

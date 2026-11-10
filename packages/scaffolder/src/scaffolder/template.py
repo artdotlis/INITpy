@@ -16,23 +16,6 @@ from jinja2.environment import Template as JinjaTemplate
 TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"
 
 
-def _build_env(
-    variable_start_string: str,
-    variable_end_string: str,
-    /,
-) -> Environment:
-    """Build the Jinja environment for the whole-file templates."""
-    return Environment(
-        loader=FileSystemLoader(str(TEMPLATES_DIR)),
-        trim_blocks=True,
-        lstrip_blocks=True,
-        keep_trailing_newline=True,
-        undefined=StrictUndefined,
-        variable_start_string=variable_start_string,
-        variable_end_string=variable_end_string,
-    )
-
-
 def load_template(
     template_name: str,
     variable_start_string: str = "{{",
@@ -44,8 +27,15 @@ def load_template(
     Raises ``TemplateNotFound`` if the file is missing and
     ``TemplateSyntaxError`` if the source is malformed.
     """
-    env = _build_env(variable_start_string, variable_end_string)
-    return env.get_template(template_name)
+    return Environment(
+        loader=FileSystemLoader(str(TEMPLATES_DIR)),
+        trim_blocks=True,
+        lstrip_blocks=True,
+        keep_trailing_newline=True,
+        undefined=StrictUndefined,
+        variable_start_string=variable_start_string,
+        variable_end_string=variable_end_string,
+    ).get_template(template_name)
 
 
 def render_template(
@@ -59,7 +49,7 @@ def render_template(
 
     Args:
         template_name: Name of the template relative to ``templates/``,
-            e.g. ``pyproject/root.toml.jinja``.
+            e.g. ``root/package.env.jinja``.
         context: Variables passed to the template. Undefined variables
             raise (StrictUndefined) so missing context fails loudly.
         variable_start_string: Jinja variable open delimiter. Defaults to

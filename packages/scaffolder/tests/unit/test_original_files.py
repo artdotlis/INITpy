@@ -2,13 +2,7 @@
 #
 # SPDX-License-Identifier: Unlicense
 
-"""Unit tests for the per-original-file fixtures.
-
-Every original project file that a template recreates is exposed as its own
-fixture function (``original_<file>``) yielding the file's ``Path``. Each fixture
-is resolved by name and asserted to point at an existing, non-empty file so the
-source-of-truth originals are present and readable.
-"""
+"""Verify each per-original-file fixture resolves to a present file."""
 
 from pathlib import Path
 

@@ -17,10 +17,6 @@ def _find_spdx_block(
 ) -> tuple[int, str] | None:
     """Find the first SPDX comment block in `text`.
 
-    Scans every newline boundary so it works even when the file starts
-    with a shebang or other non-comment content (the same approach
-    reuse's internal ``_find_first_spdx_comment`` uses).
-
     Args:
         text: File content to scan.
         style_cls: Comment style to match against.
@@ -49,10 +45,6 @@ def _find_spdx_block(
 def strip_spdx_headers(path: Path, /) -> None:
     """Remove SPDX headers and .license files from a directory tree.
 
-    Uses reuse's CommentStyle to find and remove the first SPDX comment
-    block. Handles shebangs and preprocessor directives correctly by
-    scanning every newline boundary.
-
     Args:
         path: Root directory to scan
     """
@@ -78,6 +70,11 @@ def write_license(path: Path, license_name: str, /) -> None:
     Args:
         path: Path to the target license file.
         license_name: SPDX license identifier to fetch.
+
+    Raises:
+        FileNotFoundError: If the existing license file is absent.
     """
+    if not path.is_file():
+        raise FileNotFoundError(f"license file missing: {path}")
     path.unlink()
     put_license_in_file(license_name, path)

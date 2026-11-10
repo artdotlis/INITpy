@@ -34,11 +34,7 @@ from shared_utils.licenses.spdx import strip_spdx_headers
 
 
 def clone_ref() -> str:
-    """Return the INITpy ref to clone.
-
-    Clones the ``dev`` branch in dev mode (``SCAF_DEV`` set), otherwise
-    the tag matching this scaffolder's release.
-    """
+    """Return the INITpy ref: ``dev`` when ``SCAF_DEV`` is set, else the release tag."""
     if os.environ.get("SCAF_DEV"):
         return "dev"
     return f"v{VERSION}"
@@ -69,10 +65,7 @@ class ScaffoldArgs:
 
 
 def run(args: ScaffoldArgs) -> Path:
-    """Execute the multi-step scaffolding procedure.
-
-    Clones the INITpy template, creates and wires a single package,
-    applies project metadata, and resets version, licenses, and git state.
+    """Run the scaffold steps in order and return the project path.
 
     Args:
         args: Bundled scaffold options.
@@ -114,75 +107,59 @@ def run(args: ScaffoldArgs) -> Path:
         "use_docs": use_docs,
     }
 
-    # clone INITpy at the tag matching this scaffolder's release
-    print(f"[scaffolder] cloning INITpy at {clone_ref()} ...")
-    clone_git(output_path, "https://github.com/artdotlis/INITpy.git", clone_ref())
+    ref = clone_ref()
+    print(f"[scaffolder] cloning INITpy at {ref} ...")
+    clone_git(output_path, "https://github.com/artdotlis/INITpy.git", ref)
 
-    # reset git
     reset_git(output_path)
 
-    # drop the template's PROJECTS output folder from the generated project
     print("[scaffolder] removing template PROJECTS folder ...")
     remove_projects_output_folder(output_path)
 
-    # create package
     print(f"[scaffolder] creating package {package_name} ...")
     create_package(output_path, package_name, package_ctx)
 
-    # write package files
     print("[scaffolder] writing package files ...")
     write_package_files(output_path, package_name)
 
-    # amend docs / vitepress
     if use_docs:
         print("[scaffolder] amending docs ...")
         amend_docs(output_path, root_ctx)
     else:
         print("[scaffolder] skipping docs (requested removal) ...")
 
-    # update env vars (package.env + lint_env.sh whole-file templates)
     print("[scaffolder] updating env vars ...")
     update_envs(output_path, package_name, root_ctx)
 
-    # single package test wiring in lefthook + CI
     print("[scaffolder] wiring tests ...")
     update_tests(output_path, root_ctx)
 
-    # clean root README and CHANGELOG
     print("[scaffolder] cleaning README and CHANGELOG ...")
     clean_root_md(output_path, project_name)
 
-    # render root config files + JSON metadata (name, authors, license, version)
     print("[scaffolder] configuring project ...")
     correct_core_project(output_path, root_ctx)
 
-    # strip SPDX + .license
     print("[scaffolder] stripping SPDX headers ...")
     strip_spdx_headers(output_path)
 
-    # LICENSES/ + LICENSE
     print("[scaffolder] configuring licenses ...")
     configure_licenses(output_path, license_name)
 
-    # remove production docker; dev compose becomes the root one
     print("[scaffolder] removing production docker ...")
     remove_prod_docker(output_path)
 
-    # strip reuse tooling unless requested
     if not use_reuse:
         print("[scaffolder] removing reuse tooling ...")
         remove_reuse(output_path)
 
-    # remove docs subpackage unless requested
     if not use_docs:
         print("[scaffolder] removing docs subpackage ...")
         remove_docs(output_path)
 
-    # lock project dependencies
     print("[scaffolder] locking dependencies (may take a while) ...")
     lock_project(output_path)
 
-    # init and commit
     print("[scaffolder] committing generated project ...")
     init_and_commit(output_path, author_name, author_email)
 

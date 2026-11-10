@@ -2,14 +2,7 @@
 #
 # SPDX-License-Identifier: Unlicense
 
-"""Verify the current project recreates from the whole-file templates.
-
-The templates are the source of truth for the config files the scaffolder
-writes. The ``template`` fixture yields one template at a time (parametrized
-over every shipped template), so these tests check the catalogue file by file:
-each template file exists, its target file (the original) exists, and the
-template recreates its original.
-"""
+"""Verify each whole-file template recreates its original."""
 
 from pathlib import Path
 from typing import Any

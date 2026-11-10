@@ -13,16 +13,9 @@ from scaffolder.template import render_template
 def correct_core_project(path: Path, root_ctx: dict[str, Any], /) -> None:
     """Render the root config files and JSON metadata from whole-file templates.
 
-    The root ``pyproject.toml``, ``pnpm-workspace.yaml``, root ``package.json``,
-    ``packages/docs/package.json`` and ``.devcontainer/devcontainer.json`` are
-    each produced from a template (project/package name, description, license,
-    authors, version, and the ``use_reuse``/``use_docs`` flags in one pass).
-
     Args:
         path: Root of the generated project.
-        root_ctx: Template variables (``project_name``, package, deps,
-            license, authors, version, and the ``use_reuse``/``use_docs``
-            flags).
+        root_ctx: Template variables for the root files.
     """
     (path / "pyproject.toml").write_text(
         render_template("root/root.toml.jinja", root_ctx)
