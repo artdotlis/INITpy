@@ -50,7 +50,8 @@ class TestCorrectCoreProject:
             in (tmp_path / "pnpm-workspace.yaml").read_text()
         )
         assert (
-            context["license"] in (tmp_path / "bin" / "lint" / "licenses.sh").read_text()
+            str(context["license"])
+            in (tmp_path / "bin" / "lint" / "licenses.sh").read_text()
         )
 
     def test_writes_docs_package_when_docs(

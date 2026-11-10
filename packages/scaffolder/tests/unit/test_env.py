@@ -17,7 +17,7 @@ class TestUpdateEnvs:
     def test_renders_env_files(self, tmp_path: Path, context: dict[str, object]) -> None:
         """Write package.env and the lint script for the new package."""
         (tmp_path / "bin" / "lint").mkdir(parents=True)
-        update_envs(tmp_path, context["package_name"], context)
+        update_envs(tmp_path, str(context["package_name"]), context)
 
         env = (tmp_path / "package.env").read_text()
         assert f"{context['package_env_var']}=packages/{context['package_name']}" in env
@@ -32,5 +32,5 @@ class TestUpdateEnvs:
     ) -> None:
         """Omit the docs env wiring when docs are dropped."""
         (tmp_path / "bin" / "lint").mkdir(parents=True)
-        update_envs(tmp_path, context["package_name"], dict(context, use_docs=False))
+        update_envs(tmp_path, str(context["package_name"]), dict(context, use_docs=False))
         assert "DOC_ENV" not in (tmp_path / "package.env").read_text()

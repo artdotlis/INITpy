@@ -26,7 +26,6 @@ ORIGINAL_FIXTURES = [
     "original_dockerignore",
     "original_package_env",
     "original_readme_md",
-
     "original_devcontainer_json",
     "original_github_mac_win_test_yml",
     "original_github_lin_lint_yml",

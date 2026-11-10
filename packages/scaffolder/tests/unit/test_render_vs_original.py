@@ -52,7 +52,7 @@ class TestRenderMatchesOriginal:
         """
         rendered = root_lefthook_yml_jinja.render(context)
         original = root_lefthook_yml_jinja.target_path.read_text()
-        package_line = f"    - name: {context['package_name']}"
+        package_line = f"        - name: {context['package_name']}"
         rendered_prefix = rendered.split(package_line, 1)[0]
         assert rendered_prefix in original
         assert package_line in rendered
@@ -103,7 +103,6 @@ class TestRenderMatchesOriginal:
         assert rendered_prefix in original
         assert package_line in rendered
 
-
     def test_devcontainer_devcontainer_json(
         self,
         devcontainer_devcontainer_json_jinja: Any,
@@ -126,7 +125,7 @@ class TestRenderMatchesOriginal:
         """
         rendered = github_mac_win_test_yml_jinja.render(context)
         original = github_mac_win_test_yml_jinja.target_path.read_text()
-        package_line = f"      - name: Run {context['package_name']} tests"
+        package_line = f"            - name: Run {context['package_name']} tests"
         rendered_prefix = rendered.split(package_line, 1)[0]
         assert rendered_prefix in original
         assert package_line in rendered
@@ -144,7 +143,7 @@ class TestRenderMatchesOriginal:
         """
         rendered = github_lin_lint_yml_jinja.render(context)
         original = github_lin_lint_yml_jinja.target_path.read_text()
-        package_line = f"      - name: Run {context['package_name']} tests"
+        package_line = f"            - name: Run {context['package_name']} tests"
         rendered_prefix = rendered.split(package_line, 1)[0]
         assert rendered_prefix in original
         assert package_line in rendered

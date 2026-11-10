@@ -6,7 +6,6 @@
 
 from pathlib import Path
 
-import pytest
 
 from shared_utils.licenses.reuse_remove import remove_reuse
 

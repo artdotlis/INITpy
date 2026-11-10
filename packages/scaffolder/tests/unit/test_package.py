@@ -25,7 +25,7 @@ class TestCreatePackage:
         self, tmp_path: Path, context: dict[str, object]
     ) -> None:
         """Render the package pyproject from its whole-file template."""
-        package_name = context["package_name"]
+        package_name = str(context["package_name"])
         create_package(tmp_path, package_name, context)
         doc = _toml(tmp_path / "packages" / package_name / "pyproject.toml")
         assert doc["project"]["name"] == package_name
@@ -38,7 +38,7 @@ class TestCreatePackage:
         self, tmp_path: Path, context: dict[str, object]
     ) -> None:
         """Create the package directory and its nested src package."""
-        package_name = context["package_name"]
+        package_name = str(context["package_name"])
         create_package(tmp_path, package_name, context)
         assert (tmp_path / "packages" / package_name / "src" / package_name).is_dir()
 
@@ -46,7 +46,7 @@ class TestCreatePackage:
         self, tmp_path: Path, context: dict[str, object]
     ) -> None:
         """Drop pre-existing packages, keep the docs package."""
-        package_name = context["package_name"]
+        package_name = str(context["package_name"])
         (tmp_path / "packages" / "existing_pkg").mkdir(parents=True)
         (tmp_path / "packages" / "docs").mkdir(parents=True)
 
