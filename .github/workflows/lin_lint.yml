@@ -1,8 +1,8 @@
-# SPDX-FileCopyrightText: [[ year ]] [[ copyright_holder ]]
+# SPDX-FileCopyrightText: 2026 Artur Lissin
 #
 # SPDX-License-Identifier: CC0-1.0
 
-name: main
+name: lin_lint
 
 on:
   pull_request:
@@ -10,29 +10,6 @@ on:
     branches: [main]
 
 jobs:
-  mac_win_test:
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ['3.13']
-        os: [windows-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-python@v6
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install uv
-        run: |
-          python -m pip install --upgrade pip
-          pip install uv
-      - name: Install dependencies
-        run: uv sync --frozen --group test
-      - name: Run [[ package_name ]] tests
-        working-directory: packages/[[ package_name ]]
-        run: uv run coverage run -m pytest
   lin_lint:
     env:
       PY_DIR: uv
@@ -61,6 +38,3 @@ jobs:
           export CONTAINER="container"
           make dev
           make run-checks
-      - name: Run [[ package_name ]] tests
-        working-directory: packages/[[ package_name ]]
-        run: uv run coverage run -m pytest

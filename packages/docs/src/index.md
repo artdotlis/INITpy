@@ -2,9 +2,9 @@
 layout: home
 
 hero:
-    name: INITpy
+    name: initpy
     text: Python
-    tagline: INITpy documentation
+    tagline: initpy documentation
     actions:
         - theme: brand
           text: About

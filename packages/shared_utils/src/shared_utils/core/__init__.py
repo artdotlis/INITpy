@@ -2,6 +2,6 @@
 #
 # SPDX-License-Identifier: Unlicense
 
-"""Core constants, package naming, and version helpers."""
+"""Core constants and package naming helpers."""
 
 __all__: list[str] = []

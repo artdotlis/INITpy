@@ -10,9 +10,42 @@ from typing import Any
 from jinja2 import Environment
 from jinja2 import FileSystemLoader
 from jinja2 import StrictUndefined
+from jinja2.environment import Template as JinjaTemplate
 
 # templates/ lives next to the scaffolder package (src/scaffolder/templates)
 TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"
+
+
+def _build_env(
+    variable_start_string: str,
+    variable_end_string: str,
+    /,
+) -> Environment:
+    """Build the Jinja environment for the whole-file templates."""
+    return Environment(
+        loader=FileSystemLoader(str(TEMPLATES_DIR)),
+        trim_blocks=True,
+        lstrip_blocks=True,
+        keep_trailing_newline=True,
+        undefined=StrictUndefined,
+        variable_start_string=variable_start_string,
+        variable_end_string=variable_end_string,
+    )
+
+
+def load_template(
+    template_name: str,
+    variable_start_string: str = "{{",
+    variable_end_string: str = "}}",
+    /,
+) -> JinjaTemplate:
+    """Load (read + compile) a template without rendering it.
+
+    Raises ``TemplateNotFound`` if the file is missing and
+    ``TemplateSyntaxError`` if the source is malformed.
+    """
+    env = _build_env(variable_start_string, variable_end_string)
+    return env.get_template(template_name)
 
 
 def render_template(
@@ -37,13 +70,5 @@ def render_template(
     Returns:
         The fully rendered file content.
     """
-    env = Environment(
-        loader=FileSystemLoader(str(TEMPLATES_DIR)),
-        trim_blocks=True,
-        lstrip_blocks=True,
-        keep_trailing_newline=True,
-        undefined=StrictUndefined,
-        variable_start_string=variable_start_string,
-        variable_end_string=variable_end_string,
-    )
-    return env.get_template(template_name).render(**context)
+    template = load_template(template_name, variable_start_string, variable_end_string)
+    return template.render(**context)

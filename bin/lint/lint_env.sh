@@ -9,7 +9,7 @@ ROOT="$(dirname "$(realpath "$0")")/../.."
 
 ROOT_ENV="$ROOT/package.env"
 
-ENV_FILES=( "$ROOT_ENV" "$SCAF_ENV" "$DOCS_ENV")
+ENV_FILES=( "$ROOT_ENV" "$SCA_ENV" "$DOC_ENV")
 
 ALL_ENV=(
     "MAKEFILE_LIST"

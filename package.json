@@ -1,18 +1,18 @@
 {
-    "author": {
-        "email": "artdotlis@pm.me",
-        "name": "Artur Lissin"
-    },
-    "devDependencies": {
-        "@types/node": "catalog:",
-        "oxlint": "catalog:",
-        "prettier": "catalog:",
-        "typescript": "catalog:"
-    },
-    "license": "Unlicense",
-    "name": "initpy",
-    "pnpm": {
-        "catalogMode": "strict"
-    },
-    "version": "0.11.0"
+  "author": {
+    "email": "artdotlis@pm.me",
+    "name": "Artur Lissin"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "oxlint": "catalog:",
+    "prettier": "catalog:",
+    "typescript": "catalog:"
+  },
+  "license": "Unlicense",
+  "name": "initpy",
+  "pnpm": {
+    "catalogMode": "strict"
+  },
+  "version": "0.11.0"
 }

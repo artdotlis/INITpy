@@ -35,4 +35,4 @@ data_file = ".coverage.shared_utils"
 [tool.coverage.report]
 show_missing = true
 skip_empty = true
-fail_under = 0
+fail_under = 90

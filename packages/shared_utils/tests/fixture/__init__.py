@@ -2,6 +2,6 @@
 #
 # SPDX-License-Identifier: Unlicense
 
-"""Editing helpers for project configuration files."""
+"""Test fixtures for shared_utils."""
 
 __all__: list[str] = []

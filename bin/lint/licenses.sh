@@ -191,13 +191,13 @@ for file in "${FILES[@]}"; do
 done
 
 if [ ${#unl_to_annotate[@]} -gt 0 ]; then
-    echo "annotating Unlicense"
+    echo "annotating UNLICENSE"
     reuse annotate -c "$COPYRIGHT" -l "$SOFTWARE_LIC" -y "$YEAR" --merge-copyrights --fallback-dot-license "${unl_to_annotate[@]}" || {
-        echo "Failed to annotate Unlicense files"
+        echo "Failed to annotate UNLICENSE files"
         exit 1
     }
 else
-    echo "No Unlicense files to annotate"
+    echo "No UNLICENSE files to annotate"
 fi
 
 if [ ${#cc0_to_annotate[@]} -gt 0 ]; then

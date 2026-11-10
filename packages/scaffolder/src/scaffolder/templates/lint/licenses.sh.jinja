@@ -1,11 +1,8 @@
 #!/bin/bash
-# TODO: Complete license implementation before use.
-# This script should fail until licenses are properly configured.
-echo "Licenses are not configured. Complete license implementation before use." >&2
-exit 1
-{% if use_reuse %}
 
-{% endif %}
+# SPDX-FileCopyrightText: {{ year }} {{ copyright_holder }}
+#
+# SPDX-License-Identifier: {{ license }}
 
 set -euo pipefail
 ROOT="$(dirname "$(realpath "$0")")/../.."
@@ -196,13 +193,13 @@ for file in "${FILES[@]}"; do
 done
 
 if [ ${{ '{' }}#unl_to_annotate[@]} -gt 0 ]; then
-    echo "annotating Unlicense"
+    echo "annotating {{ license | upper }}"
     reuse annotate -c "$COPYRIGHT" -l "$SOFTWARE_LIC" -y "$YEAR" --merge-copyrights --fallback-dot-license "${unl_to_annotate[@]}" || {
-        echo "Failed to annotate Unlicense files"
+        echo "Failed to annotate {{ license | upper }} files"
         exit 1
     }
 else
-    echo "No Unlicense files to annotate"
+    echo "No {{ license | upper }} files to annotate"
 fi
 
 if [ ${{ '{' }}#cc0_to_annotate[@]} -gt 0 ]; then

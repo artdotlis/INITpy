@@ -6,10 +6,10 @@
 
 [site]
 title = "{{ project_name }}"
-description = "INITpy documentation"
+description = "{{ project_name }} documentation"
 
 [vitepress]
-base = "/INITpy/"
+base = "/{{ project_name }}/"
 cleanUrls = true
 lastUpdated = true
 srcDir = "src"
@@ -21,7 +21,7 @@ dark = "vitesse-dark"
 
 [vitepress.themeConfig]
 socialLinks = []
-license = "Unlicense"
+license = "{{ license }}"
 
 [vitepress.themeConfig.logo]
 value = "🛠️"
@@ -46,4 +46,4 @@ text = "API"
 link = "/ref/"
 
 [[vitepress.themeConfig.footer]]
-copyright = "Copyright © 2026 Artur Lissin"
+copyright = "Copyright © {{ year }} {{ copyright_holder }}"

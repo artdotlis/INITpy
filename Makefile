@@ -53,13 +53,13 @@ run-checks:
 	fi
 
 build-docs: docs-ref
-	cd $(ROOT_MAKEFILE)/$(PKG_DOCS) && $(PNPME) run build
+	cd $(ROOT_MAKEFILE)/$(PKG_DOC) && $(PNPME) run build
 
 run-docs: build-docs
 	@echo "docs build complete (CI)"
 
 serve-docs: build-docs
-	cd $(PKG_DOCS) && $(PNPME) run preview
+	cd $(PKG_DOC) && $(PNPME) run preview
 
 docs-ref:
 	$(UVE) run griffe2md scaffolder -o $(DOCS_REF_DIR)/scaffolder.md
@@ -86,11 +86,11 @@ run-lock run-update: %: exp-%
 
 exp-run-lock:
 	$(UVE) lock
-	cd $(PKG_DOCS) && $(PNPME) install --lockfile-only
+	cd $(PKG_DOC) && $(PNPME) install --lockfile-only
 
 exp-run-update:
 	$(UVE) lock -U
-	cd $(PKG_DOCS) && $(PNPME) update
+	cd $(PKG_DOC) && $(PNPME) update
 
 com commit:
 	@if [ -f .commit_msg ] && [ -s .commit_msg ]; then \

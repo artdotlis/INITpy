@@ -2,14 +2,14 @@
 
 # SPDX-FileCopyrightText: {{ year }} {{ copyright_holder }}
 #
-# SPDX-License-Identifier: Unlicense
+# SPDX-License-Identifier: {{ license }}
 
 set -euo pipefail
 ROOT="$(dirname "$(realpath "$0")")/../.."
 
 ROOT_ENV="$ROOT/package.env"
 
-{% if use_docs %}ENV_FILES=( "$ROOT_ENV" "${{ package_env_file }}" "$DOCS_ENV")
+{% if use_docs %}ENV_FILES=( "$ROOT_ENV" "${{ package_env_file }}" "$DOC_ENV")
 {% else %}ENV_FILES=( "$ROOT_ENV" "${{ package_env_file }}" )
 {% endif %}
 
