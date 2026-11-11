@@ -63,7 +63,8 @@ class TestRemoveProdDocker:
     """Tests for remove_prod_docker."""
 
     def _seed(self, tmp_path: Path) -> None:
-        dockerfile = tmp_path / "Dockerfile"
+        dockerfile = tmp_path / "configs" / "docker" / "prod.Dockerfile"
+        dockerfile.parent.mkdir(parents=True, exist_ok=True)
         dockerfile.write_text("# prod\n")
         dev = tmp_path / ".devcontainer"
         dev.mkdir(parents=True, exist_ok=True)
@@ -74,14 +75,14 @@ class TestRemoveProdDocker:
         self._seed(tmp_path)
         dev_compose = tmp_path / ".devcontainer" / "dev.docker-compose.yml"
         remove_prod_docker(tmp_path)
-        assert not (tmp_path / "Dockerfile").exists()
+        assert not (tmp_path / "configs" / "docker" / "prod.Dockerfile").exists()
         assert (tmp_path / "docker-compose.yml").exists()
         assert not dev_compose.exists()
 
     def test_raises_when_dockerfile_missing(self, tmp_path: Path) -> None:
         """Fail loudly when the production Dockerfile is absent."""
         self._seed(tmp_path)
-        (tmp_path / "Dockerfile").unlink()
+        (tmp_path / "configs" / "docker" / "prod.Dockerfile").unlink()
         with pytest.raises(FileNotFoundError):
             remove_prod_docker(tmp_path)
 

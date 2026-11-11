@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2026 Artur Lissin
-#
-# SPDX-License-Identifier: Unlicense
-
 FROM docker.io/almalinux:10 AS appbuilder
 
 ARG BIN_DEPLOY_PREP

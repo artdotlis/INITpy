@@ -8,6 +8,7 @@ set -euo pipefail
 ROOT="$(dirname "$(realpath "$0")")/../.."
 
 ROOT_ENV="$ROOT/package.env"
+DOCKER_DIR="$ROOT/configs/docker"
 
 ENV_FILES=( "$ROOT_ENV" "$SCA_ENV" "$DOC_ENV")
 
@@ -21,6 +22,13 @@ IGNORE_ENV=(
     "^UV_.*$"
     "^CMD$"
     "^UV$"
+)
+
+SCAN_EXCLUDE=(
+    --exclude-dir=__pycache__
+    --exclude-dir=.pnpm
+    --exclude-dir=.venv
+    --exclude-dir=node_modules
 )
 
 should_ignore() {
@@ -63,9 +71,13 @@ check_name_occurrence() {
     if [[ "$(grep -cwe "$make_reg" "$ROOT/Makefile")" -gt 0 ]]; then
         return 0
     fi
-    if [[ -f "$ROOT/Dockerfile" && "$(grep -cwe "$docker_reg" "$ROOT/Dockerfile")" -gt 0 ]]; then
-        return 0
-    fi
+    local dockerfile
+    for dockerfile in "$DOCKER_DIR"/*.Dockerfile; do
+        [[ -f "$dockerfile" ]] || continue
+        if [[ "$(grep -cwe "$docker_reg" "$dockerfile")" -gt 0 ]]; then
+            return 0
+        fi
+    done
     if [[ "$(grep -cwe "$docker_reg" "$ROOT/docker-compose.yml")" -gt 0 ]]; then
         return 0
     fi
@@ -78,13 +90,13 @@ check_name_occurrence() {
     if [[ "$(grep -Rnw "$ROOT/configs" -e "$norm_reg" | wc -l)" -gt 0 ]]; then
         return 0
     fi
-    if [[ "$(grep --exclude-dir=__pycache__ -Rnw "$PKG" -e "$norm_reg" | wc -l)" -gt 0 ]]; then
+    if [[ "$(grep "${SCAN_EXCLUDE[@]}" -Rnw "$PKG" -e "$norm_reg" | wc -l)" -gt 0 ]]; then
         return 0
     fi
     if [[ "$2" = 1 ]]; then
         return 1
     fi
-    if [[ "$(grep --exclude-dir=__pycache__ -Rnw "$PKG" -e "$1" | wc -l)" -gt 0 ]]; then
+    if [[ "$(grep "${SCAN_EXCLUDE[@]}" -Rnw "$PKG" -e "$1" | wc -l)" -gt 0 ]]; then
         return 0
     fi
     return 1
@@ -146,9 +158,6 @@ cmd='{
     }
 }'
 if ! check_name_rev_occurrence "$ROOT/Makefile" "$cmd"; then
-    exit 1
-fi
-if [[ -f "$ROOT/Dockerfile" ]] && ! check_name_rev_occurrence "$ROOT/Dockerfile" "$cmd"; then
     exit 1
 fi
 if ! check_name_rev_occurrence "$ROOT/docker-compose.yml" "$cmd"; then

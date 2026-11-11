@@ -6,11 +6,7 @@
 
 One test per whole-file template (except the hand-curated README). Each test
 renders the template with the current project's ``context`` and compares it
-byte-for-byte to the original file it reproduces. Where the render already
-matches the original the test asserts equality (so a later drift fails loudly).
-Where the original has diverged the test is reported as ``xfail`` rather than
-forced to pass, so the drifted files are surfaced in the summary without
-breaking the run.
+byte-for-byte to the original file it reproduces. Any drift is a failure.
 """
 
 from typing import Any
@@ -24,13 +20,13 @@ def _assert_render_matches(template: Any, context: dict[str, object]) -> None:
     """Render ``template`` and compare it to its original on disk."""
     rendered = template.render(context)
     original = template.target_path.read_text()
-    if rendered != original:
-        pytest.xfail(f"drift: {template.name} render != original {template.target}")
-    assert rendered == original
+    assert rendered == original, (
+        f"drift: {template.name} render != original {template.target}"
+    )
 
 
 class TestRenderMatchesOriginal:
-    """Each template render equals its original file where it is expected to."""
+    """Each template render equals its original file."""
 
     def test_root_package_json(
         self, root_package_json_jinja: Any, context: dict[str, object]

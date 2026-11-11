@@ -58,7 +58,7 @@ def remove_prod_docker(path: Path, /) -> None:
     Args:
         path: Root of the generated project.
     """
-    dockerfile = path / "Dockerfile"
+    dockerfile = path / "configs" / "docker" / "prod.Dockerfile"
     if not dockerfile.is_file():
         raise FileNotFoundError(f"production Dockerfile missing: {dockerfile}")
     dockerfile.unlink()

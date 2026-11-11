@@ -57,14 +57,14 @@ INITpy/
 ├-- .devcontainer/      # Dev Container definition
 ├-- .github/            # CI workflows
 ├-- bin/                # Tooling shell scripts
-├-- configs/            # Tooling & Linting configurations
+├-- configs/            # Tooling, Linting & Docker configurations
+│   └-- docker/         # dev.Dockerfile & prod.Dockerfile
 ├-- packages/           # Your Python packages (Monorepo)
 │   ├-- docs/
 │   ├-- scaffolder/
 │   └-- shared_utils/
 ├-- PROJECTS/           # Default scaffolder output (kept via inner .gitignore)
 ├-- LICENSES/           # REUSE license texts
-├-- Dockerfile          # Production container
 ├-- docker-compose.yml  # Scaffolder service definition
 ├-- lefthook.yml        # Git hook definitions
 ├-- pyproject.toml      # The heart of the project

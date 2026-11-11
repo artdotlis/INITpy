@@ -6,7 +6,7 @@ services:
     scaffolder:
         build:
             context: .
-            dockerfile: Dockerfile
+            dockerfile: configs/docker/prod.Dockerfile
             secrets:
                 - env_file
             args:
