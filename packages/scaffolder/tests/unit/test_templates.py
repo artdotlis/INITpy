@@ -15,7 +15,6 @@ from jinja2 import Template as JinjaTemplate
 
 pytest_plugins = ("tests.fixture.template",)
 
-# Every shipped template, listed by the path the fixtures are named after.
 TEMPLATE_PATHS = [
     "root/root.toml.jinja",
     "root/package.json.jinja",
@@ -48,7 +47,6 @@ def _fixture_name(path: str) -> str:
 def test_template_fixture_loads(request: pytest.FixtureRequest, path: str) -> None:
     """The per-template fixture resolves and its template file loads."""
     template = request.getfixturevalue(_fixture_name(path))
-    # Load reads + compiles the source; raises if the file is missing or malformed.
     jinja_template = template.load()
     assert template.path.is_file()
     assert isinstance(jinja_template, JinjaTemplate)

@@ -26,13 +26,9 @@ class TestRemoveReuse:
         """Drop the LICENSES tree and REUSE.toml, keep LICENSE and .license files."""
         remove_reuse(tmp_path)
 
-        # the LICENSES tree is gone
         assert not licenses_dir.exists()
-        # the REUSE.toml config is removed
         assert not reuse_toml.exists()
-        # the LICENSE file itself is kept
         assert license_file.read_text().strip()
-        # .license companions are owned by strip_spdx_headers, not remove_reuse
         assert package_json_license.exists()
 
     def test_noop_without_reuse_tree(self, tmp_path: Path, license_file: Path) -> None:

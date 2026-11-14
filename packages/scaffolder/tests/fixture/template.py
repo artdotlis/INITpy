@@ -22,18 +22,13 @@ from shared_utils.core.names import (
     sanitize_package_name_dep_group,
 )
 
-# tests/fixture/template.py -> repo root
-# (fixture -> tests -> scaffolder -> packages -> root)
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 
-# A template is only rendered with the non-default [[ ]] delimiters when its
-# target already contains {{ }} (GitHub Actions).
 _ALTERNATE_DELIMITERS = {
     "github/mac_win_test.yml.jinja",
     "github/lin_lint.yml.jinja",
 }
 
-# template (relative to templates/) -> file the scaffolder writes in the project
 TEMPLATE_TARGETS: dict[str, str] = {
     "root/root.toml.jinja": "pyproject.toml",
     "root/package.json.jinja": "package.json",
@@ -87,11 +82,6 @@ class Template:
         if self.name in _ALTERNATE_DELIMITERS:
             return "[[", "]]"
         return "{{", "}}"
-
-
-# ---------------------------------------------------------------------------
-# One fixture function per shipped template.
-# ---------------------------------------------------------------------------
 
 
 @pytest.fixture
@@ -234,14 +224,6 @@ def docs_package_json_jinja() -> Template:
     )
 
 
-# ---------------------------------------------------------------------------
-# One fixture function per original project file (the target each template
-# produces). These mirror the per-template fixtures but yield the *original*
-# file on disk that each template recreates, so tests can compare a rendered
-# template against its source-of-truth original.
-# ---------------------------------------------------------------------------
-
-
 @pytest.fixture
 def original_package_json() -> Path:
     """``package.json``."""
@@ -342,11 +324,6 @@ def original_docs_vitepress_config_toml() -> Path:
 def original_docs_package_json() -> Path:
     """``packages/docs/package.json``."""
     return _REPO_ROOT / "packages/docs/package.json"
-
-
-# ---------------------------------------------------------------------------
-# Generic (parametrized) and render-context fixtures.
-# ---------------------------------------------------------------------------
 
 
 def _package_json() -> dict[str, Any]:

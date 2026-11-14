@@ -10,12 +10,10 @@ ROOT="$(dirname "$(realpath "$0")")/../.."
 set -a
 source "$ROOT/bin/install/env.sh"
 
-# Activate Python virtual environment if present
 if [[ -d ".venv/bin" ]]; then
   export PATH="$ROOT/.venv/bin:$PATH"
 fi
 
-# Add pnpm bin to PATH if node_modules exists (for pnpm-installed tools)
 if [[ -d "node_modules/.bin" ]]; then
   export PATH="node_modules/.bin:$PATH"
 fi

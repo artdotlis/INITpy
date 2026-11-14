@@ -16,8 +16,6 @@ from scaffolder.main import run_cli
 
 pytest_plugins = ("tests.fixture.env",)
 
-# Canonical prompt answers, in prompt order: name, description, output dir,
-# author, email, copyright, license, use reuse, use docs.
 _PROJECT, _DESCRIPTION, _OUTPUT = "proj", "desc", "/tmp/out"
 _ANSWERS = [
     _PROJECT,

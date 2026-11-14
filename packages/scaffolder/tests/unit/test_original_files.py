@@ -10,7 +10,6 @@ import pytest
 
 pytest_plugins = ("tests.fixture.template",)
 
-# Every original-file fixture, listed by name.
 ORIGINAL_FIXTURES = [
     "original_package_json",
     "original_lefthook_yml",

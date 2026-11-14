@@ -12,7 +12,6 @@ from jinja2 import FileSystemLoader
 from jinja2 import StrictUndefined
 from jinja2.environment import Template as JinjaTemplate
 
-# templates/ lives next to the scaffolder package (src/scaffolder/templates)
 TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"
 
 

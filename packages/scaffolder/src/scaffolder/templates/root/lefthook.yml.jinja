@@ -35,9 +35,7 @@ pre-commit:
                     run: bin/install/wrap.sh shellcheck --rcfile='$CONFIG_SHELL' -- {staged_files}
                   - name: codespell
                     glob: '*.py'
-                    run:
-                        bin/install/wrap.sh codespell -- {staged_files}
-                        # pre-commit-hooks checks
+                    run: bin/install/wrap.sh codespell -- {staged_files}
                   - name: check-ast
                     glob: '*.py'
                     run: bin/install/wrap.sh check-ast -- {staged_files}

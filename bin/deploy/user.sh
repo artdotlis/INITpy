@@ -11,12 +11,10 @@ USER_UID="${USER_UID:-1000}"
 USER_GID="${USER_GID:-1000}"
 HOME_MAIN="/home/${USERNAME}"
 
-# Validate required variables
 [ -n "${USERNAME}" ] || { echo "ERROR: USERNAME is empty!" >&2; exit 1; }
 [ -n "${USER_UID}" ] || { echo "ERROR: USER_UID is empty!" >&2; exit 1; }
 [ -n "${USER_GID}" ] || { echo "ERROR: USER_GID is empty!" >&2; exit 1; }
 
-# Detect OS
 detect_distro() {
     if [ -f /etc/os-release ]; then
         . /etc/os-release
@@ -26,14 +24,12 @@ detect_distro() {
     fi
 }
 
-# Function: AlmaLinux / RHEL / CentOS
 setup_alma_rhel() {
     local username="$1"
     local uid="$2"
     local gid="$3"
     local homedir="$4"
 
-    # Group: ensure it exists with correct GID
     local group_name
     group_name=$(getent group "$gid" | cut -d: -f1 || true)
     if [ -n "$group_name" ] && [ "$group_name" != "$username" ]; then
@@ -42,7 +38,6 @@ setup_alma_rhel() {
         groupadd --gid "$gid" "$username"
     fi
 
-    # User: ensure it exists with correct UID
     local user_name
     user_name=$(getent passwd "$uid" | cut -d: -f1 || true)
     if [ -n "$user_name" ] && [ "$user_name" != "$username" ]; then
@@ -62,12 +57,10 @@ setup_alma_rhel() {
             "$username"
     fi
 
-    # Ensure home directory ownership
     mkdir -p "$homedir/.local/bin"
     chown -R "$uid:$gid" "$homedir"
 }
 
-# Function: Alpine
 setup_alpine() {
     local username="$1"
     local uid="$2"
@@ -94,7 +87,6 @@ setup_alpine() {
         delgroup "$username" 2>/dev/null || true
     fi
 
-    # Create fresh group and user
     addgroup -g "$gid" "$username"
     adduser \
         -u "$uid" \
@@ -104,11 +96,9 @@ setup_alpine() {
         -H \
         "$username"
 
-    # Ensure home directory and permissions
     mkdir -p "$homedir/.local/bin"
     chown -R "$uid:$gid" "$homedir"
 }
-# Main logic
 main() {
     local distro
     distro=$(detect_distro)
@@ -127,5 +117,4 @@ main() {
     esac
 }
 
-# Run main
 main

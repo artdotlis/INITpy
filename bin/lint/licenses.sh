@@ -11,10 +11,6 @@ source "$ROOT/package.env" || { echo "Failed to source $ROOT/package.env"; exit 
 
 SOFTWARE_LIC="Unlicense"
 
-# ---------------------------------------------------------------------------
-# Non-reuse LICENSE checks. Always run.
-# ---------------------------------------------------------------------------
-
 if [[ ! -f "$ROOT/LICENSE" ]]; then
     echo "LICENSE file not found: $ROOT/LICENSE"
     exit 1
@@ -35,12 +31,6 @@ for file_path in "${LICENSE_SHORT_FILES[@]}"; do
         exit 1
     fi
 done
-
-# ---------------------------------------------------------------------------
-# ===== REUSE:START =====
-# Reuse-only block through REUSE:END. Drop it along with LICENSES/, *.license,
-# and REUSE.toml when reuse is not used; the non-reuse checks above stay.
-# ---------------------------------------------------------------------------
 
 YEAR=$(date +%Y)
 DATA_LIC="CC0-1.0"
@@ -214,10 +204,6 @@ if ! reuse lint; then
     echo "Linting failed!"
     exit 1
 fi
-
-# ---------------------------------------------------------------------------
-# ===== REUSE:END =====
-# ---------------------------------------------------------------------------
 
 if [ "${DISABLE_GIT_ADD:-0}" != "1" ]; then
     git -C "$ROOT" add .

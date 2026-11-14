@@ -98,7 +98,6 @@ def run_cli() -> None:
         )
         print(f"\n✅ '{project_name}' → {result.absolute()}")
     except Exception as exc:
-        # clean up any partially scaffolded output, then re-raise
         partial = Path(output_dir) / project_name
         if partial.exists():
             shutil.rmtree(partial) if partial.is_dir() else partial.unlink()

@@ -25,11 +25,9 @@ def write_package_files(path: Path, package_name: str, /) -> None:
     (src / "py.typed").touch()
     (src / "__init__.py").write_text("__all__: list[str] = []")
 
-    # empty README.md and .env; README gets a package-name header
     (pkg_dir / "README.md").write_text(f"# {package_name}\n")
     (pkg_dir / ".env").write_text("")
 
-    # template unit test with TODO
     tests = pkg_dir / "tests" / "unit"
     tests.mkdir(parents=True, exist_ok=True)
     (tests / f"test_{package_name}.py").write_text(

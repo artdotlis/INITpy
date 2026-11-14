@@ -13,8 +13,6 @@ from scaffolder.template import TEMPLATES_DIR
 
 pytest_plugins = ("tests.fixture.template",)
 
-# Every shipped whole-file template, resolved from the template directory so the
-# catalogue cannot drift from what the scaffolder actually ships.
 TEMPLATE_NAMES = sorted(
     entry.relative_to(TEMPLATES_DIR).as_posix()
     for entry in TEMPLATES_DIR.rglob("*.jinja")

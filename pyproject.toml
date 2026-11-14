@@ -33,7 +33,6 @@ exclude = [
 
 [dependency-groups]
 mono = [
-  # local
   "shared-utils",
   "scaffolder",
 ]
@@ -45,11 +44,8 @@ dev = [
   "shellcheck-py ==0.11.0.1",
   "pre-commit-hooks ==6.0.0",
   "vulture ==2.16",
-  # license
   "reuse ==6.3.0",
-  # commit hooks
   "lefthook ==2.2.2",
-  # types
 ]
 docs = [
   "griffe2md ==1.5.1",

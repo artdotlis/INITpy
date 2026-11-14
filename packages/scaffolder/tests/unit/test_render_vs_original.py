@@ -176,8 +176,6 @@ class TestRenderMatchesOriginal:
         rendered = docs_ref_index_md_jinja.render(context)
         original = docs_ref_index_md_jinja.target_path.read_text()
         package_line = f"- [{context['package_name']}]({context['package_name']})"
-        # The render's static preamble (SPDX header, heading, subtitle) is a
-        # contiguous part of the original; only the package list differs.
         rendered_prefix = rendered.split(package_line, 1)[0]
         assert rendered_prefix in original
         assert package_line in rendered

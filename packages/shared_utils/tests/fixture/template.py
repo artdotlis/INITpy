@@ -16,7 +16,6 @@ import pytest
 
 from shared_utils.repo.template import load_template
 
-# packages/shared_utils/tests/fixture -> repo root
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 
 
