@@ -41,10 +41,6 @@ prev = false
 next = false
 
 [[vitepress.themeConfig.nav]]
-text = "Home"
-link = "/"
-
-[[vitepress.themeConfig.nav]]
 text = "About"
 link = "/about/"
 

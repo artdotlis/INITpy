@@ -4,17 +4,7 @@
  * SPDX-License-Identifier: Unlicense
  */
 
-/*
--------------------------------------------------------------------------------
-Design tokens
-
-VitePress themes through CSS variables (`--vp-c-*`, `--vp-button-*`, ...), so
-this file follows the same split as the upstream `styles/vars.css`: named
-palette tokens first, then a map onto the VitePress variables.
--------------------------------------------------------------------------------
-*/
 :root {
-    /* Brand and state colors */
     --dd-primary: #006eb7;
     --dd-primary-light: #147abd;
     --dd-primary-dark: #0065a8;
@@ -28,7 +18,6 @@ palette tokens first, then a map onto the VitePress variables.
     --dd-signal: #ecaf00;
     --dd-signal-soft: rgba(236, 175, 0, 0.2);
 
-    /* Surfaces and text */
     --dd-body: #f1f1f1;
     --dd-surface: #ffffff;
     --dd-surface-alt: #f7f7f7;
@@ -46,29 +35,24 @@ palette tokens first, then a map onto the VitePress variables.
     --dd-code-inline-text: #0065a8;
     --dd-code-inline-border: #dadada;
 
-    /* digidive sizes everything off `html { font-size: 62.5% }` = 10px.
-       Keep that ratio (10/16) so sidebar metrics stay in rem. */
     --dd-rem: 0.625rem;
 
-    /* Sidebar icon tiles (digidive `.sidebar-menu>a.with-icon>.icon`) */
     --dd-icon-tile: rgba(0, 0, 0, 0.05);
     --dd-icon-ink: rgba(70, 70, 70, 0.8);
     --dd-icon-hover-border: #464646;
-    /* digidive semantic icon colours (`--primary-color` etc.) */
+
     --dd-ico-primary: #006eb7;
     --dd-ico-signal: #ecaf00;
     --dd-ico-muted: #878787;
     --dd-ico-graphite: #464646;
     --dd-ico-danger: #b61f29;
 
-    /* Geometry and elevation */
     --dd-border-width: 1px;
     --dd-radius: 5px;
     --dd-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.15);
     --dd-shadow-long: 0 3px 3px 0 rgba(0, 0, 0, 0.3);
     --dd-button-shadow: 0 2px 0 rgba(0, 0, 0, 0.05);
 
-    /* Spacing and voice */
     --dd-spacing: 2rem;
     --dd-spacing-half: 1rem;
     --dd-title-weight: 600;
@@ -111,23 +95,17 @@ palette tokens first, then a map onto the VitePress variables.
     --dd-button-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
 }
 
-/*
--------------------------------------------------------------------------------
-VitePress variable map
--------------------------------------------------------------------------------
-*/
 :root {
     --vp-font-family-base: var(--dd-font);
     --vp-font-family-mono: var(--dd-font-mono);
 
-    /* Page is grey, tiles and panels are white */
     --vp-c-bg: var(--dd-body);
     --vp-c-bg-alt: var(--dd-surface);
     --vp-c-bg-soft: var(--dd-surface);
     --vp-c-bg-elv: var(--dd-surface);
     --vp-nav-bg-color: var(--dd-surface);
     --vp-sidebar-bg-color: var(--dd-surface);
-    /* digidive `--sidebar-width: 22rem` at its 10px root = 220px. */
+
     --vp-sidebar-width: calc(var(--dd-rem) * 22);
 
     --vp-c-text-1: var(--dd-text);
@@ -197,21 +175,12 @@ VitePress variable map
     --vp-header-anchor-symbol: '#';
 }
 
-/*
--------------------------------------------------------------------------------
-Base
--------------------------------------------------------------------------------
-*/
 body {
     font-family: var(--dd-font);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
 
-/*
- * Article typography mirrors digidive: 14px base, 600-weight headings on a
- * tight scale, borderless `h2`, plain links.
- */
 .vp-doc {
     font-size: 15px;
     line-height: 1.6;
@@ -312,31 +281,16 @@ body {
     font-size: 15px;
 }
 
-/*
--------------------------------------------------------------------------------
-Surfaces: footer, local nav, search
-
-Navbar and sidebar colors come from `--vp-nav-bg-color` / `--vp-sidebar-bg-color`
-above; only what has no variable is styled here.
--------------------------------------------------------------------------------
-*/
-/*
- * VitePress paints the bar through `.content-body`, which is inset by the
- * container padding, leaving a strip of page background at the right edge.
- * Paint the whole bar instead.
- */
 .VPNavBar.VPNavBar:not(.home) {
     background-color: var(--vp-nav-bg-color);
 }
 
-/* Home page is a single flat surface. */
 .VPContent.is-home,
 .VPNavBar.home,
 .VPNavBar.home .content-body {
     background-color: var(--dd-surface);
 }
 
-/* Sidebar mirrors digidive's panel: a soft right shadow, no hard rule. */
 .VPSidebar.VPSidebar {
     border-right: none;
     box-shadow: 1px 0 1px 0 rgba(0, 0, 0, 0.15);
@@ -346,14 +300,10 @@ above; only what has no variable is styled here.
     box-shadow: 1px 0 1px 0 rgba(0, 0, 0, 0.4);
 }
 
-/* Reading column: upstream caps it at 688px, which reads cramped next to a
- * 22rem sidebar. Give it room to breathe on wide screens. */
 .VPDoc.VPDoc.has-aside .content-container {
     max-width: 880px;
 }
 
-/* digidive has no right-hand TOC: the column gets the whole width. The outline
- * only fits once sidebar + 880px column + TOC would, so drop it below that. */
 @media (max-width: 1527.98px) {
     .VPDoc.VPDoc .aside {
         display: none;
@@ -370,8 +320,6 @@ above; only what has no variable is styled here.
     width: 184px;
 }
 
-/* digidive puts a 2.5rem gutter on the link itself; the gutter lives on `.nav`
- * so the sticky curtain spans the whole aside without negative margins. */
 @media (min-width: 960px) {
     .VPSidebar.VPSidebar.VPSidebar {
         padding-left: 0;
@@ -388,9 +336,6 @@ above; only what has no variable is styled here.
         padding-right: calc(var(--dd-rem) * 2.5);
     }
 
-    /* One continuous rule under the nav bar: upstream insets it to the
-     * sidebar width and adds a second hairline under the title, so the
-     * header line stops short of the body line and looks shifted. */
     .VPNavBar.has-sidebar.has-sidebar .divider {
         padding-left: 0;
     }
@@ -404,8 +349,6 @@ above; only what has no variable is styled here.
     }
 }
 
-/* Upstream grows the sidebar past 1440px to centre it on a 1440px grid.
- * Drop that grid so the sidebar stays 22rem and nothing drifts right. */
 @media (min-width: 1440px) {
     .VPSidebar.VPSidebar.VPSidebar {
         padding-left: 0;
@@ -449,11 +392,6 @@ above; only what has no variable is styled here.
     border-bottom: var(--dd-border-width) solid var(--dd-divider);
 }
 
-/* Dense rows and dot markers instead of upstream's 1px rail. */
-/* digidive: `a.with-icon { padding: 0.5rem 2.5rem }` around a 3rem icon tile,
- * so every row is 4rem (40px) tall, not just the text line. */
-
-/* `--base-font-size: 1.4rem`, `--base-line-height: 1.5`. */
 .VPSidebarItem .text {
     font-size: calc(var(--dd-rem) * 1.4);
     line-height: 1.5;
@@ -477,7 +415,6 @@ above; only what has no variable is styled here.
     color: var(--dd-text-muted);
 }
 
-/* digidive group titles are plain `h5` with `margin: 2rem 0 1rem`. */
 .VPSidebarItem.level-0 {
     padding-top: calc(var(--dd-rem) * 2);
     padding-bottom: calc(var(--dd-rem) * 1);
@@ -494,7 +431,6 @@ above; only what has no variable is styled here.
     padding-left: 0;
 }
 
-/* digidive scales the root font size up on wide screens; mirror it. */
 @media (min-width: 1600px) {
     :root {
         --dd-rem: 0.7rem;
@@ -513,15 +449,12 @@ above; only what has no variable is styled here.
     }
 }
 
-/* Sidebar icons (masked so they follow the text colour). */
 :root {
-    --dd-icon-home: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.5%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M2.5 7.4 8 2.8l5.5 4.6V13a.6.6 0 0 1-.6.6H3.1a.6.6 0 0 1-.6-.6z%22/%3E%3Cpath d=%22M6.2 13.6V9.4h3.6v4.2%22/%3E%3C/svg%3E');
     --dd-icon-info: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.5%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Ccircle cx=%228%22 cy=%228%22 r=%225.6%22/%3E%3Cpath d=%22M8 7.3v4%22/%3E%3Cpath d=%22M8 4.8v.5%22/%3E%3C/svg%3E');
     --dd-icon-code: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.5%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M5.6 5.4 3 8l2.6 2.6%22/%3E%3Cpath d=%22M10.4 5.4 13 8l-2.6 2.6%22/%3E%3C/svg%3E');
     --dd-icon-file: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.5%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M4 2.4h4.4l3.2 3.2v7.9a.5.5 0 0 1-.5.5H4.5a.5.5 0 0 1-.5-.5z%22/%3E%3Cpath d=%22M8.2 2.6v3.1h3.1%22/%3E%3C/svg%3E');
 }
 
-/* 3rem tile + 1rem gap, as in digidive. */
 .VPSidebarItem.level-1 > .item,
 .VPSidebarItem.level-2 > .item,
 .VPSidebarItem.level-3 > .item {
@@ -530,10 +463,9 @@ above; only what has no variable is styled here.
     padding-left: calc(var(--dd-rem) * 4);
 }
 
-/* Tile: 30px box, 2px transparent border, 5px radius. */
-.VPSidebarItem.level-1 > .item::before,
-.VPSidebarItem.level-2 > .item::before,
-.VPSidebarItem.level-3 > .item::before {
+.VPSidebarItem.has-icon.level-1 > .item::before,
+.VPSidebarItem.has-icon.level-2 > .item::before,
+.VPSidebarItem.has-icon.level-3 > .item::before {
     content: '';
     position: absolute;
     top: 50%;
@@ -546,14 +478,13 @@ above; only what has no variable is styled here.
     border-radius: var(--dd-radius);
     background-color: var(--dd-icon-tile);
     transition:
-        background-color 0.25s,
-        border-color 0.25s;
+        background-color var(--dd-tt, 0.25s),
+        border-color var(--dd-tt, 0.25s);
 }
 
-/* Glyph: 20px masked icon inside the tile, tinted with `currentColor`-free ink. */
-.VPSidebarItem.level-1 > .item::after,
-.VPSidebarItem.level-2 > .item::after,
-.VPSidebarItem.level-3 > .item::after {
+.VPSidebarItem.has-icon.level-1 > .item::after,
+.VPSidebarItem.has-icon.level-2 > .item::after,
+.VPSidebarItem.has-icon.level-3 > .item::after {
     content: '';
     position: absolute;
     top: 50%;
@@ -566,30 +497,25 @@ above; only what has no variable is styled here.
         calc(var(--dd-rem) * 2) no-repeat;
     mask: var(--dd-icon, var(--dd-icon-file)) center / calc(var(--dd-rem) * 2)
         calc(var(--dd-rem) * 2) no-repeat;
-    transition: background-color 0.25s;
+    transition: background-color var(--dd-tt, 0.25s);
 }
 
-/* Icon and tone are data, not CSS: the sidebar config names an icon and a
- * tone per item, and the theme stamps them onto the row as `--dd-icon` /
- * `--dd-ico` (see theme/index.ts). Everything below only reads those variables,
- * so this file stays page-agnostic. */
-.VPSidebarItem.level-1 > .item:hover::before,
-.VPSidebarItem.level-2 > .item:hover::before,
-.VPSidebarItem.level-3 > .item:hover::before {
+.VPSidebarItem.has-icon.level-1 > .item:hover::before,
+.VPSidebarItem.has-icon.level-2 > .item:hover::before,
+.VPSidebarItem.has-icon.level-3 > .item:hover::before {
     border-color: var(--dd-ico, var(--dd-icon-hover-border));
 }
 
-/* Active: tile filled with the item colour (digidive `.primary.active .icon`). */
-.VPSidebarItem.level-1.is-active > .item::before,
-.VPSidebarItem.level-2.is-active > .item::before,
-.VPSidebarItem.level-3.is-active > .item::before {
+.VPSidebarItem.has-icon.level-1.is-active > .item::before,
+.VPSidebarItem.has-icon.level-2.is-active > .item::before,
+.VPSidebarItem.has-icon.level-3.is-active > .item::before {
     background-color: var(--dd-ico-active, var(--dd-ico, var(--dd-accent)));
     border-color: transparent;
 }
 
-.VPSidebarItem.level-1.is-active > .item::after,
-.VPSidebarItem.level-2.is-active > .item::after,
-.VPSidebarItem.level-3.is-active > .item::after {
+.VPSidebarItem.has-icon.level-1.is-active > .item::after,
+.VPSidebarItem.has-icon.level-2.is-active > .item::after,
+.VPSidebarItem.has-icon.level-3.is-active > .item::after {
     background-color: #fff;
 }
 
@@ -597,11 +523,6 @@ above; only what has no variable is styled here.
     display: none;
 }
 
-/*
--------------------------------------------------------------------------------
-Hero
--------------------------------------------------------------------------------
-*/
 .VPHero.VPHero {
     padding: 96px 24px 72px;
     background-color: var(--dd-surface);
@@ -647,15 +568,6 @@ Hero
     padding-top: 28px;
 }
 
-/*
--------------------------------------------------------------------------------
-Buttons, features
-
-VitePress ships a 20px pill radius; the tile language wants 5px, which has no
-variable. Scoped component styles are `[data-v-*]`, so the class is repeated to
-win on specificity instead of using `!important`.
--------------------------------------------------------------------------------
-*/
 .VPButton.VPButton.VPButton {
     height: 40px;
     padding: 0 20px;
@@ -707,11 +619,6 @@ win on specificity instead of using `!important`.
     line-height: 1.6;
 }
 
-/*
--------------------------------------------------------------------------------
-Code blocks and tables
--------------------------------------------------------------------------------
-*/
 .vp-doc div[class*='language-'] {
     border: var(--dd-border-width) solid var(--dd-border);
     border-radius: var(--dd-radius);
@@ -759,11 +666,6 @@ Code blocks and tables
     background-color: var(--dd-surface-alt);
 }
 
-/*
--------------------------------------------------------------------------------
-Small screens
--------------------------------------------------------------------------------
-*/
 @media (max-width: 640px) {
     .VPHero.VPHero {
         padding: 80px 24px 56px;

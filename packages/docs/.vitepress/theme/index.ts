@@ -6,27 +6,20 @@ import type { Theme } from 'vitepress'
 import DefaultTheme from 'vitepress/theme'
 import '@theme/style.css'
 
-/*
- * VitePress has no per-sidebar-item icon, so presentation is stamped on the
- * client: each sidebar item may carry `icon`, `tone` and `activeTone` in the
- * config, and we join them onto the rendered row by its own link. The CSS in
- * style.css only reads the resulting `--dd-icon` / `--dd-ico` variables, which
- * keeps the theme page-agnostic — a scaffolded site declares its own items and
- * gets icons for free.
- *
- * Timing matters. The per-item tone/activeTone only becomes visible when a row
- * is active, so the stamp must land before the browser paints the frame in
- * which `is-active` is set. Vue commits that class change from a microtask, and
- * a `MutationObserver` callback is also a microtask, so it fires before paint —
- * the tile shows its own colour in the same frame the highlight appears.
- * Deferring to `requestAnimationFrame` (or `nextTick`) instead fires after
- * paint, leaving a frame where the active tile shows the CSS default colour:
- * the visible flash.
- */
-const rowOf = (link) => {
-    const base = import.meta.env.BASE_URL
-    const hrefOf = (l) => (l.startsWith('/') ? base + l.slice(1) : l)
+const baseOf = () => import.meta.env.BASE_URL
 
+const norm = (h) => {
+    if (typeof h !== 'string') return null
+    const base = baseOf()
+    let p = h
+    if (/^https?:\/\//.test(p)) p = new URL(p).pathname
+    if (base !== '/' && p.startsWith(base)) p = p.slice(base.length - 1)
+    return p
+}
+
+const rowOf = (link) => {
+    const base = baseOf()
+    const hrefOf = (l) => (l.startsWith('/') ? base + l.slice(1) : l)
     const sidebar = link.themeConfig.sidebar
     const rows =
         sidebar && typeof sidebar === 'object' && !Array.isArray(sidebar)
@@ -35,21 +28,26 @@ const rowOf = (link) => {
     const map = new Map()
     const walk = (items) => {
         for (const item of items || []) {
-            if (item.link) map.set(hrefOf(item.link), item)
+            if (item.link) map.set(norm(hrefOf(item.link)), item)
             if (item.items) walk(item.items)
         }
     }
     for (const entry of rows) if (entry?.items) walk(entry.items)
-
     return map
 }
 
 const stamp = (map) => {
     for (const row of document.querySelectorAll('.VPSidebarItem a')) {
-        const item = map.get(row.getAttribute('href'))
+        const item = map.get(norm(row.getAttribute('href')))
         if (!item) continue
         const el = row.closest('.VPSidebarItem')?.querySelector(':scope > .item')
         if (!el) continue
+        const wrap = el.closest('.VPSidebarItem')
+        const hasIcon = !!item.icon
+        if (wrap.classList.contains('has-icon') !== hasIcon) {
+            wrap.classList.toggle('has-icon', hasIcon)
+        }
+        if (!hasIcon) continue
         el.style.setProperty('--dd-icon', `var(--dd-icon-${item.icon})`)
         el.style.setProperty('--dd-ico', `var(--dd-ico-${item.tone})`)
         if (item.activeTone) {
@@ -61,26 +59,41 @@ const stamp = (map) => {
     }
 }
 
+const snap = new WeakSet()
+
+// `--dd-tt` is a style write, not a class/childList mutation, so it cannot re-fire
+// the observer below. Zero it for one activation: the tile snaps to its tone
+// instead of fading from the neutral base.
+const zero = (item) => {
+    item.style.setProperty('--dd-tt', '0s')
+    requestAnimationFrame(() =>
+        requestAnimationFrame(() => item.style.removeProperty('--dd-tt'))
+    )
+}
+
 export default {
     extends: DefaultTheme,
-    enhanceApp({ app, siteData }) {
-        // Browser-only: no DOM during SSR / static generation.
+    enhanceApp({ siteData }) {
         if (import.meta.env.SSR) return
-
         const map = rowOf(siteData.value)
-
-        // Stamp the row as soon as its active state flips (a microtask, before
-        // paint), so the highlight never flashes the default colour.
-        new MutationObserver(() => stamp(map)).observe(
-            document.querySelector('.VPSidebar') ?? document.body,
-            { subtree: true, attributes: true, attributeFilter: ['class'] }
-        )
-
-        // First paint: stamp every row once the default theme has committed.
-        app.mixin({
-            mounted() {
-                if (this.$el?.id === 'app') requestAnimationFrame(() => stamp(map))
-            },
+        new MutationObserver(() => {
+            stamp(map)
+            for (const t of document.querySelectorAll('.VPSidebarItem')) {
+                const item = t.querySelector(':scope > .item')
+                if (!item) continue
+                if (t.classList.contains('is-active')) {
+                    if (snap.has(t)) continue
+                    snap.add(t)
+                    zero(item)
+                } else {
+                    snap.delete(t)
+                }
+            }
+        }).observe(document.body, {
+            subtree: true,
+            childList: true,
+            attributes: true,
+            attributeFilter: ['class'],
         })
     },
 } satisfies Theme

@@ -41,9 +41,6 @@ const socialLinks = tc.socialLinks as Array<{ icon: string; link: string }>
 const footer = Array.isArray(tc.footer) ? tc.footer[0] || {} : tc.footer || {}
 const refPackages = tc.refPackages || []
 
-// A sidebar item may name an icon and a colour tone; the theme stamps them
-// onto the rendered row (see theme/index.ts). `activeTone` overrides the
-// idle tone once the item is selected.
 type SideItem = {
     text: string
     link: string
@@ -65,7 +62,6 @@ const sidebar: Record<string, Array<Record<string, unknown>>> = {
         {
             text: 'Docs',
             items: [
-                { text: 'Home', link: '/', icon: 'home', tone: 'primary' },
                 { text: 'About', link: '/about', icon: 'info', tone: 'muted', activeTone: 'graphite' },
                 { text: 'License', link: '/license', icon: 'file', tone: 'signal' },
             ] as SideItem[],
