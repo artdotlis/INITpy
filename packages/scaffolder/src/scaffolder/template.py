@@ -5,14 +5,15 @@
 """Jinja template rendering for scaffolded config files."""
 
 from pathlib import Path
-from typing import Any
+from typing import Any, Final
 
 from jinja2 import Environment
 from jinja2 import FileSystemLoader
 from jinja2 import StrictUndefined
 from jinja2.environment import Template as JinjaTemplate
 
-TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"
+TEMPLATES_DIR: Final[Path] = Path(__file__).resolve().parent / "templates"
+"""Directory holding the packaged Jinja templates."""
 
 
 def load_template(
@@ -51,9 +52,9 @@ def render_template(
             e.g. ``root/package.env.jinja``.
         context: Variables passed to the template. Undefined variables
             raise (StrictUndefined) so missing context fails loudly.
-        variable_start_string: Jinja variable open delimiter. Defaults to
-            ``{{``; use a non-colliding pair (e.g. ``[[`` / ``]]``) for
-            files that already contain ``{{ }}`` (GitHub Actions).
+        variable_start_string: Jinja variable open delimiter. Defaults to a
+            double brace; use a non-colliding pair (e.g. ``[[`` / ``]]``) for
+            files that already contain double braces (GitHub Actions).
         variable_end_string: Jinja variable close delimiter.
 
     Returns:

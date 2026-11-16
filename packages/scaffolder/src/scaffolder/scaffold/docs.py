@@ -12,7 +12,7 @@ from scaffolder.template import render_template
 
 
 def amend_docs(path: Path, context: dict[str, Any], /) -> None:
-    """Render the docs index, module reference, and VitePress config.
+    """Render the docs index and VitePress config.
 
     Args:
         path: Root of the generated project.
@@ -20,9 +20,6 @@ def amend_docs(path: Path, context: dict[str, Any], /) -> None:
     """
     (path / "packages" / "docs" / "src" / "index.md").write_text(
         render_template("docs/index.md.jinja", context)
-    )
-    (path / "packages" / "docs" / "src" / "ref" / "index.md").write_text(
-        render_template("docs/ref_index.md.jinja", context)
     )
     (path / "packages" / "docs" / ".vitepress" / "config.toml").write_text(
         render_template("docs/vitepress_config.toml.jinja", context)

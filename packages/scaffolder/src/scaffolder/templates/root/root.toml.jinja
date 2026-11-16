@@ -68,7 +68,10 @@ version_files = ["README.md:^\\[!\\[release:", "package.json", "pyproject.toml",
 version_provider = "uv"
 version_type = "semver"
 
-[tool.pyrefly]
+{% if use_docs %}[tool.griffe2md]
+separate_signature = false
+
+{% endif %}[tool.pyrefly]
 preset = "strict"
 project-includes = [
   "packages/**/*.py",

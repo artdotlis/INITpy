@@ -21,12 +21,18 @@ dark = "vitesse-dark"
 [vitepress.themeConfig]
 socialLinks = []
 license = "{{ license }}"
+[[vitepress.themeConfig.refPackages]]
+name = "{{ package_name }}"
 
 [vitepress.themeConfig.logo]
 value = "🛠️"
 
 [vitepress.themeConfig.search]
 provider = "local"
+
+[vitepress.themeConfig.docFooter]
+prev = false
+next = false
 
 [[vitepress.themeConfig.nav]]
 text = "Home"
@@ -42,7 +48,7 @@ link = "/license/"
 
 [[vitepress.themeConfig.nav]]
 text = "API"
-link = "/ref/"
+link = "/ref/{{ package_name }}"
 
 [[vitepress.themeConfig.footer]]
 copyright = "Copyright © {{ year }} {{ copyright_holder }}"

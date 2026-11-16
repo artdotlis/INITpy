@@ -26,6 +26,8 @@ const config = toml.parse(
       search?: { provider: 'local' }
       socialLinks?: Array<{ icon: string; link: string }>
       nav?: Array<{ text: string; link: string }>
+      refPackages?: Array<{ name: string; icon?: string; tone?: string }>
+      docFooter?: { prev?: boolean; next?: boolean }
       footer?: Array<{ copyright: string }>
     }
   }
@@ -37,6 +39,39 @@ const tc = vp.themeConfig || {}
 const nav = tc.nav as Array<{ text: string; link: string }>
 const socialLinks = tc.socialLinks as Array<{ icon: string; link: string }>
 const footer = Array.isArray(tc.footer) ? tc.footer[0] || {} : tc.footer || {}
+const refPackages = tc.refPackages || []
+
+// A sidebar item may name an icon and a colour tone; the theme stamps them
+// onto the rendered row (see theme/index.ts). `activeTone` overrides the
+// idle tone once the item is selected.
+type SideItem = {
+    text: string
+    link: string
+    icon?: string
+    tone?: string
+    activeTone?: string
+}
+
+const sidebar: Record<string, Array<Record<string, unknown>>> = {
+    '/ref/': [
+        { text: 'API', items: refPackages.map((p): SideItem => ({
+            text: p.name,
+            link: `/ref/${p.name}`,
+            icon: p.icon ?? 'code',
+            tone: p.tone ?? 'danger',
+        }))},
+    ],
+    '/': [
+        {
+            text: 'Docs',
+            items: [
+                { text: 'Home', link: '/', icon: 'home', tone: 'primary' },
+                { text: 'About', link: '/about', icon: 'info', tone: 'muted', activeTone: 'graphite' },
+                { text: 'License', link: '/license', icon: 'file', tone: 'signal' },
+            ] as SideItem[],
+        },
+    ],
+}
 
 const anchorSlugify = (s: string) =>
   s.trim().replace(/ /g, '-').replace(/[^\w.\-]+/g, '')
@@ -66,22 +101,8 @@ export default defineConfig({
     search: tc.search as { provider: 'local' } | undefined,
     socialLinks,
     nav,
-    sidebar: {
-      '/ref/': [
-        { text: 'API Reference', items: [
-          { text: 'Overview', link: '/ref/' },
-          { text: 'scaffolder', link: '/ref/scaffolder' },
-          { text: 'shared_utils', link: '/ref/shared_utils' },
-        ]},
-      ],
-      '/': [
-        { text: 'Docs', items: [
-          { text: 'Home', link: '/' },
-          { text: 'About', link: '/about/' },
-          { text: 'License', link: '/license/' },
-        ]},
-      ],
-    },
+    docFooter: tc.docFooter,
+    sidebar,
     footer,
   },
 })

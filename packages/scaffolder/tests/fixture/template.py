@@ -46,7 +46,6 @@ TEMPLATE_TARGETS: dict[str, str] = {
     "lint/lint_env.sh.jinja": "bin/lint/lint_env.sh",
     "lint/licenses.sh.jinja": "bin/lint/licenses.sh",
     "docs/index.md.jinja": "packages/docs/src/index.md",
-    "docs/ref_index.md.jinja": "packages/docs/src/ref/index.md",
     "docs/vitepress_config.toml.jinja": "packages/docs/.vitepress/config.toml",
     "docs/package.json.jinja": "packages/docs/package.json",
 }
@@ -200,14 +199,6 @@ def docs_index_md_jinja() -> Template:
 
 
 @pytest.fixture
-def docs_ref_index_md_jinja() -> Template:
-    """``docs/ref_index.md.jinja`` -> ``packages/docs/src/ref/index.md``."""
-    return Template(
-        "docs/ref_index.md.jinja", TEMPLATE_TARGETS["docs/ref_index.md.jinja"]
-    )
-
-
-@pytest.fixture
 def docs_vitepress_config_toml_jinja() -> Template:
     """``docs/vitepress_config.toml.jinja`` -> ``packages/docs/.vitepress`` config."""
     return Template(
@@ -306,12 +297,6 @@ def original_licenses_sh() -> Path:
 def original_docs_index_md() -> Path:
     """``packages/docs/src/index.md``."""
     return _REPO_ROOT / "packages/docs/src/index.md"
-
-
-@pytest.fixture
-def original_docs_ref_index_md() -> Path:
-    """``packages/docs/src/ref/index.md``."""
-    return _REPO_ROOT / "packages/docs/src/ref/index.md"
 
 
 @pytest.fixture

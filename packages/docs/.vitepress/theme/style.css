@@ -3,3 +3,777 @@
  *
  * SPDX-License-Identifier: Unlicense
  */
+
+/*
+-------------------------------------------------------------------------------
+Design tokens
+
+VitePress themes through CSS variables (`--vp-c-*`, `--vp-button-*`, ...), so
+this file follows the same split as the upstream `styles/vars.css`: named
+palette tokens first, then a map onto the VitePress variables.
+-------------------------------------------------------------------------------
+*/
+:root {
+    /* Brand and state colors */
+    --dd-primary: #006eb7;
+    --dd-primary-light: #147abd;
+    --dd-primary-dark: #0065a8;
+    --dd-accent: #006eb7;
+    --dd-accent-hover: #0065a8;
+    --dd-primary-soft: rgba(0, 110, 183, 0.2);
+    --dd-success: #1fa138;
+    --dd-success-soft: rgba(31, 161, 56, 0.2);
+    --dd-danger: #b61f29;
+    --dd-danger-soft: rgba(182, 31, 41, 0.2);
+    --dd-signal: #ecaf00;
+    --dd-signal-soft: rgba(236, 175, 0, 0.2);
+
+    /* Surfaces and text */
+    --dd-body: #f1f1f1;
+    --dd-surface: #ffffff;
+    --dd-surface-alt: #f7f7f7;
+    --dd-box: #f1f1f1;
+    --dd-text: #464646;
+    --dd-text-soft: rgba(70, 70, 70, 0.8);
+    --dd-text-muted: #878787;
+    --dd-border: #afafaf;
+    --dd-border-soft: #dadada;
+    --dd-divider: rgba(175, 175, 175, 0.5);
+    --dd-table-head: #dfdfdf;
+    --dd-code-block: #ffffff;
+    --dd-code-line-highlight: rgba(0, 110, 183, 0.08);
+    --dd-code-inline: #ffffff;
+    --dd-code-inline-text: #0065a8;
+    --dd-code-inline-border: #dadada;
+
+    /* digidive sizes everything off `html { font-size: 62.5% }` = 10px.
+       Keep that ratio (10/16) so sidebar metrics stay in rem. */
+    --dd-rem: 0.625rem;
+
+    /* Sidebar icon tiles (digidive `.sidebar-menu>a.with-icon>.icon`) */
+    --dd-icon-tile: rgba(0, 0, 0, 0.05);
+    --dd-icon-ink: rgba(70, 70, 70, 0.8);
+    --dd-icon-hover-border: #464646;
+    /* digidive semantic icon colours (`--primary-color` etc.) */
+    --dd-ico-primary: #006eb7;
+    --dd-ico-signal: #ecaf00;
+    --dd-ico-muted: #878787;
+    --dd-ico-graphite: #464646;
+    --dd-ico-danger: #b61f29;
+
+    /* Geometry and elevation */
+    --dd-border-width: 1px;
+    --dd-radius: 5px;
+    --dd-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.15);
+    --dd-shadow-long: 0 3px 3px 0 rgba(0, 0, 0, 0.3);
+    --dd-button-shadow: 0 2px 0 rgba(0, 0, 0, 0.05);
+
+    /* Spacing and voice */
+    --dd-spacing: 2rem;
+    --dd-spacing-half: 1rem;
+    --dd-title-weight: 600;
+    --dd-font:
+        -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+        sans-serif;
+    --dd-font-mono: ui-monospace, 'SFMono-Regular', 'Consolas', 'Menlo', monospace;
+}
+
+.dark {
+    --dd-body: #191c20;
+    --dd-surface: #25282c;
+    --dd-surface-alt: #1f2226;
+    --dd-box: #1f2226;
+    --dd-text: rgba(255, 255, 255, 0.8);
+    --dd-text-soft: rgba(255, 255, 255, 0.7);
+    --dd-text-muted: #b3b3b3;
+
+    --dd-icon-tile: rgba(255, 255, 255, 0.07);
+    --dd-icon-ink: rgba(255, 255, 255, 0.75);
+    --dd-icon-hover-border: rgba(255, 255, 255, 0.6);
+    --dd-ico-primary: #6fb6e4;
+    --dd-ico-signal: #f0c14b;
+    --dd-ico-muted: #b3b3b3;
+    --dd-ico-graphite: #5a6068;
+    --dd-ico-danger: #e8757e;
+    --dd-border: #3a3e44;
+    --dd-border-soft: #33373c;
+    --dd-divider: rgba(175, 175, 175, 0.2);
+    --dd-table-head: #2c3035;
+    --dd-code-block: #1b1e21;
+    --dd-code-line-highlight: rgba(255, 255, 255, 0.07);
+    --dd-code-inline: #2c3035;
+    --dd-code-inline-text: #8ec8ec;
+    --dd-code-inline-border: #33373c;
+    --dd-accent: #6fb6e4;
+    --dd-accent-hover: #93c9ec;
+    --dd-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.4);
+    --dd-shadow-long: 0 3px 3px 0 rgba(0, 0, 0, 0.4);
+    --dd-button-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
+}
+
+/*
+-------------------------------------------------------------------------------
+VitePress variable map
+-------------------------------------------------------------------------------
+*/
+:root {
+    --vp-font-family-base: var(--dd-font);
+    --vp-font-family-mono: var(--dd-font-mono);
+
+    /* Page is grey, tiles and panels are white */
+    --vp-c-bg: var(--dd-body);
+    --vp-c-bg-alt: var(--dd-surface);
+    --vp-c-bg-soft: var(--dd-surface);
+    --vp-c-bg-elv: var(--dd-surface);
+    --vp-nav-bg-color: var(--dd-surface);
+    --vp-sidebar-bg-color: var(--dd-surface);
+    /* digidive `--sidebar-width: 22rem` at its 10px root = 220px. */
+    --vp-sidebar-width: calc(var(--dd-rem) * 22);
+
+    --vp-c-text-1: var(--dd-text);
+    --vp-c-text-2: var(--dd-text-soft);
+    --vp-c-text-3: var(--dd-text-muted);
+
+    --vp-c-border: var(--dd-border);
+    --vp-c-divider: var(--dd-divider);
+    --vp-c-gutter: var(--dd-divider);
+
+    --vp-c-brand-1: var(--dd-accent);
+    --vp-c-brand-2: var(--dd-accent-hover);
+    --vp-c-brand-3: var(--dd-accent);
+    --vp-c-brand-soft: var(--dd-primary-soft);
+
+    --vp-c-default-1: var(--dd-text-muted);
+    --vp-c-default-2: var(--dd-border);
+    --vp-c-default-3: var(--dd-border-soft);
+    --vp-c-default-soft: var(--dd-divider);
+
+    --vp-c-success-1: var(--dd-success);
+    --vp-c-success-soft: var(--dd-success-soft);
+    --vp-c-danger-1: var(--dd-danger);
+    --vp-c-danger-soft: var(--dd-danger-soft);
+    --vp-c-warning-1: var(--dd-signal);
+    --vp-c-warning-soft: var(--dd-signal-soft);
+
+    --vp-button-brand-border: var(--dd-primary-dark);
+    --vp-button-brand-bg: var(--dd-primary);
+    --vp-button-brand-hover-border: var(--dd-primary-dark);
+    --vp-button-brand-hover-bg: var(--dd-primary-light);
+    --vp-button-brand-active-border: var(--dd-primary-dark);
+    --vp-button-brand-active-bg: var(--dd-primary-dark);
+
+    --vp-button-alt-border: var(--dd-border);
+    --vp-button-alt-bg: var(--dd-surface);
+    --vp-button-alt-hover-border: var(--dd-primary);
+    --vp-button-alt-hover-bg: var(--dd-surface-alt);
+    --vp-button-alt-active-border: var(--dd-primary);
+    --vp-button-alt-active-bg: var(--dd-surface-alt);
+
+    --vp-code-color: var(--dd-accent);
+    --vp-code-link-color: var(--dd-accent);
+    --vp-code-bg: transparent;
+    --vp-code-block-color: var(--dd-text);
+    --vp-code-block-bg: var(--dd-code-block);
+    --vp-code-block-divider-color: var(--dd-border);
+    --vp-code-tab-bg: var(--dd-code-block);
+    --vp-code-line-highlight-color: var(--dd-code-line-highlight);
+    --vp-code-copy-code-border-color: var(--dd-border-soft);
+    --vp-code-copy-code-bg: var(--dd-surface-alt);
+    --vp-code-copy-code-hover-border-color: var(--dd-primary);
+    --vp-code-copy-code-hover-bg: var(--dd-surface-alt);
+
+    --vp-custom-block-border-radius: var(--dd-radius);
+    --vp-custom-block-info-border: var(--dd-border);
+    --vp-custom-block-note-border: var(--dd-primary);
+    --vp-custom-block-tip-border: var(--dd-primary);
+    --vp-custom-block-warning-border: var(--dd-signal);
+    --vp-custom-block-danger-border: var(--dd-danger);
+    --vp-custom-block-caution-border: var(--dd-danger);
+
+    --vp-badge-info-border: var(--dd-primary);
+    --vp-home-hero-name-color: var(--dd-accent);
+    --vp-home-hero-name-background: none;
+    --vp-home-hero-image-background-image: none;
+    --vp-header-anchor-symbol: '#';
+}
+
+/*
+-------------------------------------------------------------------------------
+Base
+-------------------------------------------------------------------------------
+*/
+body {
+    font-family: var(--dd-font);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/*
+ * Article typography mirrors digidive: 14px base, 600-weight headings on a
+ * tight scale, borderless `h2`, plain links.
+ */
+.vp-doc {
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.vp-doc h1,
+.vp-doc h2,
+.vp-doc h3,
+.vp-doc h4,
+.vp-doc h5,
+.vp-doc h6 {
+    font-weight: var(--dd-title-weight);
+    letter-spacing: normal;
+}
+
+.vp-doc h1 {
+    margin: 30px 0 10px;
+    font-size: 26px;
+    line-height: 1.3;
+}
+
+.vp-doc h1:first-of-type {
+    margin-top: 0;
+}
+
+.vp-doc h2 {
+    margin: 20px 0 10px;
+    border-top: none;
+    padding-top: 0;
+    font-size: 23px;
+    line-height: 1.35;
+}
+
+.vp-doc h2 .header-anchor {
+    top: 0;
+}
+
+.vp-doc h3 {
+    margin: 20px 0 10px;
+    font-size: 21px;
+    line-height: 1.4;
+}
+
+.vp-doc h4 {
+    margin: 20px 0 10px;
+    font-size: 19px;
+    line-height: 1.45;
+}
+
+.vp-doc h5 {
+    margin: 20px 0 10px;
+    font-size: 18px;
+}
+
+.vp-doc h6 {
+    margin: 20px 0 10px;
+    font-size: 16px;
+}
+
+.vp-doc p {
+    line-height: 1.6;
+}
+
+.vp-doc a {
+    text-decoration: none;
+}
+
+.vp-doc a:hover {
+    color: var(--dd-accent-hover);
+}
+
+.vp-doc ul {
+    list-style: circle;
+}
+
+.vp-doc :not(pre) > code {
+    background-color: var(--dd-code-inline);
+    border: var(--dd-border-width) solid var(--dd-code-inline-border);
+    border-radius: 3px;
+    color: var(--dd-code-inline-text);
+    font-size: 0.92em;
+    padding: 2px 5px;
+}
+
+.vp-doc a > code {
+    color: var(--dd-code-inline-text);
+}
+
+.vp-doc blockquote {
+    border-left: 6px solid var(--dd-primary);
+    border-radius: 0 var(--dd-radius) var(--dd-radius) 0;
+    background-color: var(--dd-surface);
+    padding: var(--dd-spacing-half) var(--dd-spacing);
+}
+
+.vp-doc blockquote > p {
+    color: var(--dd-text-soft);
+    font-size: 15px;
+}
+
+/*
+-------------------------------------------------------------------------------
+Surfaces: footer, local nav, search
+
+Navbar and sidebar colors come from `--vp-nav-bg-color` / `--vp-sidebar-bg-color`
+above; only what has no variable is styled here.
+-------------------------------------------------------------------------------
+*/
+/*
+ * VitePress paints the bar through `.content-body`, which is inset by the
+ * container padding, leaving a strip of page background at the right edge.
+ * Paint the whole bar instead.
+ */
+.VPNavBar.VPNavBar:not(.home) {
+    background-color: var(--vp-nav-bg-color);
+}
+
+/* Home page is a single flat surface. */
+.VPContent.is-home,
+.VPNavBar.home,
+.VPNavBar.home .content-body {
+    background-color: var(--dd-surface);
+}
+
+/* Sidebar mirrors digidive's panel: a soft right shadow, no hard rule. */
+.VPSidebar.VPSidebar {
+    border-right: none;
+    box-shadow: 1px 0 1px 0 rgba(0, 0, 0, 0.15);
+}
+
+.dark .VPSidebar.VPSidebar {
+    box-shadow: 1px 0 1px 0 rgba(0, 0, 0, 0.4);
+}
+
+/* Reading column: upstream caps it at 688px, which reads cramped next to a
+ * 22rem sidebar. Give it room to breathe on wide screens. */
+.VPDoc.VPDoc.has-aside .content-container {
+    max-width: 880px;
+}
+
+/* digidive has no right-hand TOC: the column gets the whole width. The outline
+ * only fits once sidebar + 880px column + TOC would, so drop it below that. */
+@media (max-width: 1527.98px) {
+    .VPDoc.VPDoc .aside {
+        display: none;
+    }
+}
+
+.VPDoc.VPDoc .aside {
+    padding-left: 24px;
+    max-width: 208px;
+}
+
+.VPDoc .aside-container,
+.VPDoc .aside-curtain {
+    width: 184px;
+}
+
+/* digidive puts a 2.5rem gutter on the link itself; the gutter lives on `.nav`
+ * so the sticky curtain spans the whole aside without negative margins. */
+@media (min-width: 960px) {
+    .VPSidebar.VPSidebar.VPSidebar {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .VPSidebar .curtain.curtain {
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .VPSidebar .nav {
+        padding-left: calc(var(--dd-rem) * 2.5);
+        padding-right: calc(var(--dd-rem) * 2.5);
+    }
+
+    /* One continuous rule under the nav bar: upstream insets it to the
+     * sidebar width and adds a second hairline under the title, so the
+     * header line stops short of the body line and looks shifted. */
+    .VPNavBar.has-sidebar.has-sidebar .divider {
+        padding-left: 0;
+    }
+
+    .VPNavBarTitle.VPNavBarTitle.has-sidebar .title.title {
+        border-bottom-color: transparent;
+    }
+
+    .VPSidebar .group.group {
+        width: calc(var(--vp-sidebar-width) - var(--dd-rem) * 5);
+    }
+}
+
+/* Upstream grows the sidebar past 1440px to centre it on a 1440px grid.
+ * Drop that grid so the sidebar stays 22rem and nothing drifts right. */
+@media (min-width: 1440px) {
+    .VPSidebar.VPSidebar.VPSidebar {
+        padding-left: 0;
+        padding-right: 0;
+        width: var(--vp-sidebar-width);
+    }
+
+    .VPNavBar.has-sidebar.has-sidebar .title {
+        padding-left: calc(var(--dd-rem) * 2.5);
+        width: var(--vp-sidebar-width);
+    }
+
+    .VPNavBar.has-sidebar.has-sidebar .content {
+        padding-right: 32px;
+        padding-left: var(--vp-sidebar-width);
+    }
+
+    .VPNavBar.has-sidebar.has-sidebar .divider {
+        padding-left: 0;
+    }
+
+    .VPContent.VPContent.has-sidebar {
+        padding-right: 32px;
+        padding-left: var(--vp-sidebar-width);
+    }
+}
+
+.VPFooter.VPFooter {
+    border-top: none;
+    background-color: var(--dd-surface);
+    padding: 24px;
+}
+
+.VPFooter .message,
+.VPFooter .copyright {
+    font-size: 13px;
+    color: var(--dd-text-muted);
+}
+
+.VPLocalNav.VPLocalNav {
+    border-bottom: var(--dd-border-width) solid var(--dd-divider);
+}
+
+/* Dense rows and dot markers instead of upstream's 1px rail. */
+/* digidive: `a.with-icon { padding: 0.5rem 2.5rem }` around a 3rem icon tile,
+ * so every row is 4rem (40px) tall, not just the text line. */
+
+/* `--base-font-size: 1.4rem`, `--base-line-height: 1.5`. */
+.VPSidebarItem .text {
+    font-size: calc(var(--dd-rem) * 1.4);
+    line-height: 1.5;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.VPSidebarItem .link:hover .text,
+.VPSidebarItem.is-active > .item .link .text,
+.VPSidebarItem.has-active > .item > .text {
+    color: var(--dd-primary);
+}
+
+.VPSidebarItem.VPSidebarItem.level-0 > .item > .text,
+.VPSidebarItem.VPSidebarItem.level-0.has-active > .item > .text {
+    font-size: calc(var(--dd-rem) * 1.3);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--dd-text-muted);
+}
+
+/* digidive group titles are plain `h5` with `margin: 2rem 0 1rem`. */
+.VPSidebarItem.level-0 {
+    padding-top: calc(var(--dd-rem) * 2);
+    padding-bottom: calc(var(--dd-rem) * 1);
+}
+
+.VPSidebarItem.level-0:first-child {
+    padding-top: 0;
+}
+
+.VPSidebarItem.level-1 .items,
+.VPSidebarItem.level-2 .items,
+.VPSidebarItem.level-3 .items {
+    border-left: none;
+    padding-left: 0;
+}
+
+/* digidive scales the root font size up on wide screens; mirror it. */
+@media (min-width: 1600px) {
+    :root {
+        --dd-rem: 0.7rem;
+    }
+}
+
+@media (min-width: 1920px) {
+    :root {
+        --dd-rem: 0.75rem;
+    }
+}
+
+@media (min-width: 2300px) {
+    :root {
+        --dd-rem: 0.83rem;
+    }
+}
+
+/* Sidebar icons (masked so they follow the text colour). */
+:root {
+    --dd-icon-home: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.5%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M2.5 7.4 8 2.8l5.5 4.6V13a.6.6 0 0 1-.6.6H3.1a.6.6 0 0 1-.6-.6z%22/%3E%3Cpath d=%22M6.2 13.6V9.4h3.6v4.2%22/%3E%3C/svg%3E');
+    --dd-icon-info: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.5%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Ccircle cx=%228%22 cy=%228%22 r=%225.6%22/%3E%3Cpath d=%22M8 7.3v4%22/%3E%3Cpath d=%22M8 4.8v.5%22/%3E%3C/svg%3E');
+    --dd-icon-code: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.5%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M5.6 5.4 3 8l2.6 2.6%22/%3E%3Cpath d=%22M10.4 5.4 13 8l-2.6 2.6%22/%3E%3C/svg%3E');
+    --dd-icon-file: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.5%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M4 2.4h4.4l3.2 3.2v7.9a.5.5 0 0 1-.5.5H4.5a.5.5 0 0 1-.5-.5z%22/%3E%3Cpath d=%22M8.2 2.6v3.1h3.1%22/%3E%3C/svg%3E');
+}
+
+/* 3rem tile + 1rem gap, as in digidive. */
+.VPSidebarItem.level-1 > .item,
+.VPSidebarItem.level-2 > .item,
+.VPSidebarItem.level-3 > .item {
+    align-items: center;
+    min-height: calc(var(--dd-rem) * 4);
+    padding-left: calc(var(--dd-rem) * 4);
+}
+
+/* Tile: 30px box, 2px transparent border, 5px radius. */
+.VPSidebarItem.level-1 > .item::before,
+.VPSidebarItem.level-2 > .item::before,
+.VPSidebarItem.level-3 > .item::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    box-sizing: border-box;
+    width: calc(var(--dd-rem) * 3);
+    height: calc(var(--dd-rem) * 3);
+    margin-top: calc(var(--dd-rem) * -1.5);
+    border: calc(var(--dd-rem) * 0.2) solid transparent;
+    border-radius: var(--dd-radius);
+    background-color: var(--dd-icon-tile);
+    transition:
+        background-color 0.25s,
+        border-color 0.25s;
+}
+
+/* Glyph: 20px masked icon inside the tile, tinted with `currentColor`-free ink. */
+.VPSidebarItem.level-1 > .item::after,
+.VPSidebarItem.level-2 > .item::after,
+.VPSidebarItem.level-3 > .item::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: calc(var(--dd-rem) * 0.5);
+    width: calc(var(--dd-rem) * 2);
+    height: calc(var(--dd-rem) * 2);
+    margin-top: calc(var(--dd-rem) * -1);
+    background-color: var(--dd-ico, var(--dd-icon-ink));
+    -webkit-mask: var(--dd-icon, var(--dd-icon-file)) center / calc(var(--dd-rem) * 2)
+        calc(var(--dd-rem) * 2) no-repeat;
+    mask: var(--dd-icon, var(--dd-icon-file)) center / calc(var(--dd-rem) * 2)
+        calc(var(--dd-rem) * 2) no-repeat;
+    transition: background-color 0.25s;
+}
+
+/* Icon and tone are data, not CSS: the sidebar config names an icon and a
+ * tone per item, and the theme stamps them onto the row as `--dd-icon` /
+ * `--dd-ico` (see theme/index.ts). Everything below only reads those variables,
+ * so this file stays page-agnostic. */
+.VPSidebarItem.level-1 > .item:hover::before,
+.VPSidebarItem.level-2 > .item:hover::before,
+.VPSidebarItem.level-3 > .item:hover::before {
+    border-color: var(--dd-ico, var(--dd-icon-hover-border));
+}
+
+/* Active: tile filled with the item colour (digidive `.primary.active .icon`). */
+.VPSidebarItem.level-1.is-active > .item::before,
+.VPSidebarItem.level-2.is-active > .item::before,
+.VPSidebarItem.level-3.is-active > .item::before {
+    background-color: var(--dd-ico-active, var(--dd-ico, var(--dd-accent)));
+    border-color: transparent;
+}
+
+.VPSidebarItem.level-1.is-active > .item::after,
+.VPSidebarItem.level-2.is-active > .item::after,
+.VPSidebarItem.level-3.is-active > .item::after {
+    background-color: #fff;
+}
+
+.VPSidebarItem .indicator {
+    display: none;
+}
+
+/*
+-------------------------------------------------------------------------------
+Hero
+-------------------------------------------------------------------------------
+*/
+.VPHero.VPHero {
+    padding: 96px 24px 72px;
+    background-color: var(--dd-surface);
+    border-bottom: none;
+}
+
+.VPHero.VPHero .main {
+    max-width: 720px;
+}
+
+.VPHero.VPHero .name,
+.VPHero.VPHero .text,
+.VPHero.VPHero .tagline {
+    max-width: 100%;
+}
+
+.VPHero.VPHero .name {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    line-height: 1.4;
+    text-transform: uppercase;
+    color: var(--dd-accent);
+}
+
+.VPHero.VPHero .text {
+    font-size: 44px;
+    line-height: 1.15;
+    font-weight: var(--dd-title-weight);
+    letter-spacing: -0.02em;
+    color: var(--dd-text);
+}
+
+.VPHero.VPHero .tagline {
+    padding-top: 12px;
+    font-size: 18px;
+    line-height: 1.6;
+    max-width: 560px;
+    color: var(--dd-text-soft);
+}
+
+.VPHero.VPHero .actions {
+    padding-top: 28px;
+}
+
+/*
+-------------------------------------------------------------------------------
+Buttons, features
+
+VitePress ships a 20px pill radius; the tile language wants 5px, which has no
+variable. Scoped component styles are `[data-v-*]`, so the class is repeated to
+win on specificity instead of using `!important`.
+-------------------------------------------------------------------------------
+*/
+.VPButton.VPButton.VPButton {
+    height: 40px;
+    padding: 0 20px;
+    border-radius: var(--dd-radius);
+    border-width: var(--dd-border-width);
+    box-shadow: var(--dd-button-shadow);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.VPFeature.VPFeature {
+    background-color: var(--dd-box);
+    border: var(--dd-border-width) solid var(--dd-border);
+    border-radius: var(--dd-radius);
+    box-shadow: var(--dd-shadow);
+    transition:
+        box-shadow 0.25s,
+        border-color 0.25s;
+}
+
+.VPFeature.VPFeature:hover {
+    border-color: var(--dd-primary);
+    box-shadow: var(--dd-shadow-long);
+}
+
+.VPFeature .box {
+    padding: 24px;
+}
+
+.VPFeature .icon {
+    display: grid;
+    place-items: center;
+    width: calc(var(--dd-rem) * 4);
+    height: calc(var(--dd-rem) * 4);
+    background-color: var(--dd-icon-tile);
+    border: var(--dd-border-width) solid var(--dd-border-soft);
+    border-radius: var(--dd-radius);
+    color: var(--dd-primary);
+}
+
+.VPFeature .icon svg {
+    width: calc(var(--dd-rem) * 2.4);
+    height: calc(var(--dd-rem) * 2.4);
+}
+
+.VPFeature .details {
+    padding-top: 8px;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+/*
+-------------------------------------------------------------------------------
+Code blocks and tables
+-------------------------------------------------------------------------------
+*/
+.vp-doc div[class*='language-'] {
+    border: var(--dd-border-width) solid var(--dd-border);
+    border-radius: var(--dd-radius);
+    box-shadow: var(--dd-shadow);
+}
+
+.vp-doc table {
+    border: var(--dd-border-width) solid var(--dd-border);
+    border-radius: var(--dd-radius);
+    border-collapse: separate;
+    border-spacing: 0;
+    box-shadow: var(--dd-shadow);
+}
+
+.vp-doc th,
+.vp-doc td {
+    border: none;
+    border-bottom: var(--dd-border-width) solid var(--dd-border);
+    padding: 10px 14px;
+}
+
+.vp-doc th {
+    background-color: var(--dd-table-head);
+    font-weight: var(--dd-title-weight);
+    color: var(--dd-text);
+}
+
+.vp-doc tr:first-child th:first-child {
+    border-top-left-radius: calc(var(--dd-radius) - 1px);
+}
+
+.vp-doc tr:first-child th:last-child {
+    border-top-right-radius: calc(var(--dd-radius) - 1px);
+}
+
+.vp-doc tr:last-child td {
+    border-bottom: none;
+}
+
+.vp-doc tbody tr {
+    background-color: var(--dd-surface);
+}
+
+.vp-doc tbody tr:nth-child(2n) {
+    background-color: var(--dd-surface-alt);
+}
+
+/*
+-------------------------------------------------------------------------------
+Small screens
+-------------------------------------------------------------------------------
+*/
+@media (max-width: 640px) {
+    .VPHero.VPHero {
+        padding: 80px 24px 56px;
+    }
+
+    .VPHero.VPHero .text {
+        font-size: 34px;
+    }
+
+    .VPHero.VPHero .tagline {
+        font-size: 16px;
+    }
+}

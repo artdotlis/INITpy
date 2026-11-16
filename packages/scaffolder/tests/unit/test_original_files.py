@@ -25,7 +25,6 @@ ORIGINAL_FIXTURES = [
     "original_lint_env_sh",
     "original_licenses_sh",
     "original_docs_index_md",
-    "original_docs_ref_index_md",
     "original_docs_vitepress_config_toml",
     "original_docs_package_json",
 ]

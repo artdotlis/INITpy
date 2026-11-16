@@ -32,7 +32,6 @@ TEMPLATE_PATHS = [
     "lint/lint_env.sh.jinja",
     "lint/licenses.sh.jinja",
     "docs/index.md.jinja",
-    "docs/ref_index.md.jinja",
     "docs/vitepress_config.toml.jinja",
     "docs/package.json.jinja",
 ]

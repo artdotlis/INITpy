@@ -23,30 +23,13 @@ class TestAmendDocs:
         ):
             (tmp_path / rel).mkdir(parents=True)
 
-    def test_updates_index_and_ref(
-        self, tmp_path: Path, context: dict[str, object]
-    ) -> None:
-        """Render the docs index hero and the single-package reference."""
+    def test_updates_index(self, tmp_path: Path, context: dict[str, object]) -> None:
+        """Render the docs index hero with the first API package link."""
         self._setup(tmp_path)
         amend_docs(tmp_path, context)
         index = (tmp_path / "packages" / "docs" / "src" / "index.md").read_text()
         assert f"name: {context['project_name']}" in index
-        ref = (tmp_path / "packages" / "docs" / "src" / "ref" / "index.md").read_text()
-        # REUSE-IgnoreStart
-        expected_ref = (
-            f"<!--\n"
-            f"SPDX-FileCopyrightText: {context['year']} {context['copyright_holder']}\n\n"
-            f"SPDX-License-Identifier: CC0-1.0\n"
-            f"-->\n"
-            f"\n"
-            f"# Reference\n"
-            f"\n"
-            f"API documentation generated from module docstrings.\n"
-            f"\n"
-            f"- [{context['package_name']}]({context['package_name']})\n"
-        )
-        # REUSE-IgnoreEnd
-        assert ref == expected_ref
+        assert f"link: /ref/{context['package_name']}" in index
 
     def test_sets_site_title(self, tmp_path: Path, context: dict[str, object]) -> None:
         """Set the VitePress site title to the project name."""

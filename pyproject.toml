@@ -75,6 +75,9 @@ version_files = [
 version_provider = "uv"
 version_type = "semver"
 
+[tool.griffe2md]
+separate_signature = false
+
 [tool.pyrefly]
 preset = "strict"
 project-includes = [

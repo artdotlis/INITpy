@@ -20,6 +20,11 @@ dark = "vitesse-dark"
 
 [vitepress.themeConfig]
 license = "Unlicense"
+[[vitepress.themeConfig.refPackages]]
+name = "scaffolder"
+
+[[vitepress.themeConfig.refPackages]]
+name = "shared_utils"
 
 [vitepress.themeConfig.logo]
 value = "🛠️"
@@ -30,6 +35,10 @@ provider = "local"
 [[vitepress.themeConfig.socialLinks]]
 icon = "github"
 link = "https://github.com/artdotlis/INITpy"
+
+[vitepress.themeConfig.docFooter]
+prev = false
+next = false
 
 [[vitepress.themeConfig.nav]]
 text = "Home"
@@ -45,7 +54,7 @@ link = "/license/"
 
 [[vitepress.themeConfig.nav]]
 text = "API"
-link = "/ref/"
+link = "/ref/scaffolder"
 
 [[vitepress.themeConfig.footer]]
 copyright = "Copyright © 2026 Artur Lissin"

@@ -159,26 +159,19 @@ class TestRenderMatchesOriginal:
     def test_docs_index_md(
         self, docs_index_md_jinja: Any, context: dict[str, object]
     ) -> None:
-        """``docs/index.md.jinja`` -> ``packages/docs/src/index.md``."""
-        _assert_render_matches(docs_index_md_jinja, context)
+        """The index render's static parts are part of the original.
 
-    def test_docs_ref_index_md(
-        self, docs_ref_index_md_jinja: Any, context: dict[str, object]
-    ) -> None:
-        """The ref index render's static parts are part of the original.
-
-        The full file cannot match: the original lists every real package by its
-        source name, while the template emits the single scaffolded package
-        (``{{ package_name }}``). So the rendered static content (SPDX header,
-        heading, subtitle) is asserted to be present in the original, and the
-        dynamic package entry is checked separately.
+        The full file cannot match: the original links the repo's own API
+        page (``scaffolder``), while the template emits the scaffolded
+        package name. So the static content is asserted to be present, and
+        the dynamic package entry is checked separately.
         """
-        rendered = docs_ref_index_md_jinja.render(context)
-        original = docs_ref_index_md_jinja.target_path.read_text()
-        package_line = f"- [{context['package_name']}]({context['package_name']})"
-        rendered_prefix = rendered.split(package_line, 1)[0]
+        rendered = docs_index_md_jinja.render(context)
+        original = docs_index_md_jinja.target_path.read_text()
+        package_link = f"link: /ref/{context['package_name']}"
+        rendered_prefix = rendered.split(package_link, 1)[0]
         assert rendered_prefix in original
-        assert package_line in rendered
+        assert package_link in rendered
 
     def test_docs_vitepress_config_toml(
         self,
