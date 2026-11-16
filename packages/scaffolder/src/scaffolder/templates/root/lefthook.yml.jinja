@@ -110,6 +110,8 @@ pre-commit:
                     stage_fixed: true
                   - name: prettier
                     glob: '*.{css,less,scss,html,vue,svelte,astro,md,mdx,json,json5,yaml,yml}'
+                    exclude:
+                        - 'pnpm-lock.yaml'
                     run: bin/install/wrap.sh prettier --write --config '$CONFIG_PRETTIER' -- {staged_files} || true
                     stage_fixed: true
 commit-msg:
