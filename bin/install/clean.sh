@@ -44,7 +44,6 @@ if [[ -e "$ROOT/node_modules" ]]; then
     rm -rf -- "$ROOT/node_modules"
 fi
 
-# build output
 if [[ -e "$ROOT/public" ]]; then
     echo "  removing public"
     rm -rf -- "$ROOT/public"
