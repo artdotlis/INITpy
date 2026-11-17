@@ -73,3 +73,16 @@ class TestCorrectCoreProject:
         (tmp_path / "bin" / "lint").mkdir(parents=True)
         correct_core_project(tmp_path, dict(context, use_docs=False))
         assert not (tmp_path / "packages" / "docs" / "package.json").exists()
+
+    def test_flat_layout_uses_package_name(
+        self, tmp_path: Path, context: dict[str, object]
+    ) -> None:
+        """Name the project after the package and skip node config files."""
+        (tmp_path / ".devcontainer").mkdir(parents=True)
+        (tmp_path / "bin" / "lint").mkdir(parents=True)
+        correct_core_project(tmp_path, dict(context, use_monorepo=False))
+        toml = _toml(tmp_path / "pyproject.toml")
+        assert toml["project"]["name"] == context["package_name"]
+        assert "workspace" not in toml["tool"]["uv"]
+        assert not (tmp_path / "package.json").exists()
+        assert not (tmp_path / "pnpm-workspace.yaml").exists()

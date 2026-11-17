@@ -10,7 +10,8 @@ ROOT="$(dirname "$(realpath "$0")")/../.."
 ROOT_ENV="$ROOT/package.env"
 DOCKER_DIR="$ROOT/configs/docker"
 
-{% if use_docs %}ENV_FILES=( "$ROOT_ENV" "${{ package_env_file }}" "$DOC_ENV")
+{% if not use_monorepo %}ENV_FILES=( "$ROOT_ENV" )
+{% elif use_docs %}ENV_FILES=( "$ROOT_ENV" "${{ package_env_file }}" "$DOC_ENV")
 {% else %}ENV_FILES=( "$ROOT_ENV" "${{ package_env_file }}" )
 {% endif %}
 
@@ -188,7 +189,9 @@ while SEP=' ' read -ra files; do
             exit 1
         fi
     done
-done <<<"$(find "$PKG" -type f -regex '.*/packages/[^/]*/[^/]*')"
+{% if use_monorepo %}done <<<"$(find "$PKG" -type f -regex '.*/packages/[^/]*/[^/]*')"
+{% else %}done <<<"$(find "$PKG" -type f)"
+{% endif %}
 
 cmd='{
     while (match($0, /\$[A-Z_]+[A-Z0-9_]*/)) {
@@ -210,4 +213,5 @@ while SEP=' ' read -ra files; do
             exit 1
         fi
     done
-done <<<"$(find "$PKG" -type f -regex '.*/packages/[^/]*/bin/.*')"
+{% if use_monorepo %}done <<<"$(find "$PKG" -type f -regex '.*/packages/[^/]*/bin/.*')"
+{% endif %}

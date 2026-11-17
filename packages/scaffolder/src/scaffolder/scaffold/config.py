@@ -20,13 +20,14 @@ def correct_core_project(path: Path, root_ctx: dict[str, Any], /) -> None:
     (path / "pyproject.toml").write_text(
         render_template("root/root.toml.jinja", root_ctx)
     )
-    (path / "pnpm-workspace.yaml").write_text(
-        render_template("root/pnpm-workspace.yaml.jinja", root_ctx)
-    )
-    (path / "package.json").write_text(
-        render_template("root/package.json.jinja", root_ctx)
-    )
-    if root_ctx["use_docs"]:
+    if root_ctx["use_monorepo"]:
+        (path / "pnpm-workspace.yaml").write_text(
+            render_template("root/pnpm-workspace.yaml.jinja", root_ctx)
+        )
+        (path / "package.json").write_text(
+            render_template("root/package.json.jinja", root_ctx)
+        )
+    if root_ctx["use_docs"] and root_ctx["use_monorepo"]:
         (path / "packages" / "docs" / "package.json").write_text(
             render_template("docs/package.json.jinja", root_ctx)
         )

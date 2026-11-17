@@ -18,8 +18,8 @@ fi
 
 LICENSE_SHORT_FILES=(
     "$ROOT/pyproject.toml"
-    "$ROOT/package.json"
-)
+{% if use_monorepo %}    "$ROOT/package.json"
+{% endif %})
 
 for file_path in "${LICENSE_SHORT_FILES[@]}"; do
     if [ ! -f "$file_path" ]; then
@@ -83,11 +83,11 @@ IGNORE=(
     '^configs/prompt/'
     '^configs/REUSE\.toml$'
 {% if use_docs %}    '^packages/docs/REUSE\.toml$'
-{% endif %}    '^packages/scaffolder/REUSE\.toml$'
-{% if use_docs %}    '^packages/docs/src/.+\.md$'
+{% endif %}{% if use_monorepo %}    '^packages/scaffolder/REUSE\.toml$'
+{% endif %}{% if use_docs %}    '^packages/docs/src/.+\.md$'
 {% endif %}    'uv\.lock$'
-    'pnpm-lock\.yaml$'
-)
+{% if use_monorepo %}    'pnpm-lock\.yaml$'
+{% endif %})
 
 should_ignore() {
     local name="$1"
@@ -120,12 +120,13 @@ fi
 
 SOFTWARE=(
     '^.+\.sh$'
-    '^packages/.+\.py$'
+{% if use_monorepo %}    '^packages/.+\.py$'
     '^packages/.+\.(js|ts|mts)$'
     '^packages/.+\.css$'
     '^packages/.+\.html$'
     '^packages/.+\.vue$'
-)
+{% else %}    '^(src|tests)/.+\.py$'
+{% endif %})
 
 CC0_FILES=(
     '\.(jpg|png|ico|webp|avif)$'

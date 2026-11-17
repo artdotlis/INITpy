@@ -89,15 +89,12 @@ get() {
     fi
 }
 
-_dir_uv_install="$(get UV_INSTALL_DIR)"
-_dir_pnpm="$(get PNPM_HOME)"
-
 path_dirs=(
     "$ROOT/$(get FNM_HOME)/aliases/default/bin"
     "$ROOT/$(get FNM_HOME)"
     "$ROOT/$(get UV_PYTHON_BIN_DIR)"
-    "$ROOT/$_dir_uv_install"
-    "$ROOT/$_dir_pnpm/bin"
+    "$ROOT/$(get UV_INSTALL_DIR)"
+    "$ROOT/$(get PNPM_HOME)/bin"
 )
 
 if [[ "$MODE" == make ]]; then
@@ -107,8 +104,8 @@ if [[ "$MODE" == make ]]; then
     done
     # shellcheck disable=SC2016  # $(PATH) is for make, not the shell
     printf 'PATH := $(PATH):%s\n' "$(IFS=:; printf '%s' "${path_dirs[*]}")"
-    printf 'UVE := %s\n' "$ROOT/$_dir_uv_install/uv"
-    printf 'PNPME := %s\n' "$ROOT/$_dir_pnpm/bin/pnpm"
+    printf 'UVE := %s\n' "$ROOT/$(get UV_INSTALL_DIR)/uv"
+    printf 'PNPME := %s\n' "$ROOT/$(get PNPM_HOME)/bin/pnpm"
     printf 'SHELL := /bin/bash\n'
 else
     for i in "${!KEYS[@]}"; do
@@ -118,8 +115,8 @@ else
             export "${key?}"
         fi
     done
-    UVE="$ROOT/$_dir_uv_install/uv"
-    PNPME="$ROOT/$_dir_pnpm/bin/pnpm"
+    UVE="$ROOT/$(get UV_INSTALL_DIR)/uv"
+    PNPME="$ROOT/$(get PNPM_HOME)/bin/pnpm"
     export UVE PNPME
     for dir in "${path_dirs[@]}"; do
         case ":$PATH:" in

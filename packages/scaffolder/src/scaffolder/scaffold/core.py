@@ -16,6 +16,8 @@ from scaffolder.scaffold.env import update_envs
 from scaffolder.scaffold.licenses import configure_licenses
 from scaffolder.scaffold.package import create_package
 from scaffolder.scaffold.skeleton import clean_root_md
+from scaffolder.scaffold.skeleton import remove_node_tooling
+from scaffolder.scaffold.skeleton import remove_packages
 from scaffolder.scaffold.skeleton import remove_prod_docker
 from scaffolder.scaffold.skeleton import remove_projects_output_folder
 from scaffolder.scaffold.skeleton import write_package_files
@@ -62,6 +64,8 @@ class ScaffoldArgs:
     """Whether to keep the REUSE tooling."""
     use_docs: bool
     """Whether to keep the docs (VitePress) subpackage."""
+    use_monorepo: bool
+    """Whether to keep the uv workspace (``packages/``) layout."""
 
 
 def run(args: ScaffoldArgs) -> Path:
@@ -81,7 +85,8 @@ def run(args: ScaffoldArgs) -> Path:
     description = args.description
     copyright = args.copyright
     use_reuse = args.use_reuse
-    use_docs = args.use_docs
+    use_monorepo = args.use_monorepo
+    use_docs = args.use_docs and use_monorepo
     package_name = f"{sanitize_package_name(project_name)}_pkg"
     dep_name = sanitize_package_name_dep_group(package_name)
     output_path = Path(output_dir) / project_name
@@ -105,6 +110,7 @@ def run(args: ScaffoldArgs) -> Path:
         "package_env_file": package_env_file(package_name),
         "use_reuse": use_reuse,
         "use_docs": use_docs,
+        "use_monorepo": use_monorepo,
     }
 
     ref = clone_ref()
@@ -117,10 +123,15 @@ def run(args: ScaffoldArgs) -> Path:
     remove_projects_output_folder(output_path)
 
     print(f"[scaffolder] creating package {package_name} ...")
-    create_package(output_path, package_name, package_ctx)
+    if use_monorepo:
+        create_package(output_path, package_name, package_ctx)
+    else:
+        print("[scaffolder] removing monorepo packages ...")
+        remove_docs(output_path)
+        remove_packages(output_path)
 
     print("[scaffolder] writing package files ...")
-    write_package_files(output_path, package_name)
+    write_package_files(output_path, package_name, use_monorepo=use_monorepo)
 
     if use_docs:
         print("[scaffolder] amending docs ...")
@@ -149,11 +160,15 @@ def run(args: ScaffoldArgs) -> Path:
     print("[scaffolder] removing production docker ...")
     remove_prod_docker(output_path)
 
+    if not use_monorepo:
+        print("[scaffolder] removing node tooling ...")
+        remove_node_tooling(output_path)
+
     if not use_reuse:
         print("[scaffolder] removing reuse tooling ...")
         remove_reuse(output_path)
 
-    if not use_docs:
+    if not use_docs and use_monorepo:
         print("[scaffolder] removing docs subpackage ...")
         remove_docs(output_path)
 

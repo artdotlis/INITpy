@@ -27,8 +27,9 @@ _ANSWERS = [
     "MIT",
     "",
     "",
+    "",
 ]
-NAME, DESCRIPTION, OUTPUT, AUTHOR, EMAIL, _, LICENSE, REUSE, DOCS = range(9)
+NAME, DESCRIPTION, OUTPUT, AUTHOR, EMAIL, _, LICENSE, REUSE, MONOREPO, DOCS = range(10)
 
 
 def _inputs(
@@ -97,6 +98,7 @@ class TestRunCli:
         assert args.copyright == "Copyright"
         assert args.use_reuse is False
         assert args.use_docs is True
+        assert args.use_monorepo is True
 
     def test_scaf_output_prefix_skips_prompt(self) -> None:
         """When SCAF_OUTPUT_DIR is set it is used as the output prefix."""
@@ -118,6 +120,7 @@ class TestRunCli:
             pytest.param(EMAIL, [""], id="empty-email"),
             pytest.param(LICENSE, ["INVALID"], id="invalid-license"),
             pytest.param(REUSE, ["maybe"], id="invalid-reuse"),
+            pytest.param(MONOREPO, ["maybe"], id="invalid-monorepo"),
             pytest.param(DOCS, ["maybe"], id="invalid-docs"),
         ],
     )
@@ -151,6 +154,13 @@ class TestRunCli:
         mock = _drive(_inputs(accepted={REUSE: "n", DOCS: "n"}), return_value=Path("/x"))
         args = mock.call_args[0][0]
         assert args.use_reuse is False
+        assert args.use_docs is False
+
+    def test_no_monorepo_disables_docs(self) -> None:
+        """A 'no monorepo' answer forces a python-only project without docs."""
+        mock = _drive(_inputs(accepted={MONOREPO: "n"}), return_value=Path("/x"))
+        args = mock.call_args[0][0]
+        assert args.use_monorepo is False
         assert args.use_docs is False
 
     def test_run_exception_handled(self) -> None:

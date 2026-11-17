@@ -13,7 +13,7 @@ source "$ROOT/bin/install/env.sh"
 
 echo "Cleaning project tool directories..."
 
-DIRS=("$FNM_HOME" "$UV_HOME" "$PNPM_HOME" "$PNPM_STORE" "$VENV_DIR")
+DIRS=("${FNM_HOME:-}" "${UV_HOME:-}" "${PNPM_HOME:-}" "${PNPM_STORE:-}" "${VENV_DIR:-}")
 
 for dir in "${DIRS[@]}"; do
     [[ -z "$dir" ]] && continue

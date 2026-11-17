@@ -80,7 +80,10 @@ def run_cli() -> None:
     copyright = _prompt_non_empty("Copyright holder: ")
     license_name = _prompt_license()
     use_reuse = _prompt_yes_no("Use reuse tooling? [Y/n] ")
-    use_docs = _prompt_yes_no("Keep docs subpackage? [Y/n] ")
+    use_monorepo = _prompt_yes_no("Use monorepo layout? [Y/n] ")
+    use_docs = use_monorepo and _prompt_yes_no("Keep docs subpackage? [Y/n] ")
+    if not use_monorepo:
+        print("Python-only layout: docs and node tooling dropped")
 
     try:
         result = run(
@@ -94,6 +97,7 @@ def run_cli() -> None:
                 copyright=copyright,
                 use_reuse=use_reuse,
                 use_docs=use_docs,
+                use_monorepo=use_monorepo,
             )
         )
         print(f"\n✅ '{project_name}' → {result.absolute()}")

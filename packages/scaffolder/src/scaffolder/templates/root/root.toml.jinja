@@ -4,7 +4,7 @@
 
 [project]
 classifiers = ["Private :: Do Not Upload"]
-name = "{{ project_name }}"
+name = "{{ package_name if not use_monorepo else project_name }}"
 version = "{{ version }}"
 description = "{{ description }}"
 readme = "README.md"
@@ -17,7 +17,7 @@ name = "{{ author_name }}"
 email = "{{ author_email }}"
 [tool.uv]
 exclude-newer = "3 days"
-package = false
+{% if use_monorepo %}package = false
 default-groups = ["mono"]
 
 [tool.setuptools]
@@ -31,11 +31,16 @@ members = ["packages/*"]
 {% if use_docs %}exclude = [
   "packages/docs"
 ]
+{% endif %}{% else %}package = true
+
+[build-system]
+requires = ["uv_build>=0.11.26,<0.14.0"]
+build-backend = "uv_build"
 {% endif %}
 
 [dependency-groups]
-mono = ["{{ dep_name }}"]
-{% if use_reuse %}dev = [
+{% if use_monorepo %}mono = ["{{ dep_name }}"]
+{% endif %}{% if use_reuse %}dev = [
   "commitizen ==4.19.3",
   "pyrefly ==1.4.0",
   "ruff ==0.17.3",
@@ -64,7 +69,7 @@ major_version_zero = true
 name = "cz_conventional_commits"
 tag_format = "v$version"
 update_changelog_on_bump = true
-version_files = ["README.md:^\\[!\\[release:", "package.json", "pyproject.toml", "packages/{{ package_name }}/pyproject.toml"{% if use_docs %}, "packages/docs/package.json"{% endif %}]
+version_files = ["README.md:^\\[!\\[release:", {% if use_monorepo %}"package.json", "pyproject.toml", "packages/{{ package_name }}/pyproject.toml"{% else %}"pyproject.toml"{% endif %}{% if use_docs %}, "packages/docs/package.json"{% endif %}]
 version_provider = "uv"
 version_type = "semver"
 
@@ -74,8 +79,10 @@ separate_signature = false
 {% endif %}[tool.pyrefly]
 preset = "strict"
 project-includes = [
-  "packages/**/*.py",
-]
+{% if use_monorepo %}  "packages/**/*.py",
+{% else %}  "src/**/*.py",
+  "tests/**/*.py",
+{% endif %}]
 
 project-excludes = [
   "**/__pycache__/**",
@@ -86,9 +93,10 @@ project-excludes = [
   "configs/**",
 ]
 search-path = [
-  "packages/scaffolder/src",
+{% if use_monorepo %}  "packages/scaffolder/src",
   "packages/shared_utils/src",
-]
+{% else %}  "src",
+{% endif %}]
 python-version = "3.13"
 python-platform = "linux"
 skip-interpreter-query = false
@@ -194,7 +202,7 @@ max-args = 8
 convention = "google"
 
 [tool.vulture]
-paths = ["configs/lint/whitelist.py","packages/shared_utils/src", "packages/scaffolder/src"]
+paths = ["configs/lint/whitelist.py"{% if use_monorepo %}, "packages/shared_utils/src", "packages/scaffolder/src"{% else %}, "src"{% endif %}]
 {% if use_docs %}exclude = ["packages/docs/"]
 {% else %}exclude = []
 {% endif %}ignore_decorators = ["@*"]
@@ -203,3 +211,18 @@ make_whitelist = true
 min_confidence = 60
 sort_by_size = true
 verbose = false
+{% if not use_monorepo %}
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+norecursedirs = ["__pycache__", ".pytest_cache"]
+
+[tool.coverage.run]
+source = ["{{ package_name }}"]
+omit = ["tests/*"]
+data_file = ".coverage.{{ package_name }}"
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
+fail_under = 0
+{% endif %}

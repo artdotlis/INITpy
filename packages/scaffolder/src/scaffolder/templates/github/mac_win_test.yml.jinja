@@ -31,5 +31,5 @@ jobs:
             - name: Install dependencies
               run: uv sync --frozen --group test
             - name: Run [[ package_name ]] tests
-              working-directory: packages/[[ package_name ]]
-              run: uv run coverage run -m pytest
+{% if use_monorepo %}              working-directory: packages/[[ package_name ]]
+{% endif %}              run: uv run coverage run -m pytest

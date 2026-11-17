@@ -354,4 +354,5 @@ def context() -> dict[str, object]:
         "package_env_file": package_env_file(package_name),
         "use_reuse": True,
         "use_docs": True,
+        "use_monorepo": True,
     }

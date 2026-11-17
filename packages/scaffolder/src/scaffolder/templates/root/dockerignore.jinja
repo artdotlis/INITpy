@@ -4,8 +4,10 @@
 
 *
 
-!/packages
-!/bin
+{% if use_monorepo %}!/packages
+{% else %}!/src
+!/tests
+{% endif %}!/bin
 !/configs
 
 !Makefile
@@ -17,15 +19,16 @@
 
 !package.env
 
-# root files needed by `make build` (uv + pnpm workspace)
+# root files needed by `make build`
 !pyproject.toml
 !uv.lock
-!package.json
+{% if use_monorepo %}!package.json
 !pnpm-lock.yaml
 !pnpm-workspace.yaml
+{% endif %}
 
-# Anything pulled in by `!packages`, `!bin`, `!configs` that must not reach the
-# build context. These are regenerated inside the container.
+# Anything pulled in by the whitelisted folders that must not reach the build
+# context. These are regenerated inside the container.
 **/.venv
 **/__pycache__
 **/*.py[cod]
@@ -35,7 +38,7 @@
 **/.coverage
 **/.coverage.*
 **/dist
-**/node_modules
+{% if use_monorepo %}**/node_modules
 **/.pnpm
 **/.pnpm-store
-**/*.egg-info
+{% endif %}**/*.egg-info

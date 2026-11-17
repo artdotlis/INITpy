@@ -24,11 +24,15 @@ export DISABLE_GIT_ADD
 
 setup:
 	bash $(ROOT_MAKEFILE)/$(BIN_INSTALL_UV)
+{% if use_monorepo %}
 	bash $(ROOT_MAKEFILE)/$(BIN_INSTALL_PNPM)
+{% endif %}
 
 dev: setup
 	$(UVE) sync --frozen --all-groups
+{% if use_monorepo %}
 	$(PNPME) install --frozen-lockfile
+{% endif %}
 	@if [ "$(DISABLE_GIT_ADD)" = "1" ]; then \
 		echo "Skipping git operations (DISABLE_GIT_ADD=1)"; \
 	else \
@@ -39,7 +43,9 @@ dev: setup
 
 build: setup
 	$(UVE) sync --frozen
+{% if use_monorepo %}
 	$(PNPME) install --frozen-lockfile --prod
+{% endif %}
 
 run-act:
 	@echo "source .venv/bin/activate; rm /tmp/$(RAN)" > /tmp/$(RAN)
@@ -74,8 +80,12 @@ run-tests:
 	$(UVE) run lefthook run tests
 
 run-build:
+{% if use_monorepo %}
 	$(UVE) build --package shared-utils
 	$(UVE) build --package scaffolder
+{% else %}
+	$(UVE) build
+{% endif %}
 
 run-bump: DISABLE_GIT_ADD = 0
 run-bump:

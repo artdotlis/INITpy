@@ -8,9 +8,9 @@
 .ruff_cache/
 .VSCodeCounter/
 .uv
-.pnpm
+{% if use_monorepo %}.pnpm
 .pnpm-store
-.commit_msg
+{% endif %}.commit_msg
 .commit_msg.*
 
 /.env
@@ -189,8 +189,8 @@ bower_components
 build/Release
 
 node_modules/
-.fnm
-jspm_packages/
+{% if use_monorepo %}.fnm
+{% endif %}jspm_packages/
 
 web_modules/
 

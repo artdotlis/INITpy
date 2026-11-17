@@ -9,15 +9,27 @@ from pathlib import Path
 
 from scaffolder.template import render_template
 
+_NODE_FILES = (
+    "package.json",
+    "pnpm-workspace.yaml",
+    "pnpm-lock.yaml",
+    "bin/install/pnpm.sh",
+    "configs/lint/prettierrc.json",
+    "package.json.license",
+    "pnpm-lock.yaml.license",
+    "configs/lint/prettierrc.json.license",
+)
 
-def write_package_files(path: Path, package_name: str, /) -> None:
+
+def write_package_files(path: Path, package_name: str, /, *, use_monorepo: bool) -> None:
     """Create empty files, add TODOs, and a placeholder test.
 
     Args:
         path: Root of the generated project.
         package_name: The package being scaffolded.
+        use_monorepo: Write under ``packages/<pkg>`` instead of the repo root.
     """
-    pkg_dir = path / "packages" / package_name
+    pkg_dir = path / "packages" / package_name if use_monorepo else path
     src = pkg_dir / "src" / package_name
 
     src.mkdir(parents=True, exist_ok=True)
@@ -25,8 +37,9 @@ def write_package_files(path: Path, package_name: str, /) -> None:
     (src / "py.typed").touch()
     (src / "__init__.py").write_text("__all__: list[str] = []")
 
-    (pkg_dir / "README.md").write_text(f"# {package_name}\n")
-    (pkg_dir / ".env").write_text("")
+    if use_monorepo:
+        (pkg_dir / "README.md").write_text(f"# {package_name}\n")
+        (pkg_dir / ".env").write_text("")
 
     tests = pkg_dir / "tests" / "unit"
     tests.mkdir(parents=True, exist_ok=True)
@@ -48,6 +61,27 @@ def remove_projects_output_folder(path: Path, /) -> None:
     output_path = path / "PROJECTS"
     if output_path.exists():
         shutil.rmtree(output_path) if output_path.is_dir() else output_path.unlink()
+
+
+def remove_packages(path: Path, /) -> None:
+    """Remove the monorepo ``packages`` directory entirely.
+
+    Args:
+        path: Root of the generated project.
+    """
+    packages = path / "packages"
+    if packages.exists():
+        shutil.rmtree(packages) if packages.is_dir() else packages.unlink()
+
+
+def remove_node_tooling(path: Path, /) -> None:
+    """Remove the Node/pnpm tooling files from a generated project.
+
+    Args:
+        path: Root of the generated project.
+    """
+    for name in _NODE_FILES:
+        (path / name).unlink(True)
 
 
 def remove_prod_docker(path: Path, /) -> None:

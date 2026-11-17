@@ -29,6 +29,8 @@ _COLLABORATORS = (
     "remove_prod_docker",
     "remove_reuse",
     "remove_docs",
+    "remove_packages",
+    "remove_node_tooling",
     "lock_project",
     "init_and_commit",
 )

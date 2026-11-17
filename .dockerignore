@@ -16,15 +16,15 @@
 
 !package.env
 
-# root files needed by `make build` (uv + pnpm workspace)
+# root files needed by `make build`
 !pyproject.toml
 !uv.lock
 !package.json
 !pnpm-lock.yaml
 !pnpm-workspace.yaml
 
-# Anything pulled in by `!packages`, `!bin`, `!configs` that must not reach the
-# build context. These are regenerated inside the container.
+# Anything pulled in by the whitelisted folders that must not reach the build
+# context. These are regenerated inside the container.
 **/.venv
 **/__pycache__
 **/*.py[cod]

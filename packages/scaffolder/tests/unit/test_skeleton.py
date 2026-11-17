@@ -9,6 +9,8 @@ from pathlib import Path
 import pytest
 from scaffolder.scaffold.skeleton import (
     clean_root_md,
+    remove_node_tooling,
+    remove_packages,
     remove_prod_docker,
     remove_projects_output_folder,
     write_package_files,
@@ -99,7 +101,7 @@ class TestWritePackageFiles:
 
     def test_writes_package_skeleton(self, tmp_path: Path) -> None:
         """Write the package layout and its placeholder files."""
-        write_package_files(tmp_path, "my_pkg")
+        write_package_files(tmp_path, "my_pkg", use_monorepo=True)
         pkg = tmp_path / "packages" / "my_pkg"
 
         assert (pkg / "src" / "my_pkg").is_dir()
@@ -120,3 +122,54 @@ class TestWritePackageFiles:
             "    # TODO finish tests\n"
             "    assert False\n"
         )
+
+    def test_writes_flat_layout(self, tmp_path: Path) -> None:
+        """Write the package at the repo root when the monorepo is disabled."""
+        write_package_files(tmp_path, "my_pkg", use_monorepo=False)
+
+        assert (tmp_path / "src" / "my_pkg" / "main.py").exists()
+        assert (tmp_path / "tests" / "unit" / "test_my_pkg.py").exists()
+        assert not (tmp_path / "packages").exists()
+        assert not (tmp_path / "README.md").exists()
+        assert not (tmp_path / ".env").exists()
+
+
+class TestRemovePackages:
+    """Tests for remove_packages."""
+
+    def test_removes_packages_dir(self, tmp_path: Path) -> None:
+        """Delete the packages directory and its contents."""
+        (tmp_path / "packages" / "demo" / "src").mkdir(parents=True)
+        remove_packages(tmp_path)
+        assert not (tmp_path / "packages").exists()
+
+    def test_noop_without_packages(self, tmp_path: Path) -> None:
+        """Do nothing when there is no packages path."""
+        remove_packages(tmp_path)
+        assert list(tmp_path.iterdir()) == []
+
+
+class TestRemoveNodeTooling:
+    """Tests for remove_node_tooling."""
+
+    def test_removes_node_files(self, tmp_path: Path) -> None:
+        """Delete the package.json/pnpm/prettier files."""
+        (tmp_path / "bin" / "install").mkdir(parents=True)
+        (tmp_path / "configs" / "lint").mkdir(parents=True)
+        for name in ("package.json", "pnpm-workspace.yaml", "pnpm-lock.yaml"):
+            (tmp_path / name).write_text("{}\n")
+        (tmp_path / "bin" / "install" / "pnpm.sh").write_text("#!/bin/bash\n")
+        (tmp_path / "configs" / "lint" / "prettierrc.json").write_text("{}\n")
+
+        remove_node_tooling(tmp_path)
+
+        assert not (tmp_path / "package.json").exists()
+        assert not (tmp_path / "pnpm-workspace.yaml").exists()
+        assert not (tmp_path / "pnpm-lock.yaml").exists()
+        assert not (tmp_path / "bin" / "install" / "pnpm.sh").exists()
+        assert not (tmp_path / "configs" / "lint" / "prettierrc.json").exists()
+
+    def test_noop_when_files_absent(self, tmp_path: Path) -> None:
+        """Tolerate missing files."""
+        remove_node_tooling(tmp_path)
+        assert list(tmp_path.iterdir()) == []

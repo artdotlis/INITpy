@@ -26,8 +26,9 @@ pre-commit:
                   - name: lfs
                     run: bin/install/wrap.sh bash '$BIN_RUN_LFS_LINT'
                   - name: pyrefly
-                    glob: 'packages/**/*.py'
-                    run: bin/install/wrap.sh pyrefly check -- {staged_files}
+{% if use_monorepo %}                    glob: 'packages/**/*.py'
+{% else %}                    glob: '{src,tests}/**/*.py'
+{% endif %}                    run: bin/install/wrap.sh pyrefly check -- {staged_files}
                   - name: vulture
                     run: bin/install/wrap.sh vulture
                   - name: shellcheck
@@ -64,10 +65,10 @@ pre-commit:
                   - name: check-shebang-scripts-are-executable
                     glob: '*.sh'
                     run: bin/install/wrap.sh check-shebang-scripts-are-executable -- {staged_files}
-                  - name: oxlint
+{% if use_monorepo %}                  - name: oxlint
                     glob: '*.{js,jsx,ts,tsx,cjs,mjs,mts,cts,vue}'
                     run: bin/install/wrap.sh oxlint -- {staged_files} || true
-        - name: fix
+{% endif %}        - name: fix
           group:
               piped: true
               jobs:
@@ -108,13 +109,13 @@ pre-commit:
                           bin/install/wrap.sh end-of-file-fixer -- $ALL_FILES || true
                         fi
                     stage_fixed: true
-                  - name: prettier
+{% if use_monorepo %}                  - name: prettier
                     glob: '*.{css,less,scss,html,vue,svelte,astro,md,mdx,json,json5,yaml,yml}'
                     exclude:
                         - 'pnpm-lock.yaml'
                     run: bin/install/wrap.sh prettier --write --config '$CONFIG_PRETTIER' -- {staged_files} || true
                     stage_fixed: true
-commit-msg:
+{% endif %}commit-msg:
     piped: true
     commands:
         commitizen:
@@ -132,4 +133,6 @@ tests:
     parallel: true
     jobs:
         - name: {{ package_name }}
-          run: bin/install/wrap.sh 'cd ${{ package_env_var }} && coverage run -m pytest'
+{% if use_monorepo %}          run: bin/install/wrap.sh 'cd ${{ package_env_var }} && coverage run -m pytest'
+{% else %}          run: bin/install/wrap.sh 'coverage run -m pytest'
+{% endif %}

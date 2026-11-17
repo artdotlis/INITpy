@@ -27,6 +27,7 @@ def _args(tmp_path: Path, **overrides: object) -> ScaffoldArgs:
         "copyright": "2026 Ann",
         "use_reuse": True,
         "use_docs": True,
+        "use_monorepo": True,
     }
     kwargs.update(overrides)
     return ScaffoldArgs(**kwargs)  # type: ignore[arg-type]
@@ -159,3 +160,20 @@ class TestRun:
             "lock_project",
             "init_and_commit",
         ]
+
+    def test_no_monorepo_flattens_and_drops_docs(
+        self, tmp_path: Path, pipeline: tuple[dict[str, MagicMock], list[str]]
+    ) -> None:
+        """Flatten the layout, drop node tooling and force docs off."""
+        mocks, order = pipeline
+        run(_args(tmp_path, use_monorepo=False, use_docs=True))
+        mocks["create_package"].assert_not_called()
+        mocks["remove_packages"].assert_called_once()
+        mocks["remove_node_tooling"].assert_called_once()
+        mocks["amend_docs"].assert_not_called()
+        write_kwargs = mocks["write_package_files"].call_args.kwargs
+        assert write_kwargs["use_monorepo"] is False
+        assert mocks["correct_core_project"].call_args.args[1]["use_monorepo"] is False
+        assert order.index("remove_packages") < order.index("write_package_files")
+        assert "remove_node_tooling" in order
+        assert "remove_docs" in order

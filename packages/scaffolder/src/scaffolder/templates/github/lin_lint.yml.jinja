@@ -39,5 +39,5 @@ jobs:
                   make dev
                   make run-checks
             - name: Run [[ package_name ]] tests
-              working-directory: packages/[[ package_name ]]
-              run: uv run coverage run -m pytest
+{% if use_monorepo %}              working-directory: packages/[[ package_name ]]
+{% endif %}              run: uv run coverage run -m pytest
