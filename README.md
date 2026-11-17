@@ -9,7 +9,7 @@ SPDX-License-Identifier: CC0-1.0
 ### A Bare-Bone Python Monorepo Template
 
 [![release: 0.11.0](https://img.shields.io/badge/rel-0.11.0-blue.svg?style=flat-square)](https://github.com/artdotlis/INITpy)
-[![The Unlicense](https://img.shields.io/badge/License-Unlicense-brightgreen.svg?style=flat-square)](https://choosealicense.com/licenses/unlicense/)
+[![License: Unlicense](https://img.shields.io/badge/License-Unlicense-green.svg?style=flat-square)](https://unlicense.org)
 [![Documentation Status](https://img.shields.io/badge/docs-GitHub-blue.svg?style=flat-square)](https://artdotlis.github.io/INITpy/)
 
 [![lin_lint](https://github.com/artdotlis/INITpy/actions/workflows/lin_lint.yml/badge.svg?branch=main)](https://github.com/artdotlis/INITpy/actions/workflows/lin_lint.yml)
@@ -18,7 +18,7 @@ SPDX-License-Identifier: CC0-1.0
 
 ---
 
-## ✨ Key Features
+## ⭐ Key Features
 
 - **Single-Source Truth:** Python dependencies managed via `uv` in `pyproject.toml`.
 - **Native Monorepo Support:** Built-in logic for managing multiple packages (`scaffolder`, `shared_utils`).
@@ -29,7 +29,7 @@ SPDX-License-Identifier: CC0-1.0
 
 ---
 
-## 🚀 Quick Start
+## ▶️ Quick Start
 
 If you are using **VS Code** and have the **Dev Containers** extension, simply open the folder and click **"Reopen in Container"**.
 
@@ -130,7 +130,7 @@ The API documentation is generated with **griffe2md** and served with **VitePres
 
 ---
 
-## 📜 License
+## ⚖️ License
 
 Released into the public domain via the [Unlicense](https://choosealicense.com/licenses/unlicense/). No strings attached.
 

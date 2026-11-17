@@ -38,9 +38,6 @@
     --dd-rem: 0.625rem;
 
     --dd-icon-tile: rgba(0, 0, 0, 0.05);
-    --dd-icon-ink: rgba(70, 70, 70, 0.8);
-    --dd-icon-hover-border: #464646;
-
     --dd-ico-primary: #006eb7;
     --dd-ico-signal: #ecaf00;
     --dd-ico-muted: #878787;
@@ -72,8 +69,6 @@
     --dd-text-muted: #b3b3b3;
 
     --dd-icon-tile: rgba(255, 255, 255, 0.07);
-    --dd-icon-ink: rgba(255, 255, 255, 0.75);
-    --dd-icon-hover-border: rgba(255, 255, 255, 0.6);
     --dd-ico-primary: #6fb6e4;
     --dd-ico-signal: #f0c14b;
     --dd-ico-muted: #b3b3b3;
@@ -449,12 +444,6 @@ body {
     }
 }
 
-:root {
-    --dd-icon-info: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.5%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Ccircle cx=%228%22 cy=%228%22 r=%225.6%22/%3E%3Cpath d=%22M8 7.3v4%22/%3E%3Cpath d=%22M8 4.8v.5%22/%3E%3C/svg%3E');
-    --dd-icon-code: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.5%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M5.6 5.4 3 8l2.6 2.6%22/%3E%3Cpath d=%22M10.4 5.4 13 8l-2.6 2.6%22/%3E%3C/svg%3E');
-    --dd-icon-file: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.5%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M4 2.4h4.4l3.2 3.2v7.9a.5.5 0 0 1-.5.5H4.5a.5.5 0 0 1-.5-.5z%22/%3E%3Cpath d=%22M8.2 2.6v3.1h3.1%22/%3E%3C/svg%3E');
-}
-
 .VPSidebarItem.level-1 > .item,
 .VPSidebarItem.level-2 > .item,
 .VPSidebarItem.level-3 > .item {
@@ -463,60 +452,39 @@ body {
     padding-left: calc(var(--dd-rem) * 4);
 }
 
-.VPSidebarItem.has-icon.level-1 > .item::before,
-.VPSidebarItem.has-icon.level-2 > .item::before,
-.VPSidebarItem.has-icon.level-3 > .item::before {
-    content: '';
+.sidebar-icon {
     position: absolute;
     top: 50%;
     left: 0;
     box-sizing: border-box;
+    display: grid;
+    place-items: center;
     width: calc(var(--dd-rem) * 3);
     height: calc(var(--dd-rem) * 3);
     margin-top: calc(var(--dd-rem) * -1.5);
     border: calc(var(--dd-rem) * 0.2) solid transparent;
     border-radius: var(--dd-radius);
     background-color: var(--dd-icon-tile);
+    color: var(--dd-ico, var(--dd-text-soft));
     transition:
-        background-color var(--dd-tt, 0.25s),
-        border-color var(--dd-tt, 0.25s);
+        background-color 0.25s,
+        border-color 0.25s,
+        color 0.25s;
 }
 
-.VPSidebarItem.has-icon.level-1 > .item::after,
-.VPSidebarItem.has-icon.level-2 > .item::after,
-.VPSidebarItem.has-icon.level-3 > .item::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: calc(var(--dd-rem) * 0.5);
-    width: calc(var(--dd-rem) * 2);
-    height: calc(var(--dd-rem) * 2);
-    margin-top: calc(var(--dd-rem) * -1);
-    background-color: var(--dd-ico, var(--dd-icon-ink));
-    -webkit-mask: var(--dd-icon, var(--dd-icon-file)) center / calc(var(--dd-rem) * 2)
-        calc(var(--dd-rem) * 2) no-repeat;
-    mask: var(--dd-icon, var(--dd-icon-file)) center / calc(var(--dd-rem) * 2)
-        calc(var(--dd-rem) * 2) no-repeat;
-    transition: background-color var(--dd-tt, 0.25s);
+.sidebar-icon svg {
+    width: calc(var(--dd-rem) * 1.9);
+    height: calc(var(--dd-rem) * 1.9);
 }
 
-.VPSidebarItem.has-icon.level-1 > .item:hover::before,
-.VPSidebarItem.has-icon.level-2 > .item:hover::before,
-.VPSidebarItem.has-icon.level-3 > .item:hover::before {
-    border-color: var(--dd-ico, var(--dd-icon-hover-border));
+.VPSidebarItem.has-icon > .item:hover .sidebar-icon {
+    border-color: var(--dd-ico, var(--dd-text));
 }
 
-.VPSidebarItem.has-icon.level-1.is-active > .item::before,
-.VPSidebarItem.has-icon.level-2.is-active > .item::before,
-.VPSidebarItem.has-icon.level-3.is-active > .item::before {
-    background-color: var(--dd-ico-active, var(--dd-ico, var(--dd-accent)));
+.VPSidebarItem.has-icon.is-active > .item .sidebar-icon {
+    background-color: var(--dd-ico, var(--dd-text));
     border-color: transparent;
-}
-
-.VPSidebarItem.has-icon.level-1.is-active > .item::after,
-.VPSidebarItem.has-icon.level-2.is-active > .item::after,
-.VPSidebarItem.has-icon.level-3.is-active > .item::after {
-    background-color: #fff;
+    color: #fff;
 }
 
 .VPSidebarItem .indicator {

@@ -5,6 +5,7 @@
     },
     "description": "This package documents the whole project.",
     "devDependencies": {
+        "@phosphor-icons/vue": "catalog:",
         "toml": "catalog:",
         "vitepress": "catalog:",
         "vitest": "catalog:"

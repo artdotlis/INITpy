@@ -19,7 +19,6 @@ const config = toml.parse(
   vitepress?: {
     base?: string
     cleanUrls?: boolean
-    lastUpdated?: boolean
     srcDir?: string
     themeConfig?: {
       logo?: DefaultTheme.ThemeableImage
@@ -46,7 +45,6 @@ type SideItem = {
     link: string
     icon?: string
     tone?: string
-    activeTone?: string
 }
 
 const sidebar: Record<string, Array<Record<string, unknown>>> = {
@@ -62,7 +60,7 @@ const sidebar: Record<string, Array<Record<string, unknown>>> = {
         {
             text: 'Docs',
             items: [
-                { text: 'About', link: '/about', icon: 'info', tone: 'muted', activeTone: 'graphite' },
+                { text: 'About', link: '/about', icon: 'info', tone: 'muted' },
                 { text: 'License', link: '/license', icon: 'file', tone: 'signal' },
             ] as SideItem[],
         },
@@ -80,7 +78,6 @@ export default defineConfig({
   srcExclude: ['**/_partials/**'],
   outDir: fileURLToPath(new URL('../../../public/docs/', import.meta.url)),
   cleanUrls: !!vp.cleanUrls,
-  lastUpdated: !!vp.lastUpdated,
   vite: {
     resolve: {
       alias: {

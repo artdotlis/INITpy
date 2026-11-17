@@ -14,12 +14,12 @@ hero:
           link: /ref/scaffolder
 features:
     - title: Docs Built-in
-      icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.6 3.4h3.6a1.8 1.8 0 0 1 1.8 1.8v7.4a1.4 1.4 0 0 0-1.4-1.4H2.6z"/><path d="M13.4 3.4H9.8A1.8 1.8 0 0 0 8 5.2v7.4a1.4 1.4 0 0 1 1.4-1.4h4z"/></svg>'
+      icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M232,48H160a40,40,0,0,0-32,16A40,40,0,0,0,96,48H24a8,8,0,0,0-8,8V200a8,8,0,0,0,8,8H96a24,24,0,0,1,24,24,8,8,0,0,0,16,0,24,24,0,0,1,24-24h72a8,8,0,0,0,8-8V56A8,8,0,0,0,232,48ZM96,192H32V64H96a24,24,0,0,1,24,24V200A39.81,39.81,0,0,0,96,192Zm128,0H160a39.81,39.81,0,0,0-24,8V88a24,24,0,0,1,24-24h64Z"/></svg>'
       details: VitePress site with an API reference generated straight from docstrings.
       link: /ref/scaffolder
       linkText: Read the reference
     - title: Ready CI/CD
-      icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="5.6"/><path d="m5.8 8.2 1.5 1.5 3-3.2"/></svg>'
+      icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M173.66,98.34a8,8,0,0,1,0,11.32l-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35A8,8,0,0,1,173.66,98.34ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"/></svg>'
       details: Workflows for tests, linting, and static analysis run out of the box.
       link: /about/
       linkText: Learn more

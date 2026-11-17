@@ -3,7 +3,9 @@
 // SPDX-License-Identifier: Unlicense
 
 import type { Theme } from 'vitepress'
+import { createApp, h } from 'vue'
 import DefaultTheme from 'vitepress/theme'
+import SidebarIcon from './SidebarIcon.vue'
 import '@theme/style.css'
 
 const baseOf = () => import.meta.env.BASE_URL
@@ -36,39 +38,29 @@ const rowOf = (link) => {
     return map
 }
 
-const stamp = (map) => {
-    for (const row of document.querySelectorAll('.VPSidebarItem a')) {
-        const item = map.get(norm(row.getAttribute('href')))
-        if (!item) continue
-        const el = row.closest('.VPSidebarItem')?.querySelector(':scope > .item')
-        if (!el) continue
-        const wrap = el.closest('.VPSidebarItem')
-        const hasIcon = !!item.icon
-        if (wrap.classList.contains('has-icon') !== hasIcon) {
-            wrap.classList.toggle('has-icon', hasIcon)
-        }
-        if (!hasIcon) continue
-        el.style.setProperty('--dd-icon', `var(--dd-icon-${item.icon})`)
-        el.style.setProperty('--dd-ico', `var(--dd-ico-${item.tone})`)
-        if (item.activeTone) {
-            el.style.setProperty(
-                '--dd-ico-active',
-                `var(--dd-ico-${item.activeTone})`
-            )
-        }
-    }
+function iconEl(name) {
+    const holder = document.createElement('span')
+    createApp({ render: () => h(SidebarIcon, { name }) }).mount(holder)
+    return holder.firstElementChild
 }
 
-const snap = new WeakSet()
-
-// `--dd-tt` is a style write, not a class/childList mutation, so it cannot re-fire
-// the observer below. Zero it for one activation: the tile snaps to its tone
-// instead of fading from the neutral base.
-const zero = (item) => {
-    item.style.setProperty('--dd-tt', '0s')
-    requestAnimationFrame(() =>
-        requestAnimationFrame(() => item.style.removeProperty('--dd-tt'))
-    )
+function stamp(map) {
+    for (const row of document.querySelectorAll('.VPSidebarItem')) {
+        const itemEl = row.querySelector(':scope > .item')
+        if (!itemEl) continue
+        const link = itemEl.querySelector(':scope > .link')
+        if (!link) continue
+        const entry = map.get(norm(link.getAttribute('href')))
+        const hasIcon = !!entry?.icon
+        if (row.classList.contains('has-icon') !== hasIcon) {
+            row.classList.toggle('has-icon', hasIcon)
+        }
+        if (!hasIcon) continue
+        itemEl.style.setProperty('--dd-ico', `var(--dd-ico-${entry.tone ?? 'graphite'})`)
+        if (!itemEl.querySelector('.sidebar-icon')) {
+            itemEl.prepend(iconEl(entry.icon))
+        }
+    }
 }
 
 export default {
@@ -76,20 +68,7 @@ export default {
     enhanceApp({ siteData }) {
         if (import.meta.env.SSR) return
         const map = rowOf(siteData.value)
-        new MutationObserver(() => {
-            stamp(map)
-            for (const t of document.querySelectorAll('.VPSidebarItem')) {
-                const item = t.querySelector(':scope > .item')
-                if (!item) continue
-                if (t.classList.contains('is-active')) {
-                    if (snap.has(t)) continue
-                    snap.add(t)
-                    zero(item)
-                } else {
-                    snap.delete(t)
-                }
-            }
-        }).observe(document.body, {
+        new MutationObserver(() => stamp(map)).observe(document.body, {
             subtree: true,
             childList: true,
             attributes: true,

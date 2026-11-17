@@ -10,7 +10,6 @@ description = "INITpy documentation"
 [vitepress]
 base = "/INITpy/"
 cleanUrls = true
-lastUpdated = true
 srcDir = "src"
 theme = "./theme"
 
