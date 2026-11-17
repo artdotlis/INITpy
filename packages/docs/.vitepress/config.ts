@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Unlicense
 
 import { DefaultTheme, defineConfig } from 'vitepress'
-import { Icon, type IconName } from './theme/icons'
+import { Icon, type IconName, type IconPreset, type ToneName } from './theme/icons'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { resolve, dirname } from 'node:path'
@@ -44,23 +44,27 @@ const refPackages = tc.refPackages || []
 type SideItem = {
     text: string
     link: string
-    icon: IconName
+    icon: IconPreset
 }
+
+// Build an IconPreset from config strings; null when the icon name is unknown.
+const preset = (icon: string | undefined, tone: string | undefined): IconPreset | null =>
+  icon && icon in Icon ? Icon[icon as IconName][tone as ToneName || 'graphite'] : null
 
 const sidebar: Record<string, Array<Record<string, unknown>>> = {
     '/ref/': [
         { text: 'API', items: refPackages.map((p): SideItem => ({
             text: p.name,
             link: `/ref/${p.name}`,
-            icon: (p.icon as IconName) ?? Icon.code,
+            icon: preset(p.icon, p.tone) ?? Icon.code.danger,
         }))},
     ],
     '/': [
         {
             text: 'Docs',
             items: [
-                { text: 'About', link: '/about', icon: Icon.info },
-                { text: 'License', link: '/license', icon: Icon.file },
+                { text: 'About', link: '/about', icon: Icon.info.muted },
+                { text: 'License', link: '/license', icon: Icon.quotes.signal },
             ] as SideItem[],
         },
     ],

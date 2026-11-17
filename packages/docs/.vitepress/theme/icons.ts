@@ -2,78 +2,54 @@
 //
 // SPDX-License-Identifier: Unlicense
 
-// Icon + tone library for the docs theme. Select an icon in config with a
-// single constant; its tone (color) travels with it. SSR-safe: only string
-// constants and maps here — the Phosphor components are resolved client-side
-// in SidebarIcon.vue, so this file stays out of the Vite Node graph.
+export type IconName =
+    | 'info'
+    | 'house'
+    | 'share'
+    | 'search'
+    | 'database'
+    | 'export'
+    | 'dna'
+    | 'pill'
+    | 'flask'
+    | 'archive'
+    | 'code'
+    | 'quotes'
+    | 'phone'
 
 /** Tone names. Map to the CSS var `--dd-ico-<name>` (light + dark) in style.css. */
-export const Tone = {
-    primary: 'primary',
-    signal: 'signal',
-    muted: 'muted',
-    graphite: 'graphite',
-    danger: 'danger',
-} as const
-export type ToneName = (typeof Tone)[keyof typeof Tone]
+export type ToneName = 'primary' | 'signal' | 'muted' | 'graphite' | 'danger'
+
+/** An icon + tone selected together in config. */
+export type IconPreset = { name: IconName; tone: ToneName }
 
 /** CSS custom-property value for a tone, e.g. `var(--dd-ico-primary)`. */
 export const toneVar = (tone: string) => `var(--dd-ico-${tone})`
 
-/** Icon names. Selectable in config; each resolves to a Phosphor icon. */
-export const Icon = {
-    code: 'code',
-    file: 'file',
-    info: 'info',
-    book: 'book',
-    terminal: 'terminal',
-    gear: 'gear',
-    cpu: 'cpu',
-    database: 'database',
-    gitBranch: 'gitBranch',
-    function: 'function',
-    cube: 'cube',
-    wrench: 'wrench',
-    shield: 'shield',
-    key: 'key',
-    pulse: 'pulse',
-    chart: 'chart',
-    rocket: 'rocket',
-    globe: 'globe',
-    star: 'star',
-    users: 'users',
-    trophy: 'trophy',
-    archive: 'archive',
-} as const
-export type IconName = (typeof Icon)[keyof typeof Icon]
+/** Tone of an icon preset. */
+export const iconTone = (preset: IconPreset): ToneName => preset.tone
 
-/** Each icon's tone (role color) — so config picks one constant and the
- * color follows. Edit here to recolor an icon across the whole site. */
-export const ICON_TONES: Record<IconName, ToneName> = {
-    code: Tone.danger,
-    file: Tone.signal,
-    info: Tone.muted,
-    book: Tone.primary,
-    terminal: Tone.graphite,
-    gear: Tone.graphite,
-    cpu: Tone.primary,
-    database: Tone.primary,
-    gitBranch: Tone.signal,
-    function: Tone.graphite,
-    cube: Tone.primary,
-    wrench: Tone.signal,
-    shield: Tone.primary,
-    key: Tone.danger,
-    pulse: Tone.danger,
-    chart: Tone.primary,
-    rocket: Tone.signal,
-    globe: Tone.primary,
-    star: Tone.signal,
-    users: Tone.primary,
-    trophy: Tone.signal,
-    archive: Tone.muted,
+// Every icon is available in every tone, so colour is a per-usage choice.
+const variants = (name: IconName) => ({
+    primary: { name, tone: 'primary' as ToneName },
+    signal: { name, tone: 'signal' as ToneName },
+    muted: { name, tone: 'muted' as ToneName },
+    graphite: { name, tone: 'graphite' as ToneName },
+    danger: { name, tone: 'danger' as ToneName },
+})
+
+export const Icon: Record<IconName, Record<ToneName, IconPreset>> = {
+    info: variants('info'),
+    house: variants('house'),
+    share: variants('share'),
+    search: variants('search'),
+    database: variants('database'),
+    export: variants('export'),
+    dna: variants('dna'),
+    pill: variants('pill'),
+    flask: variants('flask'),
+    archive: variants('archive'),
+    code: variants('code'),
+    quotes: variants('quotes'),
+    phone: variants('phone'),
 }
-
-/** Tone for an icon name, defaulting to `graphite` for unknown names. */
-export const iconTone = (name: string): ToneName =>
-    ICON_TONES[name as IconName] ?? Tone.graphite

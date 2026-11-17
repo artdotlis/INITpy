@@ -7,58 +7,41 @@ SPDX-License-Identifier: Unlicense
 <script setup lang="ts">
 import { computed } from 'vue';
 import {
-    PhArchive,
-    PhBookOpen,
-    PhChartBar,
-    PhCode,
-    PhCpu,
-    PhCube,
-    PhDatabase,
-    PhFile,
-    PhFunction,
-    PhGear,
-    PhGitBranch,
-    PhGlobe,
+    PhDna,
+    PhExport,
+    PhFlask,
+    PhHouse,
     PhInfo,
-    PhKey,
-    PhPulse,
-    PhRocket,
-    PhShieldCheck,
-    PhStar,
-    PhTerminal,
-    PhTrophy,
-    PhUsers,
-    PhWrench,
+    PhPill,
+    PhPhone,
+    PhQuotes,
+    PhMagnifyingGlass,
+    PhShare,
+    PhArchive,
+    PhCode,
+    PhDatabase,
 } from '@phosphor-icons/vue';
+import type { IconPreset, IconName } from './icons';
 
-// Keys match the `Icon` constants in ./icons.ts (selected in config).
-const registry = {
-    code: PhCode,
-    file: PhFile,
+// Resolves an icon name to its Phosphor component.
+const registry: Record<IconName, unknown> = {
     info: PhInfo,
-    book: PhBookOpen,
-    terminal: PhTerminal,
-    gear: PhGear,
-    cpu: PhCpu,
+    house: PhHouse,
+    share: PhShare,
+    search: PhMagnifyingGlass,
     database: PhDatabase,
-    gitBranch: PhGitBranch,
-    function: PhFunction,
-    cube: PhCube,
-    wrench: PhWrench,
-    shield: PhShieldCheck,
-    key: PhKey,
-    pulse: PhPulse,
-    chart: PhChartBar,
-    rocket: PhRocket,
-    globe: PhGlobe,
-    star: PhStar,
-    users: PhUsers,
-    trophy: PhTrophy,
+    export: PhExport,
+    dna: PhDna,
+    pill: PhPill,
+    flask: PhFlask,
     archive: PhArchive,
+    code: PhCode,
+    quotes: PhQuotes,
+    phone: PhPhone,
 };
 
-const props = defineProps<{ name: string }>();
-const Icon = computed(() => registry[props.name] ?? PhCode);
+const props = defineProps<{ preset: IconPreset }>();
+const Icon = computed(() => (registry[props.preset.name] ?? PhInfo) as never);
 </script>
 
 <template>

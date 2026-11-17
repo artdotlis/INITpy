@@ -39,9 +39,9 @@ const rowOf = (link) => {
     return map
 }
 
-function iconEl(name) {
+function iconEl(preset) {
     const holder = document.createElement('span')
-    createApp({ render: () => h(SidebarIcon, { name }) }).mount(holder)
+    createApp({ render: () => h(SidebarIcon, { preset }) }).mount(holder)
     return holder.firstElementChild
 }
 

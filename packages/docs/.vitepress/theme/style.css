@@ -391,7 +391,15 @@ body {
     text-overflow: ellipsis;
 }
 
-.VPSidebarItem .link:hover .text {
+/* Resting sidebar text: lighter and not bold (VitePress default weight). */
+.VPSidebar .nav .VPSidebarItem.level-1 .text,
+.VPSidebar .nav .VPSidebarItem.level-2 .text,
+.VPSidebar .nav .VPSidebarItem.level-3 .text {
+    color: var(--vp-c-text-3);
+    font-weight: 400;
+}
+
+.VPSidebar .nav .VPSidebarItem.is-link > .item > .link.link:hover > .text.text {
     color: var(--vp-c-text-1);
 }
 
@@ -400,8 +408,8 @@ body {
 }
 
 .VPSidebar .nav .VPSidebarItem.is-active > .item > .link > .text.text {
-    color: var(--vp-c-text-1);
-    font-weight: var(--dd-title-weight);
+    color: var(--vp-c-text-2);
+    font-weight: 700;
 }
 
 .VPSidebarItem.VPSidebarItem.level-0 > .item > .text,
