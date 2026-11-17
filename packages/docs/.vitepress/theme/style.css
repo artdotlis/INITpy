@@ -391,10 +391,17 @@ body {
     text-overflow: ellipsis;
 }
 
-.VPSidebarItem .link:hover .text,
-.VPSidebarItem.is-active > .item .link .text,
+.VPSidebarItem .link:hover .text {
+    color: var(--vp-c-text-1);
+}
+
 .VPSidebarItem.has-active > .item > .text {
     color: var(--dd-primary);
+}
+
+.VPSidebar .nav .VPSidebarItem.is-active > .item > .link > .text.text {
+    color: var(--vp-c-text-1);
+    font-weight: var(--dd-title-weight);
 }
 
 .VPSidebarItem.VPSidebarItem.level-0 > .item > .text,
