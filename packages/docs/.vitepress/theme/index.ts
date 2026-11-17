@@ -6,6 +6,7 @@ import type { Theme } from 'vitepress'
 import { createApp, h } from 'vue'
 import DefaultTheme from 'vitepress/theme'
 import SidebarIcon from './SidebarIcon.vue'
+import { iconTone, toneVar } from './icons'
 import '@theme/style.css'
 
 const baseOf = () => import.meta.env.BASE_URL
@@ -56,7 +57,7 @@ function stamp(map) {
             row.classList.toggle('has-icon', hasIcon)
         }
         if (!hasIcon) continue
-        itemEl.style.setProperty('--dd-ico', `var(--dd-ico-${entry.tone ?? 'graphite'})`)
+        itemEl.style.setProperty('--dd-ico', toneVar(iconTone(entry.icon)))
         if (!itemEl.querySelector('.sidebar-icon')) {
             itemEl.prepend(iconEl(entry.icon))
         }

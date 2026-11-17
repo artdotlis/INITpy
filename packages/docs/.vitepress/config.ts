@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: Unlicense
 
 import { DefaultTheme, defineConfig } from 'vitepress'
+import { Icon, type IconName } from './theme/icons'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { resolve, dirname } from 'node:path'
@@ -43,8 +44,7 @@ const refPackages = tc.refPackages || []
 type SideItem = {
     text: string
     link: string
-    icon?: string
-    tone?: string
+    icon: IconName
 }
 
 const sidebar: Record<string, Array<Record<string, unknown>>> = {
@@ -52,16 +52,15 @@ const sidebar: Record<string, Array<Record<string, unknown>>> = {
         { text: 'API', items: refPackages.map((p): SideItem => ({
             text: p.name,
             link: `/ref/${p.name}`,
-            icon: p.icon ?? 'code',
-            tone: p.tone ?? 'danger',
+            icon: (p.icon as IconName) ?? Icon.code,
         }))},
     ],
     '/': [
         {
             text: 'Docs',
             items: [
-                { text: 'About', link: '/about', icon: 'info', tone: 'muted' },
-                { text: 'License', link: '/license', icon: 'file', tone: 'signal' },
+                { text: 'About', link: '/about', icon: Icon.info },
+                { text: 'License', link: '/license', icon: Icon.file },
             ] as SideItem[],
         },
     ],

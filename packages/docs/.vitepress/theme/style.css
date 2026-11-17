@@ -361,10 +361,6 @@ body {
         padding-left: var(--vp-sidebar-width);
     }
 
-    .VPNavBar.has-sidebar.has-sidebar .divider {
-        padding-left: 0;
-    }
-
     .VPContent.VPContent.has-sidebar {
         padding-right: 32px;
         padding-left: var(--vp-sidebar-width);
