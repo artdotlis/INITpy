@@ -147,10 +147,14 @@ class TestAllVariants:
     ) -> None:
         """Name the root project after the package, or the project in a monorepo."""
         path = scaffold(use_monorepo=use_monorepo, use_docs=use_docs, use_reuse=use_reuse)
-        pyproject = tomllib.loads((path / "pyproject.toml").read_text())
+        text = (path / "pyproject.toml").read_text()
+        pyproject = tomllib.loads(text)
         assert pyproject["project"]["name"] == (_PROJECT if use_monorepo else _PKG)
         assert pyproject["project"]["description"] == "A demo"
         assert pyproject["project"]["license"] == "MIT"
+        # monorepo workspace layout vs single installable package
+        assert ("[tool.uv.workspace]" in text) is use_monorepo
+        assert f"package = {'false' if use_monorepo else 'true'}" in text
 
     @pytest.mark.parametrize(("use_monorepo", "use_docs", "use_reuse"), _VARIANTS)
     def test_package_file_matches_project(
