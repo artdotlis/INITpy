@@ -4,23 +4,25 @@
 
 {
     "compilerOptions": {
-        "declaration": true,
-        "esModuleInterop": true,
-        "module": "ES2022",
+        "target": "ES2022",
+        "module": "ESNext",
         "moduleResolution": "bundler",
-        "outDir": "dist",
-        "paths": {
-            "@/*": ["./*"],
-            "@theme/*": ["./.vitepress/theme/*"]
-        },
-        "skipLibCheck": true,
         "strict": true,
-        "target": "ES2022"
+        "noEmit": true,
+        "skipLibCheck": true,
+        "esModuleInterop": true,
+        "isolatedModules": true,
+        "lib": ["ES2022", "DOM", "DOM.Iterable"],
+        "paths": {
+            "@theme/*": ["./.vitepress/theme/*"],
+            "@/*": ["./src/*"]
+        }
     },
-    "include": [
-        ".vitepress/**/*.ts",
-        ".vitepress/**/*.vue",
-        ".vitepress/**/*.css",
-        "tests/**/*.ts"
-    ]
+    "contentMappers": [
+        {
+            "package": "@vue/content-mapper",
+            "extensions": [".vue"]
+        }
+    ],
+    "include": [".vitepress/**/*.ts", ".vitepress/**/*.vue", "src/**/*.ts"]
 }

@@ -6,16 +6,20 @@
     "description": "This package documents the whole project.",
     "devDependencies": {
         "@phosphor-icons/vue": "catalog:",
+        "@vue/content-mapper": "catalog:",
         "toml": "catalog:",
+        "vite": "catalog:",
         "vitepress": "catalog:",
-        "vitest": "catalog:"
+        "vitest": "catalog:",
+        "vue": "catalog:"
     },
     "name": "docs",
     "private": true,
     "scripts": {
         "build": "vitepress build",
         "preview": "vitepress preview",
-        "test": "vitest run"
+        "test": "vitest run",
+        "typecheck": "tsc --runExternalCode --noEmit"
     },
     "type": "module"
 }

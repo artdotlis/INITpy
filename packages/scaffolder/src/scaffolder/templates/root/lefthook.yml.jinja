@@ -68,6 +68,9 @@ pre-commit:
 {% if use_monorepo %}                  - name: oxlint
                     glob: '*.{js,jsx,ts,tsx,cjs,mjs,mts,cts,vue}'
                     run: bin/install/wrap.sh oxlint -- {staged_files} || true
+                  - name: typecheck
+                    glob: '*.{ts,tsx,vue}'
+                    run: bin/install/wrap.sh 'cd $PKG_DOC && $PNPME run typecheck'
 {% endif %}        - name: fix
           group:
               piped: true

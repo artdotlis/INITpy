@@ -2,16 +2,23 @@
 //
 // SPDX-License-Identifier: Unlicense
 
-import type { Theme } from 'vitepress'
+import type { SiteData, Theme } from 'vitepress'
 import { createApp, h } from 'vue'
 import DefaultTheme from 'vitepress/theme'
 import SidebarIcon from './SidebarIcon.vue'
 import { iconTone, toneVar } from './icons'
+import type { IconPreset } from './icons'
 import '@theme/style.css'
+
+interface SidebarRow {
+    link?: string
+    icon?: IconPreset
+    items?: SidebarRow[]
+}
 
 const baseOf = () => import.meta.env.BASE_URL
 
-const norm = (h) => {
+const norm = (h: string | null): string | null => {
     if (typeof h !== 'string') return null
     const base = baseOf()
     let p = h
@@ -20,18 +27,21 @@ const norm = (h) => {
     return p
 }
 
-const rowOf = (link) => {
+const rowOf = (link: SiteData): Map<string, SidebarRow> => {
     const base = baseOf()
-    const hrefOf = (l) => (l.startsWith('/') ? base + l.slice(1) : l)
+    const hrefOf = (l: string) => (l.startsWith('/') ? base + l.slice(1) : l)
     const sidebar = link.themeConfig.sidebar
-    const rows =
+    const rows: SidebarRow[] =
         sidebar && typeof sidebar === 'object' && !Array.isArray(sidebar)
             ? Object.values(sidebar).flat()
             : sidebar || []
-    const map = new Map()
-    const walk = (items) => {
+    const map = new Map<string, SidebarRow>()
+    const walk = (items: SidebarRow[]) => {
         for (const item of items || []) {
-            if (item.link) map.set(norm(hrefOf(item.link)), item)
+            if (item.link) {
+                const key = norm(hrefOf(item.link))
+                if (key) map.set(key, item)
+            }
             if (item.items) walk(item.items)
         }
     }
@@ -39,27 +49,30 @@ const rowOf = (link) => {
     return map
 }
 
-function iconEl(preset) {
+function iconEl(preset: IconPreset): Element | null {
     const holder = document.createElement('span')
     createApp({ render: () => h(SidebarIcon, { preset }) }).mount(holder)
     return holder.firstElementChild
 }
 
-function stamp(map) {
+function stamp(map: Map<string, SidebarRow>) {
     for (const row of document.querySelectorAll('.VPSidebarItem')) {
-        const itemEl = row.querySelector(':scope > .item')
+        const itemEl = row.querySelector<HTMLElement>(':scope > .item')
         if (!itemEl) continue
-        const link = itemEl.querySelector(':scope > .link')
+        const link = itemEl.querySelector<HTMLElement>(':scope > .link')
         if (!link) continue
-        const entry = map.get(norm(link.getAttribute('href')))
-        const hasIcon = !!entry?.icon
+        const key = norm(link.getAttribute('href'))
+        const entry = key ? map.get(key) : undefined
+        const icon = entry?.icon
+        const hasIcon = !!icon
         if (row.classList.contains('has-icon') !== hasIcon) {
             row.classList.toggle('has-icon', hasIcon)
         }
-        if (!hasIcon) continue
-        itemEl.style.setProperty('--dd-ico', toneVar(iconTone(entry.icon)))
+        if (!icon) continue
+        itemEl.style.setProperty('--dd-ico', toneVar(iconTone(icon)))
         if (!itemEl.querySelector('.sidebar-icon')) {
-            itemEl.prepend(iconEl(entry.icon))
+            const el = iconEl(icon)
+            if (el) itemEl.prepend(el)
         }
     }
 }

@@ -1,0 +1,23 @@
+// SPDX-FileCopyrightText: 2026 Artur Lissin
+//
+// SPDX-License-Identifier: CC0-1.0
+
+{
+    "compilerOptions": {
+        "target": "ES2022",
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "strict": true,
+        "noEmit": true,
+        "skipLibCheck": true,
+        "esModuleInterop": true,
+        "isolatedModules": true,
+        "lib": ["ES2022", "DOM", "DOM.Iterable"],
+        "baseUrl": "..",
+        "paths": {
+            "@theme/*": [".vitepress/theme/*"],
+            "@/*": ["src/*"]
+        }
+    },
+    "include": ["theme/**/*.ts", "theme/**/*.vue", "src/**/*.ts"]
+}
