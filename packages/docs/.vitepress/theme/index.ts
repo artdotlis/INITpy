@@ -5,9 +5,9 @@
 import type { SiteData, Theme } from 'vitepress'
 import { createApp, h } from 'vue'
 import DefaultTheme from 'vitepress/theme'
-import SidebarIcon from './SidebarIcon.vue'
-import { iconTone, toneVar } from './icons'
-import type { IconPreset } from './icons'
+import SidebarIcon from '@theme/SidebarIcon.vue'
+import { iconTone, toneVar } from '@theme/icons'
+import type { IconPreset } from '@theme/icons'
 import '@theme/style.css'
 
 interface SidebarRow {
