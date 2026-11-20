@@ -26,7 +26,7 @@ from shared_utils.core.constants import VERSION
 from shared_utils.repo.git import clone_git
 from shared_utils.repo.git import init_and_commit
 from shared_utils.repo.git import reset_git
-from shared_utils.repo.make import lock_project
+from shared_utils.repo.just import lock_project
 from shared_utils.core.names import sanitize_package_name
 from shared_utils.core.names import sanitize_package_name_dep_group
 from shared_utils.core.names import package_env_file

@@ -61,7 +61,8 @@ check_env_uniqueness() {
 
 check_name_occurrence() {
     norm_reg="\${\?$1}\?"
-    make_reg="\$($1)"
+{% raw %}    printf -v make_reg '\\$(%s)\\|{{%s}}\\|\\$%s' "$1" "$1" "$1"
+{% endraw %}
     docker_reg="\${\?$1}\?\|environment:[[:space:]]*$1"
     if [[ "$2" = 1 ]]; then
         norm_reg="$1[[:space:]]*=[A-Za-z0-9]*"
@@ -71,7 +72,7 @@ check_name_occurrence() {
     if [[ "$(grep -Rnw "$ROOT/bin" -e "$norm_reg" | wc -l)" -gt 0 ]]; then
         return 0
     fi
-    if [[ "$(grep -cwe "$make_reg" "$ROOT/Makefile")" -gt 0 ]]; then
+    if [[ "$(grep -cwe "$make_reg" "$ROOT/justfile")" -gt 0 ]]; then
         return 0
     fi
     local dockerfile
@@ -160,7 +161,17 @@ cmd='{
         $0 = substr($0, RSTART+RLENGTH)
     }
 }'
-if ! check_name_rev_occurrence "$ROOT/Makefile" "$cmd"; then
+cmd_just='{
+    while (match($0, /\{\{[A-Z_]+[A-Z0-9_]*\}\}/)) {
+        print substr($0, RSTART+2, RLENGTH-4);
+        $0 = substr($0, RSTART+RLENGTH)
+    }
+    while (match($0, /\$[({][A-Z_]+[A-Z0-9_]*[)}]/)) {
+        print substr($0, RSTART+2, RLENGTH-3);
+        $0 = substr($0, RSTART+RLENGTH)
+    }
+}'
+if ! check_name_rev_occurrence "$ROOT/justfile" "$cmd_just"; then
     exit 1
 fi
 if ! check_name_rev_occurrence "$ROOT/docker-compose.yml" "$cmd"; then

@@ -7,8 +7,7 @@
 
 # Single source of env truth.
 #
-# Executed -> prints make assignments  (Makefile: $(eval $(shell env.sh)))
-# Sourced  -> exports the same vars for shell scripts
+# Sourced -> exports the merged env for shell scripts
 #
 # Merges package.env plus any *.env file it references (e.g. packages/web/.env).
 # Ambient values always win; this only fills gaps.
@@ -17,9 +16,8 @@ set -euo pipefail
 
 ROOT="$(dirname "$(realpath "${BASH_SOURCE[0]}")")/../.."
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
-    MODE="make"
-else
-    MODE="sh"
+    echo "env.sh is not meant to be executed; source it" >&2
+    exit 1
 fi
 
 declare -A SEEN_FILES=()
@@ -96,33 +94,20 @@ path_dirs=(
     "$ROOT/$(get UV_INSTALL_DIR)"
     "$ROOT/$(get PNPM_HOME)/bin"
 )
-
-if [[ "$MODE" == make ]]; then
-    # ?= keeps ambient (environment) values winning over package.env
-    for i in "${!KEYS[@]}"; do
-        printf '%s ?= %s\n' "${KEYS[$i]}" "${VALS[$i]}"
-    done
-    # shellcheck disable=SC2016  # $(PATH) is for make, not the shell
-    printf 'PATH := $(PATH):%s\n' "$(IFS=:; printf '%s' "${path_dirs[*]}")"
-    printf 'UVE := %s\n' "$ROOT/$(get UV_INSTALL_DIR)/uv"
-    printf 'PNPME := %s\n' "$ROOT/$(get PNPM_HOME)/bin/pnpm"
-    printf 'SHELL := /bin/bash\n'
-else
-    for i in "${!KEYS[@]}"; do
-        key="${KEYS[$i]}"
-        if [[ -z "${!key+x}" ]]; then
-            printf -v "$key" '%s' "${VALS[$i]}"
-            export "${key?}"
-        fi
-    done
-    UVE="$ROOT/$(get UV_INSTALL_DIR)/uv"
-    PNPME="$ROOT/$(get PNPM_HOME)/bin/pnpm"
-    export UVE PNPME
-    for dir in "${path_dirs[@]}"; do
-        case ":$PATH:" in
-            *":$dir:"*) ;;
-            *) PATH="$PATH:$dir" ;;
-        esac
-    done
-    export PATH
-fi
+for i in "${!KEYS[@]}"; do
+    key="${KEYS[$i]}"
+    if [[ -z "${!key+x}" ]]; then
+        printf -v "$key" '%s' "${VALS[$i]}"
+        export "${key?}"
+    fi
+done
+UVE="$ROOT/$(get UV_INSTALL_DIR)/uv"
+PNPME="$ROOT/$(get PNPM_HOME)/bin/pnpm"
+export UVE PNPME
+for dir in "${path_dirs[@]}"; do
+    case ":$PATH:" in
+        *":$dir:"*) ;;
+        *) PATH="$PATH:$dir" ;;
+    esac
+done
+export PATH

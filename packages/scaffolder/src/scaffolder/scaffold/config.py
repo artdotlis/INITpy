@@ -34,7 +34,7 @@ def correct_core_project(path: Path, root_ctx: dict[str, Any], /) -> None:
     (path / ".devcontainer" / "devcontainer.json").write_text(
         render_template("devcontainer/devcontainer.json.jinja", root_ctx)
     )
-    (path / "Makefile").write_text(render_template("root/Makefile.jinja", root_ctx))
+    (path / "justfile").write_text(render_template("root/justfile.jinja", root_ctx))
     (path / ".gitignore").write_text(render_template("root/gitignore.jinja", root_ctx))
     (path / ".dockerignore").write_text(
         render_template("root/dockerignore.jinja", root_ctx)

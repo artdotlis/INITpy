@@ -10,14 +10,29 @@ import { iconTone, toneVar } from '@theme/icons'
 import type { IconPreset } from '@theme/icons'
 import '@theme/style.css'
 
+/** A single sidebar entry, plus the icon the theme overlays on it. */
 interface SidebarRow {
     link?: string
     icon?: IconPreset
     items?: SidebarRow[]
 }
 
+/**
+ * Reads the site base path the current build was produced with.
+ *
+ * @returns The base URL, always ending in a slash.
+ */
 const baseOf = () => import.meta.env.BASE_URL
 
+/**
+ * Normalises a sidebar link to the pathname form used as the lookup key.
+ *
+ * Absolute URLs are reduced to their pathname, and the site base prefix is
+ * stripped so base-relative and absolute links compare equal.
+ *
+ * @param h Raw `href`, from the sidebar config or from the rendered DOM.
+ * @returns The normalised pathname, or `null` if `h` is not a string.
+ */
 const norm = (h: string | null): string | null => {
     if (typeof h !== 'string') return null
     const base = baseOf()
@@ -27,6 +42,12 @@ const norm = (h: string | null): string | null => {
     return p
 }
 
+/**
+ * Indexes the configured sidebar entries by normalised link.
+ *
+ * @param link Site data provided to the theme by VitePress.
+ * @returns A map from normalised pathname to the configured sidebar row.
+ */
 const rowOf = (link: SiteData): Map<string, SidebarRow> => {
     const base = baseOf()
     const hrefOf = (l: string) => (l.startsWith('/') ? base + l.slice(1) : l)
@@ -49,12 +70,24 @@ const rowOf = (link: SiteData): Map<string, SidebarRow> => {
     return map
 }
 
+/**
+ * Renders a preset into a detached DOM node.
+ *
+ * @param preset Icon preset to draw.
+ * @returns The rendered icon element, or `null` if the component rendered nothing.
+ */
 function iconEl(preset: IconPreset): Element | null {
     const holder = document.createElement('span')
     createApp({ render: () => h(SidebarIcon, { preset }) }).mount(holder)
     return holder.firstElementChild
 }
 
+/**
+ * Syncs the icons, tone CSS variable, and `has-icon` class onto the rendered
+ * sidebar after each VitePress re-render.
+ *
+ * @param map Sidebar rows indexed by normalised link, as built by `rowOf`.
+ */
 function stamp(map: Map<string, SidebarRow>) {
     for (const row of document.querySelectorAll('.VPSidebarItem')) {
         const itemEl = row.querySelector<HTMLElement>(':scope > .item')
@@ -77,6 +110,7 @@ function stamp(map: Map<string, SidebarRow>) {
     }
 }
 
+/** VitePress theme that extends the default theme with sidebar icons. */
 export default {
     extends: DefaultTheme,
     enhanceApp({ siteData }) {

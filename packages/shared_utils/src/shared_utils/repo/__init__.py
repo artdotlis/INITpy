@@ -2,6 +2,6 @@
 #
 # SPDX-License-Identifier: Unlicense
 
-"""Repository-level helpers: git, Makefile, and template files."""
+"""Repository-level helpers: git, justfile, and template files."""
 
 __all__: list[str] = []

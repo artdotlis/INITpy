@@ -34,7 +34,7 @@ TEMPLATE_TARGETS: dict[str, str] = {
     "root/package.json.jinja": "package.json",
     "root/lefthook.yml.jinja": "lefthook.yml",
     "root/pnpm-workspace.yaml.jinja": "pnpm-workspace.yaml",
-    "root/Makefile.jinja": "Makefile",
+    "root/justfile.jinja": "justfile",
     "root/gitignore.jinja": ".gitignore",
     "root/dockerignore.jinja": ".dockerignore",
     "root/package.env.jinja": "package.env",
@@ -114,10 +114,10 @@ def root_pnpm_workspace_yaml_jinja() -> Template:
     )
 
 
-@pytest.fixture(name="root_Makefile_jinja")
-def root_makefile_jinja() -> Template:
-    """``root/Makefile.jinja`` -> ``Makefile``."""
-    return Template("root/Makefile.jinja", TEMPLATE_TARGETS["root/Makefile.jinja"])
+@pytest.fixture(name="root_justfile_jinja")
+def root_justfile_jinja() -> Template:
+    """``root/justfile.jinja`` -> ``justfile``."""
+    return Template("root/justfile.jinja", TEMPLATE_TARGETS["root/justfile.jinja"])
 
 
 @pytest.fixture
@@ -235,8 +235,8 @@ def original_pnpm_workspace_yaml() -> Path:
 
 @pytest.fixture
 def original_makefile() -> Path:
-    """``Makefile``."""
-    return _REPO_ROOT / "Makefile"
+    """``justfile``."""
+    return _REPO_ROOT / "justfile"
 
 
 @pytest.fixture

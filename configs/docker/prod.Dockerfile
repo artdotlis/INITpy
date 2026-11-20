@@ -8,9 +8,9 @@ COPY . /app
 
 WORKDIR /app
 
-RUN dnf clean all && dnf install -y bash
+RUN dnf clean all && dnf install -y bash just
 RUN bash "./${BIN_DEPLOY_PREP}" && bash "./${BIN_DEPLOY_REQ}"
-RUN make build && make run-build
+RUN just setup && just run-build
 
 RUN --mount=type=secret,id=env_file,target=/run/secrets/env_file \
     bash -c "\
@@ -18,7 +18,7 @@ RUN --mount=type=secret,id=env_file,target=/run/secrets/env_file \
             if [[ ! \${key} =~ ^# && -n \${key} ]]; then \
                 export \${key}=\${value}; \
             fi; \
-        done < /run/secrets/env_file && make run-build \
+        done < /run/secrets/env_file && just run-build \
     "
 
 FROM docker.io/almalinux:10 AS main

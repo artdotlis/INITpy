@@ -6,7 +6,7 @@
     ],
     "initializeCommand": "if [ ! -f .env ]; then cat package.env > .env; fi",
     "name": "{{ project_name }}",
-    "postAttachCommand": "make dev",
+    "postAttachCommand": "just dev",
     "remoteUser": "devu",
     "runServices": [
         "dev"

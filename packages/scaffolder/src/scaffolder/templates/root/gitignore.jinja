@@ -9,7 +9,7 @@
 .VSCodeCounter/
 .uv
 {% if use_monorepo %}.pnpm
-.pnpm-store
+{% endif %}{% if use_monorepo %}.pnpm-store
 {% endif %}.commit_msg
 .commit_msg.*
 

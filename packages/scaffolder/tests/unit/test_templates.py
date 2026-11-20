@@ -20,7 +20,7 @@ TEMPLATE_PATHS = [
     "root/package.json.jinja",
     "root/lefthook.yml.jinja",
     "root/pnpm-workspace.yaml.jinja",
-    "root/Makefile.jinja",
+    "root/justfile.jinja",
     "root/gitignore.jinja",
     "root/dockerignore.jinja",
     "root/package.env.jinja",

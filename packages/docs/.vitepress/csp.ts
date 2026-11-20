@@ -4,7 +4,16 @@
 
 import { randomBytes } from 'node:crypto'
 
-/** Stamp a built page with a self-only CSP (nonce on inline scripts). Idempotent. */
+/**
+ * Stamps a rendered page with a strict, self-only Content-Security-Policy.
+ *
+ * Every inline script receives a fresh per-page nonce, and a
+ * `strict-origin-when-cross-origin` referrer policy is added alongside.
+ * Idempotent: pages that already carry the CSP meta tag are returned unchanged.
+ *
+ * @param html Fully rendered page HTML.
+ * @returns The page HTML with the CSP and referrer meta tags inserted into `<head>`.
+ */
 export function injectCsp(html: string): string {
     if (html.includes('<meta http-equiv="Content-Security-Policy"')) return html
     const nonce = randomBytes(16).toString('base64')

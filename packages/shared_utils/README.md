@@ -18,7 +18,7 @@ SPDX-License-Identifier: CC0-1.0
 
 ## 📚 Installation
 
-The library is built alongside the rest of the repository when you run `make run-build` from the root; there is no separate installation step. Add any dependencies to this module's `[project.dependencies]`.
+The library is built alongside the rest of the repository when you run `just run-build` from the root; there is no separate installation step. Add any dependencies to this module's `[project.dependencies]`.
 
 ---
 

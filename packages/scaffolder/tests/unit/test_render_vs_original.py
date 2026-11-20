@@ -61,10 +61,10 @@ class TestRenderMatchesOriginal:
             request.getfixturevalue("root_pnpm-workspace_yaml_jinja"), context
         )
 
-    def test_root_makefile(
+    def test_root_justfile(
         self, request: pytest.FixtureRequest, context: dict[str, object]
     ) -> None:
-        """``root/Makefile.jinja`` -> ``Makefile``.
+        """``root/justfile.jinja`` -> ``justfile``.
 
         The full file cannot match: the original generates API refs for its two
         real packages and builds both wheels, while the template emits the
@@ -73,9 +73,10 @@ class TestRenderMatchesOriginal:
         to be a contiguous substring of the original, and the dynamic line is
         checked in the render separately.
         """
-        rendered = request.getfixturevalue("root_Makefile_jinja").render(context)
-        original = request.getfixturevalue("root_Makefile_jinja").target_path.read_text()
-        package_line = f"\t$(UVE) run griffe2md {context['package_name']}"
+        fixture = request.getfixturevalue("root_justfile_jinja")
+        rendered = fixture.render(context)
+        original = fixture.target_path.read_text()
+        package_line = f'    "$UVE" run griffe2md {context["package_name"]}'
         rendered_prefix = rendered.split(package_line, 1)[0]
         assert rendered_prefix in original
         assert package_line in rendered

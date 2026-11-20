@@ -25,7 +25,7 @@ packages via the `uv` build system.
 
 ## 📚 Installation
 
-The package is built alongside the rest of the repository when you run `make run-build` from the root; there is no separate installation step. Add any external dependencies to this module’s `[project.dependencies]`.
+The package is built alongside the rest of the repository when you run `just run-build` from the root; there is no separate installation step. Add any external dependencies to this module’s `[project.dependencies]`.
 
 ---
 
