@@ -23,7 +23,6 @@ import {
 } from '@phosphor-icons/vue';
 import type { IconPreset, IconName } from '@theme/icons';
 
-// Resolves an icon name to its Phosphor component.
 const registry: Record<IconName, unknown> = {
     info: PhInfo,
     house: PhHouse,

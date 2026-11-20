@@ -24,7 +24,6 @@ _REPO_ROOT = Path(__file__).resolve().parents[4]
 _PROJECT = "My Project"
 _PKG = "my_project_pkg"
 
-# (use_monorepo, use_docs, use_reuse)
 _VARIANTS = [
     (monorepo, docs, reuse)
     for monorepo in (True, False)
@@ -118,23 +117,19 @@ class TestAllVariants:
         assert (path / "docker-compose.yml").is_file()
         assert not (path / "configs" / "docker" / "prod.Dockerfile").exists()
 
-        # package files
         assert (pkg_dir / "src" / _PKG / "main.py").is_file()
         assert (pkg_dir / "src" / _PKG / "py.typed").is_file()
         assert (pkg_dir / "tests" / "unit" / f"test_{_PKG}.py").is_file()
 
-        # monorepo vs flat
         assert (path / "packages").is_dir() is use_monorepo
         assert (path / "package.json").is_file() is use_monorepo
         assert not (path / "packages" / "scaffolder").exists()
         assert not (path / "packages" / "shared_utils").exists()
 
-        # docs kept only in a monorepo when requested
         assert (path / "packages" / "docs").is_dir() is (use_monorepo and use_docs)
         docs_yml = path / ".github" / "workflows" / "docs.yml"
         assert docs_yml.is_file() is (use_monorepo and use_docs)
 
-        # reuse tooling only when requested
         assert (path / "LICENSES").is_dir() is use_reuse
 
     @pytest.mark.parametrize(("use_monorepo", "use_docs", "use_reuse"), _VARIANTS)
@@ -152,7 +147,6 @@ class TestAllVariants:
         assert pyproject["project"]["name"] == (_PROJECT if use_monorepo else _PKG)
         assert pyproject["project"]["description"] == "A demo"
         assert pyproject["project"]["license"] == "MIT"
-        # monorepo workspace layout vs single installable package
         assert ("[tool.uv.workspace]" in text) is use_monorepo
         assert f"package = {'false' if use_monorepo else 'true'}" in text
 

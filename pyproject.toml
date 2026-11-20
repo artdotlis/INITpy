@@ -59,21 +59,9 @@ quiet-level = 3
 skip = '.vscore,.tox,*~,*.cache,*.lock,venv,*ignore.txt,./public/*'
 
 [tool.commitizen]
-major_version_zero = true
 name = "cz_conventional_commits"
 tag_format = "v$version"
-update_changelog_on_bump = true
-version_files = [
-  "README.md:^\\[!\\[release:",
-  "packages/shared_utils/src/shared_utils/core/constants.py:^VERSION",
-  "package.json",
-  "pyproject.toml",
-  "packages/scaffolder/pyproject.toml",
-  "packages/shared_utils/pyproject.toml",
-  "packages/docs/package.json",
-]
 version_provider = "uv"
-version_type = "semver"
 
 [tool.griffe2md]
 separate_signature = false
@@ -125,7 +113,6 @@ exclude = [
 ]
 
 [tool.ruff.lint]
-# Allow unused variables when underscore-prefixed.
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 fixable = [
   "A",

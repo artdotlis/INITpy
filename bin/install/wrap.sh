@@ -42,8 +42,10 @@ else
   if [[ "${#files[@]}" -eq 0 ]]; then
     exit 0
   fi
+  # SECURITY: staged file names are untrusted input; %q stops eval re-splitting them.
+  quoted=$(printf '%q ' "${files[@]}")
   # shellcheck disable=SC2294
-  eval "${cmd[@]}" "${files[@]}"
+  eval "${cmd[*]} $quoted"
 fi
 
 set +a

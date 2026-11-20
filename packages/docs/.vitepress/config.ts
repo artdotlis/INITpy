@@ -8,10 +8,16 @@ import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { resolve, dirname } from 'node:path'
 import toml from 'toml'
+import { injectCsp } from './csp'
 
 const CONFIG_DIR = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(CONFIG_DIR, '..')
 const THEME_DIR = resolve(CONFIG_DIR, 'theme')
+const OUT_DIR = fileURLToPath(new URL('../../../public/docs/', import.meta.url))
+
+// transformHtml is the only VitePress hook that sees the final page HTML.
+
+const transformHtml = (code: string) => injectCsp(code)
 
 const config = toml.parse(
   readFileSync(new URL('./config.toml', import.meta.url), 'utf-8')
@@ -47,7 +53,6 @@ type SideItem = {
     icon: IconPreset
 }
 
-// Build an IconPreset from config strings; null when the icon name is unknown.
 const preset = (icon: string | undefined, tone: string | undefined): IconPreset | null =>
   icon && icon in Icon ? Icon[icon as IconName][tone as ToneName || 'graphite'] : null
 
@@ -79,8 +84,9 @@ export default defineConfig({
   base: (vp.base as string) || '/',
   srcDir: (vp.srcDir as string) || 'src',
   srcExclude: ['**/_partials/**'],
-  outDir: fileURLToPath(new URL('../../../public/docs/', import.meta.url)),
+  outDir: OUT_DIR,
   cleanUrls: !!vp.cleanUrls,
+  transformHtml,
   vite: {
     resolve: {
       alias: {

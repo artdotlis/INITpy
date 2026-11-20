@@ -10,7 +10,7 @@ endif
 
 RAN := $(shell awk 'BEGIN{srand();printf("%d", 65536*rand())}')
 ROOT_MAKEFILE := $(abspath $(patsubst %/, %, $(dir $(abspath $(lastword $(MAKEFILE_LIST))))))
-# Env comes straight from package.env (+ nested *.env), no generated file.
+
 define NL
 
 
@@ -37,12 +37,8 @@ dev: setup
 		$(UVE) run lefthook install; \
 	fi
 
-build: setup
-	$(UVE) sync --frozen
-	$(PNPME) install --frozen-lockfile --prod
-
 run-act:
-	@echo "source .venv/bin/activate; rm /tmp/$(RAN)" > /tmp/$(RAN)
+	@echo "source $(ROOT_MAKEFILE)/.venv/bin/activate; source $(ROOT_MAKEFILE)/bin/install/env.sh; rm /tmp/$(RAN)" > /tmp/$(RAN)
 	bash --init-file /tmp/$(RAN)
 
 run-checks:
@@ -52,21 +48,16 @@ run-checks:
 		$(UVE) run lefthook run pre-commit --all-files -f; \
 	fi
 
-build-docs: docs-ref
-	cd $(ROOT_MAKEFILE)/$(PKG_DOC) && $(PNPME) run build
-
-run-docs: build-docs
-	@echo "docs build complete (CI)"
-
-serve-docs: build-docs
-	cd $(PKG_DOC) && $(PNPME) run preview
-
-docs-ref:
+run-docs:
 	$(UVE) run griffe2md scaffolder -o $(DOCS_REF_DIR)/scaffolder.md
 	$(UVE) run griffe2md shared_utils -o $(DOCS_REF_DIR)/shared_utils.md
 	mkdir -p $(DOCS_PARTIALS_DIR)
 	cp $(ROOT_MAKEFILE)/README.md $(DOCS_PARTIALS_DIR)/readme.md
 	cp $(ROOT_MAKEFILE)/LICENSE $(DOCS_PARTIALS_DIR)/license.md
+	cd $(ROOT_MAKEFILE)/$(PKG_DOC) && $(PNPME) run build
+
+serve-docs: run-docs
+	cd $(PKG_DOC) && $(PNPME) run preview
 
 run-tests:
 	$(UVE) run lefthook run tests
@@ -75,20 +66,21 @@ run-build:
 	$(UVE) build --package shared-utils
 	$(UVE) build --package scaffolder
 
-run-bump: DISABLE_GIT_ADD = 0
-run-bump:
+bump: DISABLE_GIT_ADD = 0
+bump:
 	bash $(BIN_RUN_UNSTAGED)
-	$(UVE) run cz bump --files-only --yes --changelog
-	git add .
-	$(UVE) run cz version --project | xargs -i git commit -am "bump: release {}"
+	NEW_VER=$$($(UVE) run bash bin/install/bump.sh | tail -1); \
+	echo "bumped to $$NEW_VER"; \
+	git add .; \
+	git commit -am "bump: release $$NEW_VER"
 
-run-lock run-update: %: exp-%
+lock update: %: exp-%
 
-exp-run-lock:
+exp-lock:
 	$(UVE) lock
 	cd $(PKG_DOC) && $(PNPME) install --lockfile-only
 
-exp-run-update:
+exp-update:
 	$(UVE) lock -U
 	cd $(PKG_DOC) && $(PNPME) update
 

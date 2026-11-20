@@ -86,9 +86,9 @@ All commands must be run within the Dev Container or by passing `CONTAINER=conta
 | **Build**   | `make run-build`                          | Builds all packages as wheels via `uv`.                                              |
 | **Quality** | `make run-checks`                         | Runs `lefthook` pre-commit hooks (lint + static analysis)                            |
 | **Test**    | `make run-tests`                          | Runs the pytest suite and enforces the coverage floor for all packages.              |
-| **Docs**    | `make run-docs`, `serve-docs`, `docs-ref` | Builds and serves the VitePress site, or regenerates the API reference partials.     |
+| **Docs**    | `make run-docs`, `serve-docs`             | Builds and serves the VitePress site, with API reference partials regenerated.       |
 | **Deps**    | `make run-lock`, `run-update`             | Locks or updates the `uv` and `pnpm` lockfiles.                                      |
-| **Release** | `make run-bump`                           | Bumps version and updates CHANGELOG.                                                 |
+| **Release** | `make bump`                               | Bumps the version and updates the CHANGELOG.                                         |
 | **Git**     | `make commit`, `make com`                 | Generates commit message with `commitizen` or opens `vim` for editing, then commits. |
 | **Clean**   | `make clean`                              | Removes build artifacts and caches via `bin/install/clean.sh`.                       |
 

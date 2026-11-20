@@ -20,13 +20,10 @@ export type IconName =
 /** Tone names. Map to the CSS var `--dd-ico-<name>` (light + dark) in style.css. */
 export type ToneName = 'primary' | 'signal' | 'muted' | 'graphite' | 'danger'
 
-/** An icon + tone selected together in config. */
 export type IconPreset = { name: IconName; tone: ToneName }
 
-/** CSS custom-property value for a tone, e.g. `var(--dd-ico-primary)`. */
 export const toneVar = (tone: string) => `var(--dd-ico-${tone})`
 
-/** Tone of an icon preset. */
 export const iconTone = (preset: IconPreset): ToneName => preset.tone
 
 // Every icon is available in every tone, so colour is a per-usage choice.

@@ -65,13 +65,9 @@ quiet-level = 3
 skip = '.vscore,.tox,*~,*.cache,*.lock,venv,*ignore.txt,./public/*'
 
 [tool.commitizen]
-major_version_zero = true
 name = "cz_conventional_commits"
 tag_format = "v$version"
-update_changelog_on_bump = true
-version_files = ["README.md:^\\[!\\[release:", {% if use_monorepo %}"package.json", "pyproject.toml", "packages/{{ package_name }}/pyproject.toml"{% else %}"pyproject.toml"{% endif %}{% if use_docs %}, "packages/docs/package.json"{% endif %}]
 version_provider = "uv"
-version_type = "semver"
 
 {% if use_docs %}[tool.griffe2md]
 separate_signature = false

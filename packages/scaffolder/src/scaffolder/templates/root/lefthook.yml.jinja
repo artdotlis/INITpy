@@ -85,7 +85,7 @@ pre-commit:
                     stage_fixed: true
                   - name: pretty-format-json
                     glob: '*.json'
-                    run: bin/install/wrap.sh pretty-format-json --autofix -- {staged_files} || true
+                    run: bin/install/wrap.sh pretty-format-json --autofix --indent 4 -- {staged_files} || true
                     stage_fixed: true
                   - name: mixed-line-ending
                     run: bin/install/wrap.sh mixed-line-ending -f auto -- {staged_files} || true
