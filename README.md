@@ -141,6 +141,14 @@ Released into the public domain via the [Unlicense](https://choosealicense.com/l
 
 To prevent accidental execution on your host, the `justfile` uses a mandatory `CONTAINER` constraint. This safety gate ensures the code runs exclusively in the intended containerized environment.
 
+### Environment Variables
+
+| Variable          | Values              | Effect                                                                                             |
+| :---------------- | :------------------ | :------------------------------------------------------------------------------------------------- |
+| `CONTAINER`       | `container`         | Mandatory guard; every recipe exits unless it is set.                                              |
+| `COMPONENT`       | `py`, `docs`, `all` | Scope of `just prepare`; defaults to `all`.                                                        |
+| `DISABLE_GIT_ADD` | `0`, `1`            | `1` skips git-dependent steps: `prepare` leaves hooks alone and `run-checks` does not stage fixes. |
+
 ---
 
 > ✏️ **Note**:

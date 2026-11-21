@@ -18,15 +18,17 @@ fi
 
 LICENSE_SHORT_FILES=(
     "$ROOT/pyproject.toml"
-    "$ROOT/package.json"
 )
+if [ -f "$ROOT/package.json" ]; then
+    LICENSE_SHORT_FILES+=("$ROOT/package.json")
+fi
 
 for file_path in "${LICENSE_SHORT_FILES[@]}"; do
     if [ ! -f "$file_path" ]; then
         echo "File not found: $file_path"
         exit 1
     fi
-    if ! grep -q "$SOFTWARE_LIC" "$file_path" 2>/dev/null; then
+    if ! grep -Eq "^license = \"$SOFTWARE_LIC\"|\"license\": \"$SOFTWARE_LIC\"" "$file_path"; then
         echo "License ($SOFTWARE_LIC) not found in $file_path"
         exit 1
     fi
@@ -49,9 +51,15 @@ if [[ -z "${COPYRIGHT:-}" ]]; then
 fi
 echo "COPYRIGHT is set: $COPYRIGHT"
 
-LICENSE_FILES=(
-    "$CONFIG_DOCS"
-)
+if git grep -q "SPDX-FileCopyrightText" -- ':(exclude)bin/lint/licenses.sh' >/dev/null 2>&1 && ! git grep -q "SPDX-FileCopyrightText.*$COPYRIGHT" -- ':(exclude)bin/lint/licenses.sh' >/dev/null 2>&1; then
+    echo "COPYRIGHT ($COPYRIGHT) does not match SPDX-FileCopyrightText headers"
+    exit 1
+fi
+
+LICENSE_FILES=()
+if [ -n "${CONFIG_DOCS:-}" ] && [ -f "$CONFIG_DOCS" ]; then
+    LICENSE_FILES+=("$CONFIG_DOCS")
+fi
 
 for license_file in "${LICENSE_FILES[@]}"; do
     if [[ ! -f "$license_file" ]]; then
@@ -201,10 +209,6 @@ fi
 if ! reuse lint; then
     echo "Linting failed!"
     exit 1
-fi
-
-if [ "${DISABLE_GIT_ADD:-0}" != "1" ]; then
-    git -C "$ROOT" add .
 fi
 
 set +a

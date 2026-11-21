@@ -78,7 +78,7 @@ run-build:
 {% endif %}
 
 bump:
-    export DISABLE_GIT_ADD=0 && bash "$BIN_RUN_UNSTAGED" && NEW_VER=$("$UVE" run bash bin/install/bump.sh | tail -1) && echo "bumped to $NEW_VER" && git add . && git commit -am "bump: release $NEW_VER"
+    bash "$BIN_RUN_UNSTAGED" && NEW_VER=$("$UVE" run bash bin/install/bump.sh | tail -1) && echo "bumped to $NEW_VER" && git add . && git commit -am "bump: release $NEW_VER"
 
 lock:
     "$UVE" lock

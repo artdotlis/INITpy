@@ -103,8 +103,9 @@ instance/
 
 docs/_build/
 
-.vitepress/.cache/
-.vitepress/dist/
+**/.vitepress/.cache/
+**/.vitepress/cache/
+**/.vitepress/dist/
 
 .pybuilder/
 target/

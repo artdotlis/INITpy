@@ -38,7 +38,9 @@ write_version() {
     local ver
     ver="$(printf '%04d.%02d.%d' "$YEAR" "$MONTH" "$PATCH")"
     sed -Ei "s/^version = \"[0-9]+(\.[0-9]+){2}\"/version = \"$ver\"/" "$PYPROJECT"
-    sed -Ei "s/\"version\": \"[0-9]+(\.[0-9]+){2}\"/\"version\": \"$ver\"/" "$PACKAGE_JSON"
+    if [[ -f "$PACKAGE_JSON" ]]; then
+        sed -Ei "s/\"version\": \"[0-9]+(\.[0-9]+){2}\"/\"version\": \"$ver\"/" "$PACKAGE_JSON"
+    fi
     if [[ -f "$README" ]]; then
         sed -Ei "s/(release: |rel-)[0-9]+(\.[0-9]+){2}/\\1$ver/g" "$README"
     fi
@@ -72,11 +74,12 @@ check_no_rewind() {
 
 
 bump() {
+    local latest="$1"
     local cur_year cur_month
     cur_year=$((10#$(date +%Y)))
     cur_month=$((10#$(date +%m)))
 
-    if [[ -z "$(last_tag)" ]]; then
+    if [[ -z "$latest" ]]; then
         YEAR=$cur_year
         MONTH=$cur_month
         PATCH=0
@@ -103,21 +106,21 @@ generate_changelog() {
 main() {
     read_version
 
-    local old_ver new_ver
+    local old_ver new_ver latest
     old_ver="$(printf '%04d.%02d.%d' "$YEAR" "$MONTH" "$PATCH")"
-    bump
+    latest="$(last_tag)"
+    bump "$latest"
     new_ver="$(printf '%04d.%02d.%d' "$YEAR" "$MONTH" "$PATCH")"
-    check_no_rewind "$(last_tag)" "$new_ver"
+    check_no_rewind "$latest" "$new_ver"
 
     if [[ "${1:-}" == "--dry-run" ]]; then
         echo "$new_ver"
-        return
+    else
+        echo "[calver] $old_ver -> $new_ver" >&2
+        write_version
+        generate_changelog
+        echo "$new_ver"
     fi
-
-    echo "[calver] $old_ver -> $new_ver" >&2
-    write_version
-    generate_changelog
-    echo "$new_ver"
 }
 
 main "$@"

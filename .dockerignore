@@ -30,6 +30,8 @@
 **/.mypy_cache
 **/.ruff_cache
 **/.pytest_cache
+**/.vitepress/cache
+**/.vitepress/dist
 **/.coverage
 **/.coverage.*
 **/dist

@@ -55,13 +55,10 @@ run-tests:
     "$UVE" run lefthook run tests
 
 run-build:
-    export DISABLE_GIT_ADD=1 && \
     "$UVE" build --package shared-utils && \
     "$UVE" build --package scaffolder
 
 bump:
-    export DISABLE_GIT_ADD=0 && \
-    bash "$BIN_RUN_UNSTAGED" && \
     NEW_VER=$("$UVE" run bash bin/install/bump.sh | tail -1) && \
     echo "bumped to $NEW_VER" && \
     git add . && \
