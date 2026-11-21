@@ -1,4 +1,13 @@
-set shell := ['''bash''', '''-cu''', '''[ "${CONTAINER:-}" = container ] || { echo "Error: run just inside the dev container only, exiting ..." >&2; exit 1; } && source bin/install/env.sh && : "${DISABLE_GIT_ADD:=0}" && eval "$0"''']
+set shell := [
+    'bash',
+    '-cu',
+    '''
+[ "${CONTAINER:-}" = container ] || { echo "Error: run just inside the dev container only, exiting ..." >&2; exit 1; }
+source bin/install/env.sh
+: "${DISABLE_GIT_ADD:=0}"
+eval "$0"
+''',
+]
 
 setup:
     bash "$BIN_INSTALL_UV"

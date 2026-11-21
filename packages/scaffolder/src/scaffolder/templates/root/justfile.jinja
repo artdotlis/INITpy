@@ -1,4 +1,13 @@
-set shell := ['''bash''', '''-cu''', '''[ "${CONTAINER:-}" = container ] || { echo "Error: run just inside the dev container only, exiting ..." >&2; exit 1; } && source bin/install/env.sh && : "${DISABLE_GIT_ADD:=0}" && eval "$0"''']
+set shell := [
+    'bash',
+    '-cu',
+    '''
+[ "${CONTAINER:-}" = container ] || { echo "Error: run just inside the dev container only, exiting ..." >&2; exit 1; }
+source bin/install/env.sh
+: "${DISABLE_GIT_ADD:=0}"
+eval "$0"
+''',
+]
 
 setup:
     bash "$BIN_INSTALL_UV"
@@ -7,17 +16,35 @@ setup:
 {% endif %}
 
 prepare: setup
-    "$UVE" sync --frozen --all-groups
+    case "${COMPONENT:-all}" in \
+        py) "$UVE" sync --frozen;; \
 {% if use_monorepo %}
-    "$PNPME" install --frozen-lockfile
+        docs) "$UVE" sync --frozen && "$PNPME" install --frozen-lockfile;; \
+        all) "$UVE" sync --frozen --all-groups && "$PNPME" install --frozen-lockfile;; \
+{% else %}
+        all) "$UVE" sync --frozen --all-groups;; \
 {% endif %}
-    if [ "$DISABLE_GIT_ADD" = "1" ]; then echo "Skipping git operations (DISABLE_GIT_ADD=1)"; else find .git/hooks -name "*.old" -delete; "$UVE" run lefthook uninstall 2>&1 || echo "not installed"; "$UVE" run lefthook install; fi
+        *) echo "Error: unknown component '${COMPONENT:-}' (use py, docs or all)" >&2; exit 1;; \
+    esac
+    if [ "$DISABLE_GIT_ADD" = "1" ]; then \
+        echo "Skipping git operations (DISABLE_GIT_ADD=1)"; \
+    else \
+        find .git/hooks -name "*.old" -delete; \
+        "$UVE" run lefthook uninstall 2>&1 || echo "not installed"; \
+        "$UVE" run lefthook install; \
+    fi
 
 run-act:
-    RAN=$$ && echo "source .venv/bin/activate; source bin/install/env.sh; rm /tmp/$RAN" > /tmp/$RAN && bash --init-file /tmp/$RAN
+    RAN=$$ && \
+    echo "source .venv/bin/activate; source bin/install/env.sh; rm /tmp/$RAN" > /tmp/$RAN && \
+    bash --init-file /tmp/$RAN
 
 run-checks:
-    if [ "$DISABLE_GIT_ADD" = "1" ]; then "$UVE" run lefthook run pre-commit --all-files -f --no-stage-fixed; else "$UVE" run lefthook run pre-commit --all-files -f; fi
+    if [ "$DISABLE_GIT_ADD" = "1" ]; then \
+        "$UVE" run lefthook run pre-commit --all-files -f --no-stage-fixed; \
+    else \
+        "$UVE" run lefthook run pre-commit --all-files -f; \
+    fi
 {% if use_docs %}
 
 run-docs:
