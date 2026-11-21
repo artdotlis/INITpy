@@ -10,7 +10,6 @@ dnf clean all && rm -rf /var/cache/dnf
 update-ca-trust extract
 echo "update"
 dnf -y install epel-release dnf-plugins-core
-dnf -y install just
 dnf config-manager --set-enabled crb
 dnf upgrade --refresh -y
 echo "prep finished"
