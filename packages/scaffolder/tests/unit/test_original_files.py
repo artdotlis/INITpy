@@ -14,7 +14,7 @@ ORIGINAL_FIXTURES = [
     "original_package_json",
     "original_lefthook_yml",
     "original_pnpm_workspace_yaml",
-    "original_makefile",
+    "original_justfile",
     "original_gitignore",
     "original_dockerignore",
     "original_package_env",

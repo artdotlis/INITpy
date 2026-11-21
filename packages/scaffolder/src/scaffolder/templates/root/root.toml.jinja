@@ -4,7 +4,7 @@
 
 [project]
 classifiers = ["Private :: Do Not Upload"]
-name = "{{ package_name if not use_monorepo else project_name }}"
+name = "{{ package_name if not use_monorepo else project_slug }}"
 version = "{{ version }}"
 description = "{{ description }}"
 readme = "README.md"
@@ -15,6 +15,7 @@ requires-python = ">=3.13,<4"
 [[project.authors]]
 name = "{{ author_name }}"
 email = "{{ author_email }}"
+
 [tool.uv]
 exclude-newer = "3 days"
 {% if use_monorepo %}package = false
@@ -89,8 +90,7 @@ project-excludes = [
   "configs/**",
 ]
 search-path = [
-{% if use_monorepo %}  "packages/scaffolder/src",
-  "packages/shared_utils/src",
+{% if use_monorepo %}  "packages/{{ package_name }}/src",
 {% else %}  "src",
 {% endif %}]
 python-version = "3.13"
@@ -198,7 +198,7 @@ max-args = 8
 convention = "google"
 
 [tool.vulture]
-paths = ["configs/lint/whitelist.py"{% if use_monorepo %}, "packages/shared_utils/src", "packages/scaffolder/src"{% else %}, "src"{% endif %}]
+paths = ["configs/lint/whitelist.py"{% if use_monorepo %}, "packages/{{ package_name }}/src"{% else %}, "src"{% endif %}]
 {% if use_docs %}exclude = ["packages/docs/"]
 {% else %}exclude = []
 {% endif %}ignore_decorators = ["@*"]

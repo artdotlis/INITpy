@@ -30,7 +30,6 @@ export function injectCsp(html: string): string {
         `connect-src 'self'; ` +
         `form-action 'none'; ` +
         `base-uri 'none'; ` +
-        `frame-ancestors 'none'; ` +
         `object-src 'none'; ` +
         `upgrade-insecure-requests`
     const meta =

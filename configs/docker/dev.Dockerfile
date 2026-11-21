@@ -30,7 +30,6 @@ RUN rm -rf /app
 RUN mkdir -p ${WORK_DIR} && \
     chown ${USERNAME}:${USERNAME} -R ${WORK_DIR}
 
-RUN git config --global --add safe.directory ${WORK_DIR}
 RUN dnf install -y openssh openssh-clients
 
 USER ${USERNAME}

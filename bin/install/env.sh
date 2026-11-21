@@ -5,12 +5,7 @@
 # SPDX-License-Identifier: Unlicense
 
 
-# Single source of env truth.
-#
-# Sourced -> exports the merged env for shell scripts
-#
-# Merges package.env plus any *.env file it references (e.g. packages/web/.env).
-# Ambient values always win; this only fills gaps.
+# Ambient values always win; values naming *.env files chain-load.
 
 set -euo pipefail
 

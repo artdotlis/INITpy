@@ -16,7 +16,7 @@ from scaffolder.main import run_cli
 
 pytest_plugins = ("tests.fixture.env",)
 
-_PROJECT, _DESCRIPTION, _OUTPUT = "proj", "desc", "/tmp/out"
+_PROJECT, _DESCRIPTION, _OUTPUT = "proj", "desc", "out"
 _ANSWERS = [
     _PROJECT,
     _DESCRIPTION,
@@ -88,7 +88,7 @@ class TestRunCli:
 
     def test_successful_flow(self) -> None:
         """Test the happy-path interactive CLI flow."""
-        mock = _drive(_inputs(accepted={REUSE: "n"}), return_value=Path("/tmp/x"))
+        mock = _drive(_inputs(accepted={REUSE: "n"}), return_value=Path("out/x"))
         mock.assert_called_once()
         args = mock.call_args[0][0]
         assert args.project_name == _PROJECT
@@ -192,3 +192,15 @@ class TestRunCli:
         with pytest.raises(RuntimeError, match="test error"):
             _drive(_inputs(output=str(tmp_path)), exc=RuntimeError("test error"))
         assert keep.exists()
+
+    def test_existing_target_dir_is_kept(self, tmp_path: Path) -> None:
+        """Never delete a pre-existing non-empty target directory."""
+        target = tmp_path / _PROJECT
+        target.mkdir()
+        (target / "keep.txt").write_text("x")
+        with pytest.raises(FileExistsError, match="not empty"):
+            _drive(
+                _inputs(output=str(tmp_path)),
+                exc=FileExistsError(f"target directory not empty: {target}"),
+            )
+        assert (target / "keep.txt").read_text() == "x"

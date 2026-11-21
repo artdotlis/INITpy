@@ -13,7 +13,6 @@ DOCKER_DIR="$ROOT/configs/docker"
 ENV_FILES=( "$ROOT_ENV" "$SCA_ENV" "$DOC_ENV")
 
 ALL_ENV=(
-    "MAKEFILE_LIST"
     "HOME"
     "PATH"
 )

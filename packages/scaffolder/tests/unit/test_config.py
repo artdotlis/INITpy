@@ -33,11 +33,11 @@ class TestCorrectCoreProject:
 
         assert (
             _toml(tmp_path / "pyproject.toml")["project"]["name"]
-            == (context["project_name"])
+            == context["project_slug"]
         )
         assert (
             json.loads((tmp_path / "package.json").read_text())["name"]
-            == context["project_name"]
+            == context["project_slug"]
         )
         assert (
             json.loads((tmp_path / ".devcontainer" / "devcontainer.json").read_text())[

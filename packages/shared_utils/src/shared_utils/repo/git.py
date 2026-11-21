@@ -9,6 +9,16 @@ import subprocess
 from pathlib import Path
 
 
+def _git() -> str:
+    """Return the absolute path of the ``git`` executable."""
+    return shutil.which("git") or "git"
+
+
+def _run(args: list[str], cwd: Path | None = None, /) -> None:
+    """Run a git command with list args and no shell."""
+    subprocess.run(args, cwd=cwd, check=True, capture_output=True)  # noqa: S603
+
+
 def clone_git(path: Path, template_url: str, ref: str = "dev", /) -> None:
     """Clone `template_url` into `path` from the given `ref` (branch or tag).
 
@@ -21,11 +31,7 @@ def clone_git(path: Path, template_url: str, ref: str = "dev", /) -> None:
         shutil.rmtree(path)
     path.mkdir(parents=True, exist_ok=True)
 
-    subprocess.run(
-        ["git", "clone", "--branch", ref, template_url, str(path)],
-        check=True,
-        capture_output=True,
-    )
+    _run([_git(), "clone", "--branch", ref, template_url, str(path)])
 
 
 def reset_git(path: Path, /) -> None:
@@ -51,11 +57,11 @@ def init_and_commit(path: Path, author_name: str, author_email: str, /) -> None:
         author_name: Name for the commit author.
         author_email: Email for the commit author.
     """
-    subprocess.run(["git", "init"], cwd=path, check=True, capture_output=True)
-    subprocess.run(["git", "add", "."], cwd=path, check=True, capture_output=True)
-    subprocess.run(
+    _run([_git(), "init"], path)
+    _run([_git(), "add", "."], path)
+    _run(
         [
-            "git",
+            _git(),
             "-c",
             f"user.name={author_name}",
             "-c",
@@ -65,7 +71,5 @@ def init_and_commit(path: Path, author_name: str, author_email: str, /) -> None:
             "init",
             "--no-verify",
         ],
-        cwd=path,
-        check=True,
-        capture_output=True,
+        path,
     )

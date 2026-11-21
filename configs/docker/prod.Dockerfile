@@ -10,7 +10,7 @@ WORKDIR /app
 
 RUN dnf clean all && dnf install -y bash just
 RUN bash "./${BIN_DEPLOY_PREP}" && bash "./${BIN_DEPLOY_REQ}"
-RUN just setup && just run-build
+RUN just build
 
 RUN --mount=type=secret,id=env_file,target=/run/secrets/env_file \
     bash -c "\
@@ -48,7 +48,6 @@ RUN bash /prep.sh && rm /prep.sh
 RUN bash /req.sh && rm /req.sh
 RUN bash /user.sh && rm /user.sh
 
-# stage wheels into the user's home, then drop to the user exactly once
 RUN mkdir -p "${HOME_MAIN}/wheels" && \
     cp /build/*.whl "${HOME_MAIN}/wheels/" && \
     chown -R "${USERNAME}:${USERNAME}" "${HOME_MAIN}" && \

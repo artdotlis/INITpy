@@ -11,10 +11,7 @@ set -a
 
 source "$ROOT/bin/install/env.sh"
 
-echo "$PNPM_HOME"
-echo "$PNPM_VERSION"
-
-if [[ ! -x "$FNM_HOME" ]]; then
+if [[ ! -d "$FNM_HOME" ]]; then
     echo "Installing fnm to $FNM_HOME ..."
     mkdir -p "$FNM_HOME"
     curl -fsSL https://fnm.vercel.app/install | bash -s -- --install-dir "$FNM_HOME" --skip-shell
@@ -26,7 +23,7 @@ if ! command -v node &>/dev/null; then
     fnm --fnm-dir "$ROOT/$FNM_HOME" default "$NODE_VERSION"
 fi
 
-if [[ ! -x "$PNPM_HOME/bin" ]]; then
+if [[ ! -d "$PNPM_HOME/bin" ]]; then
     curl -fsSL https://get.pnpm.io/install.sh | sh -
 fi
 

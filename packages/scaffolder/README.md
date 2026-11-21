@@ -6,16 +6,16 @@ SPDX-License-Identifier: CC0-1.0
 
 # scaffolder
 
-**An example package that lives inside the INITpy monorepo.**
+**Automation suite for INITpy-based projects.**
 
 ---
 
 ## 📦 About
 
-`scaffolder` is one of the first‑level projects bundled in the repository.  
-It demonstrates how a standalone application can depend on the
-internal `shared_utils` library and expose a console script entry
-point (`scaffolder`).
+`scaffolder` generates new projects from the INITpy template. It clones the
+template repository, applies your project name, author, and license, prunes
+the layout to the requested shape (monorepo, docs, reuse), locks dependencies,
+and commits the result.
 
 Because it is part of a monorepo, the package is **private** - it
 should not be published to PyPI - and is built along with the other

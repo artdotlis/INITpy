@@ -66,6 +66,18 @@ class TestRun:
         mocks, _ = pipeline
         mocks["clone_git"].assert_called_once()
 
+    def test_refuses_non_empty_output_path(
+        self, tmp_path: Path, pipeline: tuple[dict[str, MagicMock], list[str]]
+    ) -> None:
+        """Raise instead of wiping an existing non-empty directory."""
+        del pipeline
+        target = tmp_path / "My Project"
+        target.mkdir()
+        (target / "keep.txt").write_text("data")
+        with pytest.raises(FileExistsError, match="target directory not empty"):
+            run(_args(tmp_path))
+        assert (target / "keep.txt").read_text() == "data"
+
     def test_clones_template_at_ref(
         self, tmp_path: Path, pipeline: tuple[dict[str, MagicMock], list[str]]
     ) -> None:
@@ -88,6 +100,7 @@ class TestRun:
         assert pkg_ctx["version"] == "0.1.0"
         root_ctx = mocks["correct_core_project"].call_args.args[1]
         assert root_ctx["project_name"] == "My Project"
+        assert root_ctx["project_slug"] == "my-project"
         assert root_ctx["dep_name"] == "my-project-pkg"
 
     def test_passes_metadata_to_collaborators(

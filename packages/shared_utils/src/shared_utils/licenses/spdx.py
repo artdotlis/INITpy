@@ -49,19 +49,28 @@ def strip_spdx_headers(path: Path, /) -> None:
         path: Root directory to scan
     """
     for fpath in path.rglob("*"):
-        if fpath.is_file() and fpath.name.endswith(".license"):
+        if not fpath.is_file():
+            continue
+        if fpath.name.endswith(".license"):
             fpath.unlink()
-        elif fpath.is_file() and "SPDX" in (text := fpath.read_text()):
-            style_cls = get_comment_style(fpath)
-            if style_cls is None:
-                continue
-            found = _find_spdx_block(text, style_cls)
-            if found is None:
-                continue
-            start, comment_block = found
-            before = text[:start]
-            after = text[start + len(comment_block) :].lstrip()
-            fpath.write_text(before + after)
+            continue
+        data = fpath.read_bytes()
+        if b"SPDX" not in data:
+            continue
+        try:
+            text = data.decode()
+        except UnicodeDecodeError:
+            continue
+        style_cls = get_comment_style(fpath)
+        if style_cls is None:
+            continue
+        found = _find_spdx_block(text, style_cls)
+        if found is None:
+            continue
+        start, comment_block = found
+        before = text[:start]
+        after = text[start + len(comment_block) :].lstrip()
+        fpath.write_text(before + after)
 
 
 def write_license(path: Path, license_name: str, /) -> None:

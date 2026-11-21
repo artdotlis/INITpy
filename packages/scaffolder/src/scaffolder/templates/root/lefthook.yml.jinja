@@ -67,7 +67,7 @@ pre-commit:
                     run: bin/install/wrap.sh check-shebang-scripts-are-executable -- {staged_files}
 {% if use_monorepo %}                  - name: oxlint
                     glob: '*.{js,jsx,ts,tsx,cjs,mjs,mts,cts,vue}'
-                    run: bin/install/wrap.sh oxlint -- {staged_files} || true
+                    run: bin/install/wrap.sh oxlint -- {staged_files}
                   - name: typecheck
                     glob: 'packages/docs/**/*.{ts,tsx,vue}'
                     run: bin/install/wrap.sh pnpm --filter docs run typecheck
@@ -77,11 +77,11 @@ pre-commit:
               jobs:
                   - name: ruff-check
                     glob: '*.py'
-                    run: bin/install/wrap.sh ruff check --fix -- {staged_files} || true
+                    run: bin/install/wrap.sh ruff check --fix --output-format=concise -- {staged_files}
                     stage_fixed: true
                   - name: ruff-format
                     glob: '*.py'
-                    run: bin/install/wrap.sh ruff format -- {staged_files} || true
+                    run: bin/install/wrap.sh ruff format -- {staged_files}
                     stage_fixed: true
                   - name: pretty-format-json
                     glob: '*.json'
@@ -136,6 +136,6 @@ tests:
     parallel: true
     jobs:
         - name: {{ package_name }}
-{% if use_monorepo %}          run: bin/install/wrap.sh 'cd ${{ package_env_var }} && coverage run -m pytest'
-{% else %}          run: bin/install/wrap.sh 'coverage run -m pytest'
+{% if use_monorepo %}          run: bin/install/wrap.sh 'cd ${{ package_env_var }} && coverage run -m pytest && coverage report'
+{% else %}          run: bin/install/wrap.sh 'coverage run -m pytest && coverage report'
 {% endif %}

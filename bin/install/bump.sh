@@ -23,10 +23,7 @@ README="README.md"
 
 read_version() {
     local ver
-    ver="$(grep -Eom1 '^version = "[0-9]{4}\.[0-9]{2}\.[0-9]+"' "$PYPROJECT" | grep -Eo '[0-9]{4}\.[0-9]{2}\.[0-9]+' || true)"
-    if [[ -z "$ver" ]]; then
-        ver="$(grep -Eom1 '^version = "[0-9]+\.[0-9]+\.[0-9]+"' "$PYPROJECT" | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+' || true)"
-    fi
+    ver="$(grep -Eom1 '^version = "[0-9]+(\.[0-9]+){2}"' "$PYPROJECT" | grep -Eo '[0-9]+(\.[0-9]+){2}' || true)"
     if [[ -z "$ver" ]]; then
         echo "[calver] no version found in $PYPROJECT" >&2
         exit 1
@@ -40,26 +37,37 @@ read_version() {
 write_version() {
     local ver
     ver="$(printf '%04d.%02d.%d' "$YEAR" "$MONTH" "$PATCH")"
-    sed -Ei "s/^version = \"[0-9]{4}\.[0-9]{2}\.[0-9]+\"/version = \"$ver\"/" "$PYPROJECT"
-    sed -Ei "s/\"version\": \"[0-9]{4}\.[0-9]{2}\.[0-9]+\"/\"version\": \"$ver\"/" "$PACKAGE_JSON"
+    sed -Ei "s/^version = \"[0-9]+(\.[0-9]+){2}\"/version = \"$ver\"/" "$PYPROJECT"
+    sed -Ei "s/\"version\": \"[0-9]+(\.[0-9]+){2}\"/\"version\": \"$ver\"/" "$PACKAGE_JSON"
     if [[ -f "$README" ]]; then
-        sed -Ei "s/(release: |rel-)[0-9]{4}\.[0-9]{2}\.[0-9]+/\\1$ver/g" "$README"
+        sed -Ei "s/(release: |rel-)[0-9]+(\.[0-9]+){2}/\\1$ver/g" "$README"
     fi
     local f
     for f in packages/*/pyproject.toml packages/*/package.json; do
         [[ -f "$f" ]] || continue
-        sed -Ei "s/^version = \"[0-9]{4}\.[0-9]{2}\.[0-9]+\"/version = \"$ver\"/" "$f"
-        sed -Ei "s/\"version\": \"[0-9]{4}\.[0-9]{2}\.[0-9]+\"/\"version\": \"$ver\"/" "$f"
+        sed -Ei "s/^version = \"[0-9]+(\.[0-9]+){2}\"/version = \"$ver\"/" "$f"
+        sed -Ei "s/\"version\": \"[0-9]+(\.[0-9]+){2}\"/\"version\": \"$ver\"/" "$f"
     done
     for f in packages/*/src/*/core/constants.py; do
         [[ -f "$f" ]] || continue
-        sed -Ei "s/^VERSION: Final\[str\] = \"[0-9]{4}\.[0-9]{2}\.[0-9]+\"/VERSION: Final[str] = \"$ver\"/" "$f"
+        sed -Ei "s/^VERSION: Final\[str\] = \"[0-9]+(\.[0-9]+){2}\"/VERSION: Final[str] = \"$ver\"/" "$f"
     done
 }
 
 
 last_tag() {
-    git tag --list 'v*' 2>/dev/null | head -1
+    git tag --list 'v*' --sort=-v:refname 2>/dev/null | head -1
+}
+
+
+check_no_rewind() {
+    local latest="$1" new_ver="$2"
+    [[ -z "$latest" ]] && return 0
+    local latest_ver="${latest#v}"
+    if [[ "$(printf '%s\n%s\n' "$new_ver" "$latest_ver" | sort -V | head -1)" == "$new_ver" ]]; then
+        echo "[calver] refusing to rewind: $new_ver is not above $latest" >&2
+        exit 1
+    fi
 }
 
 
@@ -99,6 +107,7 @@ main() {
     old_ver="$(printf '%04d.%02d.%d' "$YEAR" "$MONTH" "$PATCH")"
     bump
     new_ver="$(printf '%04d.%02d.%d' "$YEAR" "$MONTH" "$PATCH")"
+    check_no_rewind "$(last_tag)" "$new_ver"
 
     if [[ "${1:-}" == "--dry-run" ]]; then
         echo "$new_ver"

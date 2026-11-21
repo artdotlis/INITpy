@@ -41,6 +41,7 @@ omit = ["tests/*"]
 data_file = ".coverage.scaffolder"
 
 [tool.coverage.report]
+exclude_also = ['if __name__ == .__main__.:']
 show_missing = true
 skip_empty = true
 fail_under = 90

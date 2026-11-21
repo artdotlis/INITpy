@@ -7,6 +7,8 @@
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 from shared_utils.repo.git import clone_git, init_and_commit, reset_git
 
 
@@ -21,6 +23,11 @@ class TestResetGit:
         reset_git(tmp_path)
         assert not git_dir.exists()
 
+    def test_raises_without_git_dir(self, tmp_path: Path) -> None:
+        """Raise FileNotFoundError when the .git directory is absent."""
+        with pytest.raises(FileNotFoundError, match=r"\.git directory missing"):
+            reset_git(tmp_path)
+
 
 class TestInitAndCommit:
     """Tests for init_and_commit."""
@@ -32,10 +39,9 @@ class TestInitAndCommit:
             init_and_commit(tmp_path, "Author", "a@b.com")
             assert mock_run.call_count == 3
             args_list = [c[0][0] for c in mock_run.call_args_list]
-            assert args_list[0] == ["git", "init"]
-            assert args_list[1] == ["git", "add", "."]
-            assert args_list[2][:5] == [
-                "git",
+            assert args_list[0][1:] == ["init"]
+            assert args_list[1][1:] == ["add", "."]
+            assert args_list[2][1:5] == [
                 "-c",
                 "user.name=Author",
                 "-c",

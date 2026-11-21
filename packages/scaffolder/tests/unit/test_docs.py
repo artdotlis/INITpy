@@ -8,6 +8,8 @@ from pathlib import Path
 
 import tomllib
 
+import pytest
+
 from scaffolder.scaffold.docs import amend_docs, remove_docs
 
 pytest_plugins = ("tests.fixture.template",)
@@ -57,3 +59,14 @@ class TestRemoveDocs:
         assert (tmp_path / "packages" / "scaffolder").exists()
         assert not (tmp_path / ".github" / "workflows" / "docs.yml").exists()
         assert (tmp_path / ".github" / "workflows" / "mac_win_test.yml").exists()
+
+    def test_raises_without_docs_package(self, tmp_path: Path) -> None:
+        """Raise FileNotFoundError when the docs package is absent."""
+        with pytest.raises(FileNotFoundError, match="docs package missing"):
+            remove_docs(tmp_path)
+
+    def test_raises_without_docs_workflow(self, tmp_path: Path) -> None:
+        """Raise FileNotFoundError when the docs workflow is absent."""
+        (tmp_path / "packages" / "docs").mkdir(parents=True)
+        with pytest.raises(FileNotFoundError, match="docs workflow missing"):
+            remove_docs(tmp_path)

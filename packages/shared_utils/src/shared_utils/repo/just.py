@@ -7,6 +7,7 @@
 import os
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 
@@ -25,15 +26,13 @@ def lock_project(path: Path, /) -> None:
     Args:
         path: Directory containing the justfile to run.
     """
-    env = dict(os.environ)
     if not _tools_available():
-        subprocess.run(
-            ["just", "setup"], cwd=path, check=True, capture_output=True, env=env
-        )
-    subprocess.run(
-        ["just", "lock"],
+        print("[scaffolder] uv/pnpm/just missing, skipping lock", file=sys.stderr)
+        return
+    subprocess.run(  # noqa: S603
+        [shutil.which("just") or "just", "lock"],
         cwd=path,
         check=True,
         capture_output=True,
-        env=env,
+        env=dict(os.environ),
     )

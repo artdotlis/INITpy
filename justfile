@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2026 Artur Lissin
-#
-# SPDX-License-Identifier: Unlicense
-
 set shell := ['''bash''', '''-cu''', '''[ "${CONTAINER:-}" = container ] || { echo "Error: run just inside the dev container only, exiting ..." >&2; exit 1; } && source bin/install/env.sh && : "${DISABLE_GIT_ADD:=0}" && eval "$0"''']
 
 setup:
@@ -23,7 +19,7 @@ run-docs:
     "$UVE" run griffe2md scaffolder -o "$DOCS_REF_DIR/scaffolder.md"
     "$UVE" run griffe2md shared_utils -o "$DOCS_REF_DIR/shared_utils.md"
     mkdir -p "$DOCS_PARTIALS_DIR"
-    cp README.md "$DOCS_PARTIALS_DIR/readme.md"
+    sed -E '/^\[!\[/d' README.md > "$DOCS_PARTIALS_DIR/readme.md"
     cp LICENSE "$DOCS_PARTIALS_DIR/license.md"
     cd "$PKG_DOC" && "$PNPME" run build
 
@@ -32,6 +28,9 @@ serve-docs: run-docs
 
 run-tests:
     "$UVE" run lefthook run tests
+
+build: setup
+    "$UVE" sync --frozen
 
 run-build:
     "$UVE" build --package shared-utils

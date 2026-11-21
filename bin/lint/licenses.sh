@@ -78,8 +78,6 @@ IGNORE=(
     '^bin/lint/licenses\.sh$'
     '^bin/install/wrap\.sh$'
     '^LICENSES/'
-    '^configs/prompt/'
-    '^configs/REUSE\.toml$'
     '^packages/docs/REUSE\.toml$'
     '^packages/scaffolder/REUSE\.toml$'
     '^packages/docs/src/.+\.md$'
@@ -137,7 +135,7 @@ CC0_FILES=(
 )
 
 UNL_FILES=(
-    'Makefile$'
+    'justfile$'
     'Dockerfile$'
 )
 

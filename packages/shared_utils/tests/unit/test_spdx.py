@@ -8,6 +8,7 @@ from pathlib import Path
 
 from unittest.mock import patch
 
+import pytest
 from reuse.comment import PythonCommentStyle
 
 from shared_utils.licenses.spdx import (
@@ -32,8 +33,8 @@ class TestFindSpdxBlock:
         # REUSE-IgnoreEnd
         result = _find_spdx_block(text, PythonCommentStyle)
         assert result is not None
-        start, block = result
-        assert start == 0
+        _start, block = result
+        assert _start == 0
         assert "SPDX" in block
 
     def test_skips_lines_without_spdx(self) -> None:
@@ -43,7 +44,7 @@ class TestFindSpdxBlock:
         # REUSE-IgnoreEnd
         result = _find_spdx_block(text, PythonCommentStyle)
         assert result is not None
-        start, block = result
+        _start, block = result
         assert "SPDX" in block
 
     def test_skips_leading_non_comment_line(self) -> None:
@@ -96,6 +97,21 @@ class TestStripSpdxHeaders:
         strip_spdx_headers(tmp_path)
         assert "SPDX" in f.read_text()
 
+    def test_skips_directories(self, tmp_path: Path) -> None:
+        """Ignore directories found while walking the tree."""
+        (tmp_path / "sub").mkdir()
+        (tmp_path / "sub" / "keep.txt").write_text("x")
+        strip_spdx_headers(tmp_path)
+        assert (tmp_path / "sub" / "keep.txt").read_text() == "x"
+
+    def test_skips_non_utf8_files(self, tmp_path: Path) -> None:
+        """Leave binary files containing the SPDX marker untouched."""
+        f = tmp_path / "blob.bin"
+        data = b"\xff\xfeSPDX\x80\x00"
+        f.write_bytes(data)
+        strip_spdx_headers(tmp_path)
+        assert f.read_bytes() == data
+
 
 class TestWriteLicense:
     """Tests for write_license."""
@@ -107,3 +123,8 @@ class TestWriteLicense:
         with patch("shared_utils.licenses.spdx.put_license_in_file") as mock_put:
             write_license(lic_file, "MIT")
             mock_put.assert_called_once_with("MIT", lic_file)
+
+    def test_raises_without_existing_file(self, tmp_path: Path) -> None:
+        """Raise FileNotFoundError when the target file is absent."""
+        with pytest.raises(FileNotFoundError, match="license file missing"):
+            write_license(tmp_path / "LICENSE", "MIT")

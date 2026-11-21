@@ -39,13 +39,17 @@ def _fake_clone(path: Path, template_url: str, ref: str, /) -> None:
     if path.exists():
         shutil.rmtree(path)
     path.mkdir(parents=True)
-    archive = subprocess.run(
-        ["git", "archive", "HEAD"],
+    archive = subprocess.run(  # noqa: S603
+        [shutil.which("git") or "git", "archive", "HEAD"],
         cwd=_REPO_ROOT,
         check=True,
         capture_output=True,
     ).stdout
-    subprocess.run(["tar", "-x", "-C", str(path)], input=archive, check=True)
+    subprocess.run(  # noqa: S603
+        [shutil.which("tar") or "tar", "-x", "-C", str(path)],
+        input=archive,
+        check=True,
+    )
     (path / ".git").mkdir()
 
 
@@ -144,7 +148,7 @@ class TestAllVariants:
         path = scaffold(use_monorepo=use_monorepo, use_docs=use_docs, use_reuse=use_reuse)
         text = (path / "pyproject.toml").read_text()
         pyproject = tomllib.loads(text)
-        assert pyproject["project"]["name"] == (_PROJECT if use_monorepo else _PKG)
+        assert pyproject["project"]["name"] == ("my-project" if use_monorepo else _PKG)
         assert pyproject["project"]["description"] == "A demo"
         assert pyproject["project"]["license"] == "MIT"
         assert ("[tool.uv.workspace]" in text) is use_monorepo

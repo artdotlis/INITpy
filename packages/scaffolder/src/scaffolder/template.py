@@ -29,6 +29,7 @@ def load_template(
     """
     return Environment(
         loader=FileSystemLoader(str(TEMPLATES_DIR)),
+        autoescape=False,  # noqa: S701
         trim_blocks=True,
         lstrip_blocks=True,
         keep_trailing_newline=True,

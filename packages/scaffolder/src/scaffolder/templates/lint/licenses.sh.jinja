@@ -80,8 +80,6 @@ IGNORE=(
     '^bin/lint/licenses\.sh$'
     '^bin/install/wrap\.sh$'
     '^LICENSES/'
-    '^configs/prompt/'
-    '^configs/REUSE\.toml$'
 {% if use_docs %}    '^packages/docs/REUSE\.toml$'
 {% endif %}{% if use_monorepo %}    '^packages/scaffolder/REUSE\.toml$'
 {% endif %}{% if use_docs %}    '^packages/docs/src/.+\.md$'
@@ -140,7 +138,7 @@ CC0_FILES=(
 )
 
 UNL_FILES=(
-    'Makefile$'
+    'justfile$'
     'Dockerfile$'
 )
 

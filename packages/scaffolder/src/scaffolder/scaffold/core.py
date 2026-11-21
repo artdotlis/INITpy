@@ -4,11 +4,10 @@
 
 """Core scaffold orchestration and CLI."""
 
-from pathlib import Path
+import os
 from dataclasses import dataclass
 from datetime import datetime
-
-import os
+from pathlib import Path
 
 from scaffolder.scaffold.config import correct_core_project
 from scaffolder.scaffold.docs import amend_docs, remove_docs
@@ -23,16 +22,16 @@ from scaffolder.scaffold.skeleton import remove_projects_output_folder
 from scaffolder.scaffold.skeleton import write_package_files
 from scaffolder.scaffold.tests import update_tests
 from shared_utils.core.constants import VERSION
+from shared_utils.core.names import package_env_file
+from shared_utils.core.names import package_env_var
+from shared_utils.core.names import sanitize_package_name
+from shared_utils.core.names import sanitize_package_name_dep_group
+from shared_utils.licenses.reuse_remove import remove_reuse
+from shared_utils.licenses.spdx import strip_spdx_headers
 from shared_utils.repo.git import clone_git
 from shared_utils.repo.git import init_and_commit
 from shared_utils.repo.git import reset_git
 from shared_utils.repo.just import lock_project
-from shared_utils.core.names import sanitize_package_name
-from shared_utils.core.names import sanitize_package_name_dep_group
-from shared_utils.core.names import package_env_file
-from shared_utils.core.names import package_env_var
-from shared_utils.licenses.reuse_remove import remove_reuse
-from shared_utils.licenses.spdx import strip_spdx_headers
 
 
 def clone_ref() -> str:
@@ -90,6 +89,8 @@ def run(args: ScaffoldArgs) -> Path:
     package_name = f"{sanitize_package_name(project_name)}_pkg"
     dep_name = sanitize_package_name_dep_group(package_name)
     output_path = Path(output_dir) / project_name
+    if output_path.exists() and any(output_path.iterdir()):
+        raise FileExistsError(f"target directory not empty: {output_path}")
     output_path.mkdir(parents=True, exist_ok=True)
 
     package_ctx = {
@@ -104,6 +105,7 @@ def run(args: ScaffoldArgs) -> Path:
     root_ctx = {
         **package_ctx,
         "project_name": project_name,
+        "project_slug": sanitize_package_name_dep_group(project_name),
         "dep_name": dep_name,
         "license": license_name,
         "package_env_var": package_env_var(package_name),
@@ -140,7 +142,7 @@ def run(args: ScaffoldArgs) -> Path:
         print("[scaffolder] skipping docs (requested removal) ...")
 
     print("[scaffolder] updating env vars ...")
-    update_envs(output_path, package_name, root_ctx)
+    update_envs(output_path, root_ctx)
 
     print("[scaffolder] wiring tests ...")
     update_tests(output_path, root_ctx)

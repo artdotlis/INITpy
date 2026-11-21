@@ -13,7 +13,7 @@ from shared_utils.repo.just import _tools_available, lock_project
 class TestLockProject:
     """Tests for lock_project."""
 
-    def test_runs_make_cmd(self) -> None:
+    def test_runs_lock_cmd(self, tmp_path: Path) -> None:
         """Run ``just lock`` inheriting CONTAINER from the env."""
         with (
             patch("subprocess.run") as mock_run,
@@ -21,22 +21,20 @@ class TestLockProject:
             patch.dict("os.environ", {"CONTAINER": "container"}),
         ):
             mock_run.return_value = MagicMock(returncode=0)
-            lock_project(Path("/tmp"))
+            lock_project(tmp_path)
             mock_run.assert_called_once()
             kwargs = mock_run.call_args.kwargs
-            assert mock_run.call_args[0][0] == ["just", "lock"]
+            assert mock_run.call_args[0][0][1:] == ["lock"]
             assert kwargs["env"]["CONTAINER"] == "container"
 
-    def test_runs_setup_before_lock(self) -> None:
-        """Run ``just setup`` first when uv, pnpm or just are missing."""
+    def test_skips_when_tools_missing(self, tmp_path: Path) -> None:
+        """Skip locking when uv, pnpm or just are missing."""
         with (
             patch("subprocess.run") as mock_run,
             patch("shared_utils.repo.just._tools_available", return_value=False),
         ):
-            mock_run.return_value = MagicMock(returncode=0)
-            lock_project(Path("/tmp"))
-            args = [call[0][0] for call in mock_run.call_args_list]
-            assert args == [["just", "setup"], ["just", "lock"]]
+            lock_project(tmp_path)
+            mock_run.assert_not_called()
 
 
 class TestToolsAvailable:

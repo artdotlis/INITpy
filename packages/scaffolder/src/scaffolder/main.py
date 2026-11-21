@@ -102,9 +102,10 @@ def run_cli() -> None:
         )
         print(f"\n✅ '{project_name}' → {result.absolute()}")
     except Exception as exc:
-        partial = Path(output_dir) / project_name
-        if partial.exists():
-            shutil.rmtree(partial) if partial.is_dir() else partial.unlink()
+        if not isinstance(exc, FileExistsError):
+            partial = Path(output_dir) / project_name
+            if partial.exists():
+                shutil.rmtree(partial) if partial.is_dir() else partial.unlink()
         print(f"❌ {exc}", file=sys.stderr)
         raise
 

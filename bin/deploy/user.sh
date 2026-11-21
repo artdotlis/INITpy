@@ -67,7 +67,6 @@ setup_alpine() {
     local gid="$3"
     local homedir="$4"
 
-    # Free the requested UID and name before recreating
     local user_name
     user_name="$(getent passwd "$uid" | cut -d: -f1 || true)"
     if [ -n "$user_name" ] && [ "$user_name" != "$username" ]; then
@@ -77,7 +76,6 @@ setup_alpine() {
         deluser "$username" 2>/dev/null || true
     fi
 
-    # Free the requested GID and name before recreating
     local group_name
     group_name="$(getent group "$gid" | cut -d: -f1 || true)"
     if [ -n "$group_name" ] && [ "$group_name" != "$username" ]; then

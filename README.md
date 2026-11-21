@@ -22,7 +22,7 @@ SPDX-License-Identifier: CC0-1.0
 
 - **Single-Source Truth:** Python dependencies managed via `uv` in `pyproject.toml`.
 - **Native Monorepo Support:** Built-in logic for managing multiple packages (`scaffolder`, `shared_utils`).
-- **Conventional Commits:** Uses `commitizen` with `vim` for editing commit messages.
+- **Conventional Commits:** Uses `commitizen` with `$EDITOR` for editing commit messages.
 - **Strict Consistency:** A Docker-based Dev Container ensures every contributor uses the exact same tool versions.
 - **Robust CI/CD:** Ready-to-go workflows for testing, linting (`ruff`), and static analysis (`pyrefly`).
 - **Documentation:** Built with `vitepress` and deployed via GitHub Pages.
@@ -63,7 +63,7 @@ INITpy/
 │   ├-- docs/
 │   ├-- scaffolder/
 │   └-- shared_utils/
-├-- PROJECTS/           # Default scaffolder output (kept via inner .gitignore)
+├-- PROJECTS/           # Default scaffolder output (git-ignored)
 ├-- LICENSES/           # REUSE license texts
 ├-- docker-compose.yml  # Scaffolder service definition
 ├-- lefthook.yml        # Git hook definitions
@@ -79,27 +79,27 @@ INITpy/
 
 All commands must be run within the Dev Container or by passing `CONTAINER=container`.
 
-| Category    | Command                                   | Action                                                                               |
-| :---------- | :---------------------------------------- | :----------------------------------------------------------------------------------- |
-| **Setup**   | `just setup`, `just dev`                  | Installs tooling; `dev` also syncs all dependencies and installs lefthook hooks.     |
-| **Active**  | `just run-act`                            | Enters the virtual environment shell.                                                |
-| **Build**   | `just run-build`                          | Builds all packages as wheels via `uv`.                                              |
-| **Quality** | `just run-checks`                         | Runs `lefthook` pre-commit hooks (lint + static analysis)                            |
-| **Test**    | `just run-tests`                          | Runs the pytest suite and enforces the coverage floor for all packages.              |
-| **Docs**    | `just run-docs`, `serve-docs`             | Builds and serves the VitePress site, with API reference partials regenerated.       |
-| **Deps**    | `just lock`, `update`             | Locks or updates the `uv` and `pnpm` lockfiles.                                      |
-| **Release** | `just bump`                               | Bumps the version and updates the CHANGELOG.                                         |
-| **Git**     | `just commit`, `just com`                 | Generates commit message with `commitizen` or opens `vim` for editing, then commits. |
-| **Clean**   | `just clean`                              | Removes build artifacts and caches via `bin/install/clean.sh`.                       |
+| Category    | Command                        | Action                                                                           |
+| :---------- | :----------------------------- | :------------------------------------------------------------------------------- |
+| **Setup**   | `just setup`, `just dev`       | Installs tooling; `dev` also syncs all dependencies and installs lefthook hooks. |
+| **Active**  | `just run-act`                 | Enters the virtual environment shell.                                            |
+| **Build**   | `just build`, `just run-build` | `build` syncs prod deps (no dev groups); `run-build` builds both wheel packages. |
+| **Quality** | `just run-checks`              | Runs `lefthook` pre-commit hooks (lint + static analysis)                        |
+| **Test**    | `just run-tests`               | Runs the pytest suite and enforces the coverage floor for all packages.          |
+| **Docs**    | `just run-docs`, `serve-docs`  | Builds and serves the VitePress site, with API reference partials regenerated.   |
+| **Deps**    | `just lock`, `update`          | Locks or updates the `uv` and `pnpm` lockfiles.                                  |
+| **Release** | `just bump`                    | Bumps the version and updates the CHANGELOG.                                     |
+| **Git**     | `just com`                     | Generates commit message with `commitizen` or opens `$EDITOR`, then commits.     |
+| **Clean**   | `just clean`                   | Removes build artifacts and caches via `bin/install/clean.sh`.                   |
 
 ### ✍️ Commit Messages
 
-The `just commit`/`just com` recipe:
+The `just com` recipe:
 
-- If `.commit_msg` exists and is non-empty: opens it in `vim` for editing, then commits
+- If `.commit_msg` exists and is non-empty: opens it in `$EDITOR`, then commits
 - Else: runs `cz commit --write-message-to-file` to generate a commit message, commits using that message
 
-> **Note**: The Makefile removes `.commit_msg` after committing (temp file cleanup).
+> **Note**: The recipe removes `.commit_msg` after committing (temp file cleanup).
 
 ---
 
@@ -112,6 +112,7 @@ The `scaffolder` service provides a **production** container with the interactiv
 - The CLI treats `SCAF_OUTPUT_DIR` as a fixed prefix: the output-directory prompt is skipped and the project name is appended to it.
 
 ```bash
+cp package.env .env
 USER_UID=$(id -u) USER_GID=$(id -g) SCAF_OUTPUT_DIR=/some/host/folder docker compose up -d
 
 docker compose exec -it scaffolder scaffolder
@@ -138,7 +139,7 @@ Released into the public domain via the [Unlicense](https://choosealicense.com/l
 
 ### Why the `CONTAINER=container` guard?
 
-To prevent accidental execution on your host, `Makefile` uses a mandatory `CONTAINER` constraint. This safety gate ensures the code runs exclusively in the intended containerized environment.
+To prevent accidental execution on your host, the `justfile` uses a mandatory `CONTAINER` constraint. This safety gate ensures the code runs exclusively in the intended containerized environment.
 
 ---
 

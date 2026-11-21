@@ -35,6 +35,7 @@ TEMPLATE_TARGETS: dict[str, str] = {
     "root/lefthook.yml.jinja": "lefthook.yml",
     "root/pnpm-workspace.yaml.jinja": "pnpm-workspace.yaml",
     "root/justfile.jinja": "justfile",
+    "root/justfile.license.jinja": "justfile.license",
     "root/gitignore.jinja": ".gitignore",
     "root/dockerignore.jinja": ".dockerignore",
     "root/package.env.jinja": "package.env",
@@ -118,6 +119,14 @@ def root_pnpm_workspace_yaml_jinja() -> Template:
 def root_justfile_jinja() -> Template:
     """``root/justfile.jinja`` -> ``justfile``."""
     return Template("root/justfile.jinja", TEMPLATE_TARGETS["root/justfile.jinja"])
+
+
+@pytest.fixture
+def root_justfile_license_jinja() -> Template:
+    """``root/justfile.license.jinja`` -> ``justfile.license``."""
+    return Template(
+        "root/justfile.license.jinja", TEMPLATE_TARGETS["root/justfile.license.jinja"]
+    )
 
 
 @pytest.fixture
@@ -234,7 +243,7 @@ def original_pnpm_workspace_yaml() -> Path:
 
 
 @pytest.fixture
-def original_makefile() -> Path:
+def original_justfile() -> Path:
     """``justfile``."""
     return _REPO_ROOT / "justfile"
 
@@ -348,6 +357,7 @@ def context() -> dict[str, object]:
         "copyright_holder": copyright_holder,
         "year": datetime.now().year,
         "project_name": str(project["name"]),
+        "project_slug": sanitize_package_name_dep_group(str(project["name"])),
         "dep_name": sanitize_package_name_dep_group(package_name),
         "license": str(pyproject["project"]["license"]),
         "package_env_var": package_env_var(package_name),

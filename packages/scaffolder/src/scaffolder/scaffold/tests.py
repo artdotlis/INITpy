@@ -9,7 +9,6 @@ from typing import Any
 
 from scaffolder.template import render_template
 
-# CI workflow templates; the target filename is the template stem.
 _CI_WORKFLOWS = ("github/mac_win_test.yml.jinja", "github/lin_lint.yml.jinja")
 
 
