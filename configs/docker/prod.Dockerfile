@@ -8,7 +8,6 @@ COPY . /app
 
 WORKDIR /app
 
-RUN dnf clean all && dnf install -y bash just
 RUN bash "./${BIN_DEPLOY_PREP}" && bash "./${BIN_DEPLOY_REQ}"
 RUN just build
 
