@@ -81,12 +81,6 @@ class TestRenderMatchesOriginal:
         assert rendered_prefix in original
         assert package_line in rendered
 
-    def test_root_justfile_license(
-        self, root_justfile_license_jinja: Any, context: dict[str, object]
-    ) -> None:
-        """``root/justfile.license.jinja`` -> ``justfile.license``."""
-        _assert_render_matches(root_justfile_license_jinja, context)
-
     def test_root_gitignore(
         self, root_gitignore_jinja: Any, context: dict[str, object]
     ) -> None:

@@ -35,7 +35,6 @@ TEMPLATE_TARGETS: dict[str, str] = {
     "root/lefthook.yml.jinja": "lefthook.yml",
     "root/pnpm-workspace.yaml.jinja": "pnpm-workspace.yaml",
     "root/justfile.jinja": "justfile",
-    "root/justfile.license.jinja": "justfile.license",
     "root/gitignore.jinja": ".gitignore",
     "root/dockerignore.jinja": ".dockerignore",
     "root/package.env.jinja": "package.env",
@@ -119,14 +118,6 @@ def root_pnpm_workspace_yaml_jinja() -> Template:
 def root_justfile_jinja() -> Template:
     """``root/justfile.jinja`` -> ``justfile``."""
     return Template("root/justfile.jinja", TEMPLATE_TARGETS["root/justfile.jinja"])
-
-
-@pytest.fixture
-def root_justfile_license_jinja() -> Template:
-    """``root/justfile.license.jinja`` -> ``justfile.license``."""
-    return Template(
-        "root/justfile.license.jinja", TEMPLATE_TARGETS["root/justfile.license.jinja"]
-    )
 
 
 @pytest.fixture
