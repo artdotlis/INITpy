@@ -36,7 +36,7 @@ jobs:
             - name: lint
               run: |
                   export CONTAINER="container"
-                  just dev
+                  just prepare
                   just run-checks
             - name: tests
               run: just run-tests

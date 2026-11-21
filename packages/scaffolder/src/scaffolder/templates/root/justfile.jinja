@@ -6,7 +6,7 @@ setup:
     bash "$BIN_INSTALL_PNPM"
 {% endif %}
 
-dev: setup
+prepare: setup
     "$UVE" sync --frozen --all-groups
 {% if use_monorepo %}
     "$PNPME" install --frozen-lockfile

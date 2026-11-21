@@ -9,7 +9,7 @@ COPY . /app
 WORKDIR /app
 
 RUN bash "./${BIN_DEPLOY_PREP}" && bash "./${BIN_DEPLOY_REQ}"
-RUN just build
+RUN COMPONENT=py DISABLE_GIT_ADD=1 just prepare
 
 RUN --mount=type=secret,id=env_file,target=/run/secrets/env_file \
     bash -c "\

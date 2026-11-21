@@ -3,7 +3,7 @@
     "dockerComposeFile": ["../docker-compose.yml", "dev.docker-compose.yml"],
     "initializeCommand": "if [ ! -f .env ]; then cat package.env > .env; fi",
     "name": "initpy",
-    "postAttachCommand": "just dev",
+    "postAttachCommand": "just prepare",
     "remoteUser": "devu",
     "runServices": ["dev"],
     "service": "dev",

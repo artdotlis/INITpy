@@ -44,7 +44,7 @@ devcontainer up --workspace-folder .
 devcontainer exec --workspace-folder . bash
 
 # 3. Bootstrap the project (Inside the container)
-just dev
+just prepare
 just run-act
 ```
 
@@ -79,18 +79,18 @@ INITpy/
 
 All commands must be run within the Dev Container or by passing `CONTAINER=container`.
 
-| Category    | Command                        | Action                                                                           |
-| :---------- | :----------------------------- | :------------------------------------------------------------------------------- |
-| **Setup**   | `just setup`, `just dev`       | Installs tooling; `dev` also syncs all dependencies and installs lefthook hooks. |
-| **Active**  | `just run-act`                 | Enters the virtual environment shell.                                            |
-| **Build**   | `just build`, `just run-build` | `build` syncs prod deps (no dev groups); `run-build` builds both wheel packages. |
-| **Quality** | `just run-checks`              | Runs `lefthook` pre-commit hooks (lint + static analysis)                        |
-| **Test**    | `just run-tests`               | Runs the pytest suite and enforces the coverage floor for all packages.          |
-| **Docs**    | `just run-docs`, `serve-docs`  | Builds and serves the VitePress site, with API reference partials regenerated.   |
-| **Deps**    | `just lock`, `update`          | Locks or updates the `uv` and `pnpm` lockfiles.                                  |
-| **Release** | `just bump`                    | Bumps the version and updates the CHANGELOG.                                     |
-| **Git**     | `just com`                     | Generates commit message with `commitizen` or opens `$EDITOR`, then commits.     |
-| **Clean**   | `just clean`                   | Removes build artifacts and caches via `bin/install/clean.sh`.                   |
+| Category    | Command                       | Action                                                                                                    |
+| :---------- | :---------------------------- | :-------------------------------------------------------------------------------------------------------- |
+| **Setup**   | `just setup`, `just prepare`  | Installs tooling; `prepare` syncs deps for `COMPONENT` (`py`, `docs`, `all`) and installs lefthook hooks. |
+| **Active**  | `just run-act`                | Enters the virtual environment shell.                                                                     |
+| **Build**   | `just run-build`              | Builds both wheel packages; run `just prepare COMPONENT=py` first for prod deps.                          |
+| **Quality** | `just run-checks`             | Runs `lefthook` pre-commit hooks (lint + static analysis)                                                 |
+| **Test**    | `just run-tests`              | Runs the pytest suite and enforces the coverage floor for all packages.                                   |
+| **Docs**    | `just run-docs`, `serve-docs` | Builds and serves the VitePress site, with API reference partials regenerated.                            |
+| **Deps**    | `just lock`, `update`         | Locks or updates the `uv` and `pnpm` lockfiles.                                                           |
+| **Release** | `just bump`                   | Bumps the version and updates the CHANGELOG.                                                              |
+| **Git**     | `just com`                    | Generates commit message with `commitizen` or opens `$EDITOR`, then commits.                              |
+| **Clean**   | `just clean`                  | Removes build artifacts and caches via `bin/install/clean.sh`.                                            |
 
 ### ✍️ Commit Messages
 
