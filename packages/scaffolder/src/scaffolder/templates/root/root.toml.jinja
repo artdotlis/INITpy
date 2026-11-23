@@ -10,7 +10,7 @@ description = "{{ description }}"
 readme = "README.md"
 license = "{{ license }}"
 keywords = ["python", "skeleton"]
-requires-python = ">=3.13,<4"
+requires-python = ">=3.14,<4"
 
 [[project.authors]]
 name = "{{ author_name }}"
@@ -93,7 +93,7 @@ search-path = [
 {% if use_monorepo %}  "packages/{{ package_name }}/src",
 {% else %}  "src",
 {% endif %}]
-python-version = "3.13"
+python-version = "3.14"
 python-platform = "linux"
 skip-interpreter-query = false
 check-unannotated-defs = true
@@ -108,7 +108,7 @@ unused-ignore = true
 
 [tool.ruff]
 line-length = 90
-target-version = "py313"
+target-version = "py314"
 exclude = [
   ".git",
   ".ruff_cache",

@@ -11,7 +11,7 @@ readme = "README.md"
 authors = [{ name = "Artur Lissin", email = "artdotlis@pm.me" }]
 license = "Unlicense"
 keywords = ["python", "skeleton"]
-requires-python = ">=3.13,<4"
+requires-python = ">=3.14,<4"
 
 [tool.uv]
 exclude-newer = "3 days"
@@ -84,7 +84,7 @@ search-path = [
   "packages/scaffolder/src",
   "packages/shared_utils/src",
 ]
-python-version = "3.13"
+python-version = "3.14"
 python-platform = "linux"
 skip-interpreter-query = false
 check-unannotated-defs = true
@@ -99,7 +99,7 @@ unused-ignore = true
 
 [tool.ruff]
 line-length = 90
-target-version = "py313"
+target-version = "py314"
 exclude = [
   ".git",
   ".ruff_cache",

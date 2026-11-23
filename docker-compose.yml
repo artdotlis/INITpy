@@ -13,7 +13,6 @@ services:
                 USERNAME: runner
                 USER_UID: ${USER_UID:-1000}
                 USER_GID: ${USER_GID:-1000}
-                WORK_DIR: '/workspace'
                 BIN_DEPLOY_PREP: ${BIN_DEPLOY_PREP}
                 BIN_DEPLOY_REQ: ${BIN_DEPLOY_REQ}
                 BIN_DEPLOY_USER: ${BIN_DEPLOY_USER}
