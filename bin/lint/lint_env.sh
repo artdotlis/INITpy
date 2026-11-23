@@ -10,7 +10,7 @@ ROOT="$(dirname "$(realpath "$0")")/../.."
 ROOT_ENV="$ROOT/package.env"
 DOCKER_DIR="$ROOT/configs/docker"
 
-ENV_FILES=( "$ROOT_ENV" "$SCA_ENV" "$DOC_ENV")
+ENV_FILES=( "$ROOT_ENV" "$ROOT/$SCA_ENV" "$ROOT/$DOC_ENV")
 
 ALL_ENV=(
     "HOME"

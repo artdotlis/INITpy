@@ -59,6 +59,7 @@ run-build:
     "$UVE" build --package scaffolder
 
 bump:
+    bash "$BIN_RUN_UNSTAGED" && \
     NEW_VER=$("$UVE" run bash bin/install/bump.sh | tail -1) && \
     echo "bumped to $NEW_VER" && \
     just lock && \

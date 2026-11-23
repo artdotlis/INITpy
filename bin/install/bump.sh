@@ -22,6 +22,16 @@ README="README.md"
 CHANGELOG="CHANGELOG.md"
 
 
+TEMP_TAG=""
+cleanup_temp_tag() {
+    if [[ -n "$TEMP_TAG" ]]; then
+        git tag -d "$TEMP_TAG" >/dev/null 2>&1 || true
+        TEMP_TAG=""
+    fi
+}
+trap cleanup_temp_tag EXIT
+
+
 read_version() {
     local ver
     ver="$(grep -Eom1 '^version = "[0-9]+(\.[0-9]+){2}"' "$PYPROJECT" | grep -Eo '[0-9]+(\.[0-9]+){2}' || true)"
@@ -89,6 +99,31 @@ changelog_version() {
     grep -Eom1 '^## v[0-9]+(\.[0-9]+){2}' "$CHANGELOG" 2>/dev/null | grep -Eo '[0-9]+(\.[0-9]+){2}' || true
 }
 
+release_anchor() {
+    local tag prev
+    tag="$(last_tag)"
+    if [[ -n "$tag" ]]; then
+        git rev-list -n1 "$tag"
+        return 0
+    fi
+    prev="$(changelog_version)"
+    if [[ -z "$prev" ]]; then
+        return 0
+    fi
+    git log -1 --format=%H -S"version = \"$prev\"" -- "$PYPROJECT"
+}
+
+check_has_release() {
+    local anchor="$1"
+    if [[ -z "$anchor" ]]; then
+        return 0
+    fi
+    if [[ -z "$(git log --format=%H "$anchor"..HEAD)" ]]; then
+        echo "[calver] nothing to release since $anchor" >&2
+        exit 1
+    fi
+}
+
 check_no_rewind() {
     local latest="$1" new_ver="$2"
     [[ -z "$latest" ]] && return 0
@@ -113,11 +148,7 @@ bump() {
         return
     fi
 
-    if [[ -z "$latest" ]]; then
-        YEAR=$cur_year
-        MONTH=$cur_month
-        PATCH=0
-    elif (( cur_year > YEAR || (cur_year == YEAR && cur_month > MONTH) )); then
+    if (( cur_year > YEAR || (cur_year == YEAR && cur_month > MONTH) )); then
         YEAR=$cur_year
         MONTH=$cur_month
         PATCH=0
@@ -131,7 +162,7 @@ bump() {
 
 
 generate_changelog() {
-    local ver prev rev tagged=""
+    local ver prev rev
     ver="$(fmt_ver)"
     if [[ -z "$(last_tag)" ]]; then
         prev="$(changelog_version)"
@@ -139,18 +170,15 @@ generate_changelog() {
             cz changelog --unreleased-version "v$ver"
             return
         fi
-        rev="$(git log --format=%H -S"version = \"$prev\"" -- "$PYPROJECT" | head -1)"
+        rev="$(git log -1 --format=%H -S"version = \"$prev\"" -- "$PYPROJECT")"
         if [[ -z "$rev" ]]; then
             echo "[calver] no commit releases $prev, cannot anchor the changelog" >&2
             exit 1
         fi
         git tag "v$prev" "$rev"
-        tagged="$prev"
+        TEMP_TAG="v$prev"
     fi
     cz changelog --incremental --unreleased-version "v$ver"
-    if [[ -n "$tagged" ]]; then
-        git tag -d "v$tagged" >/dev/null
-    fi
 }
 
 
@@ -158,18 +186,15 @@ main() {
     read_version
     detect_scheme "$FILE_VER"
 
-    local old_ver new_ver latest
+    local old_ver new_ver latest base
     latest="$(last_tag)"
+    base="${latest:-v$FILE_VER}"
     old_ver="$FILE_VER"
-    bump "$latest"
+    bump "$base"
     new_ver="$(fmt_ver)"
 
-    if [[ "$new_ver" == "$old_ver" ]]; then
-        PATCH=$((PATCH + 1))
-        new_ver="$(fmt_ver)"
-    fi
-
-    check_no_rewind "$latest" "$new_ver"
+    check_no_rewind "$base" "$new_ver"
+    check_has_release "$(release_anchor)"
 
     if [[ "${1:-}" == "--dry-run" ]]; then
         echo "$new_ver"
