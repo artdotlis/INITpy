@@ -24,7 +24,7 @@ if ! command -v node &>/dev/null; then
 fi
 
 if [[ ! -d "$PNPM_HOME/bin" ]]; then
-    curl -fsSL https://get.pnpm.io/install.sh | sh -
+    curl -fsSL https://get.pnpm.io/install.sh | env PNPM_VERSION="$PNPM_VERSION" PNPM_HOME="$ROOT/$PNPM_HOME" sh -
 fi
 
 set +a
