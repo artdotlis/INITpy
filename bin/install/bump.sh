@@ -58,6 +58,8 @@ write_version() {
 
 
 last_tag() {
+    git fetch --tags --quiet 2>/dev/null || \
+        echo "[calver] warning: could not fetch tags; using local tags only" >&2
     git tag --list 'v*' --sort=-v:refname 2>/dev/null | head -1
 }
 
