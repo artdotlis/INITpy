@@ -42,7 +42,7 @@ pre-commit:
                     run: bin/install/wrap.sh check-ast -- {staged_files}
                   - name: check-yaml
                     glob: '*.{yaml,yml}'
-                    run: bin/install/wrap.sh check-yaml -- {staged_files}
+                    run: bin/install/wrap.sh check-yaml --unsafe -- {staged_files}
                   - name: check-json
                     glob: '*.json'
                     exclude:
@@ -69,8 +69,8 @@ pre-commit:
                     glob: '*.{js,jsx,ts,tsx,cjs,mjs,mts,cts,vue}'
                     run: bin/install/wrap.sh oxlint -- {staged_files}
                   - name: typecheck
-                    glob: 'packages/docs/**/*.{ts,tsx,vue}'
-                    run: bin/install/wrap.sh pnpm --filter docs run typecheck
+                    glob: '*.{ts,tsx,vue,mts,cts}'
+                    run: bin/install/wrap.sh pnpm -r --if-present run typecheck
 {% endif %}        - name: fix
           group:
               piped: true

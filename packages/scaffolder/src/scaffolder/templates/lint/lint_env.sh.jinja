@@ -11,8 +11,8 @@ ROOT_ENV="$ROOT/package.env"
 DOCKER_DIR="$ROOT/configs/docker"
 
 {% if not use_monorepo %}ENV_FILES=( "$ROOT_ENV" )
-{% elif use_docs %}ENV_FILES=( "$ROOT_ENV" "${{ package_env_file }}" "$DOC_ENV")
-{% else %}ENV_FILES=( "$ROOT_ENV" "${{ package_env_file }}" )
+{% elif use_docs %}ENV_FILES=( "$ROOT_ENV" "$ROOT/${{ package_env_file }}" "$ROOT/$DOC_ENV")
+{% else %}ENV_FILES=( "$ROOT_ENV" "$ROOT/${{ package_env_file }}" )
 {% endif %}
 
 ALL_ENV=(

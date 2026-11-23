@@ -28,7 +28,8 @@ class TestUpdateEnvs:
         assert f'COPYRIGHT="{context["copyright_holder"]}"' in env
 
         lint_env = (tmp_path / "bin" / "lint" / "lint_env.sh").read_text()
-        assert f'"${context["package_env_file"]}"' in lint_env
+        env_file_var = context["package_env_file"]
+        assert f'"$ROOT/${env_file_var}"' in lint_env
 
     def test_no_docs_drops_docs_env(
         self, tmp_path: Path, context: dict[str, object]
