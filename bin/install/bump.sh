@@ -19,6 +19,7 @@ fi
 PYPROJECT="pyproject.toml"
 PACKAGE_JSON="package.json"
 README="README.md"
+CHANGELOG="CHANGELOG.md"
 
 
 read_version() {
@@ -28,15 +29,32 @@ read_version() {
         echo "[calver] no version found in $PYPROJECT" >&2
         exit 1
     fi
+    FILE_VER="$ver"
     IFS='.' read -r YEAR MONTH PATCH <<<"$ver"
     YEAR=$((10#$YEAR))
     MONTH=$((10#$MONTH))
     PATCH=$((10#$PATCH))
 }
 
+SCHEME="calver"
+
+fmt_ver() {
+    printf '%04d.%02d.%d' "$YEAR" "$MONTH" "$PATCH"
+}
+
+detect_scheme() {
+    local major="${1#v}"
+    major="${major%%.*}"
+    if [[ "$major" =~ ^[0-9]{4}$ ]] && (( 10#$major >= 2000 )); then
+        SCHEME="calver"
+    else
+        SCHEME="semver"
+    fi
+}
+
 write_version() {
     local ver
-    ver="$(printf '%04d.%02d.%d' "$YEAR" "$MONTH" "$PATCH")"
+    ver="$(fmt_ver)"
     sed -Ei "s/^version = \"[0-9]+(\.[0-9]+){2}\"/version = \"$ver\"/" "$PYPROJECT"
     if [[ -f "$PACKAGE_JSON" ]]; then
         sed -Ei "s/\"version\": \"[0-9]+(\.[0-9]+){2}\"/\"version\": \"$ver\"/" "$PACKAGE_JSON"
@@ -57,12 +75,19 @@ write_version() {
 }
 
 
+FETCHED_TAGS=""
 last_tag() {
-    git fetch --tags --quiet 2>/dev/null || \
-        echo "[calver] warning: could not fetch tags; using local tags only" >&2
+    if [[ -z "$FETCHED_TAGS" ]]; then
+        git fetch --tags --quiet 2>/dev/null || \
+            echo "[calver] warning: could not fetch tags; using local tags only" >&2
+        FETCHED_TAGS=1
+    fi
     git tag --list 'v*' --sort=-v:refname 2>/dev/null | head -1
 }
 
+changelog_version() {
+    grep -Eom1 '^## v[0-9]+(\.[0-9]+){2}' "$CHANGELOG" 2>/dev/null | grep -Eo '[0-9]+(\.[0-9]+){2}' || true
+}
 
 check_no_rewind() {
     local latest="$1" new_ver="$2"
@@ -74,12 +99,19 @@ check_no_rewind() {
     fi
 }
 
-
 bump() {
     local latest="$1"
     local cur_year cur_month
     cur_year=$((10#$(date +%Y)))
     cur_month=$((10#$(date +%m)))
+
+    if [[ "$SCHEME" == "semver" ]]; then
+        echo "[calver] previous version is semver; switching to calver" >&2
+        YEAR=$cur_year
+        MONTH=$cur_month
+        PATCH=0
+        return
+    fi
 
     if [[ -z "$latest" ]]; then
         YEAR=$cur_year
@@ -99,28 +131,52 @@ bump() {
 
 
 generate_changelog() {
-    local ver
-    ver="$(printf '%04d.%02d.%d' "$YEAR" "$MONTH" "$PATCH")"
+    local ver prev rev tagged=""
+    ver="$(fmt_ver)"
+    if [[ -z "$(last_tag)" ]]; then
+        prev="$(changelog_version)"
+        if [[ -z "$prev" ]]; then
+            cz changelog --unreleased-version "v$ver"
+            return
+        fi
+        rev="$(git log --format=%H -S"version = \"$prev\"" -- "$PYPROJECT" | head -1)"
+        if [[ -z "$rev" ]]; then
+            echo "[calver] no commit releases $prev, cannot anchor the changelog" >&2
+            exit 1
+        fi
+        git tag "v$prev" "$rev"
+        tagged="$prev"
+    fi
     cz changelog --incremental --unreleased-version "v$ver"
+    if [[ -n "$tagged" ]]; then
+        git tag -d "v$tagged" >/dev/null
+    fi
 }
 
 
 main() {
     read_version
+    detect_scheme "$FILE_VER"
 
     local old_ver new_ver latest
-    old_ver="$(printf '%04d.%02d.%d' "$YEAR" "$MONTH" "$PATCH")"
     latest="$(last_tag)"
+    old_ver="$FILE_VER"
     bump "$latest"
-    new_ver="$(printf '%04d.%02d.%d' "$YEAR" "$MONTH" "$PATCH")"
+    new_ver="$(fmt_ver)"
+
+    if [[ "$new_ver" == "$old_ver" ]]; then
+        PATCH=$((PATCH + 1))
+        new_ver="$(fmt_ver)"
+    fi
+
     check_no_rewind "$latest" "$new_ver"
 
     if [[ "${1:-}" == "--dry-run" ]]; then
         echo "$new_ver"
     else
         echo "[calver] $old_ver -> $new_ver" >&2
-        write_version
         generate_changelog
+        write_version
         echo "$new_ver"
     fi
 }

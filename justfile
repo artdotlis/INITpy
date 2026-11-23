@@ -61,6 +61,7 @@ run-build:
 bump:
     NEW_VER=$("$UVE" run bash bin/install/bump.sh | tail -1) && \
     echo "bumped to $NEW_VER" && \
+    just lock && \
     git add . && \
     git commit -am "bump: release $NEW_VER"
 
