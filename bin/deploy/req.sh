@@ -6,7 +6,7 @@
 set -euo pipefail
 
 echo "installing requirements"
-dnf -y install python3.14 python3.14-pip git git-lfs wget coreutils-single jq vim which openssl just
+dnf -y install python3.14 python3.14-pip git git-lfs wget coreutils-single jq vim unzip which openssl just
 ln -s /usr/bin/python3.14 /usr/bin/python
 ln -s /usr/bin/pip3.14 /usr/bin/pip
 dnf -y group install "Development Tools"
