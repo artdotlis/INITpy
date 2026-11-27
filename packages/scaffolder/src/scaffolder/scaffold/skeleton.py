@@ -9,6 +9,11 @@ from pathlib import Path
 
 from scaffolder.template import render_template
 
+_PROD_DOCKERFILES = (
+    Path("configs") / "docker" / "prod.Dockerfile",
+    Path("Dockerfile"),
+)
+
 _NODE_FILES = (
     "package.json",
     "pnpm-workspace.yaml",
@@ -87,13 +92,18 @@ def remove_node_tooling(path: Path, /) -> None:
 def remove_prod_docker(path: Path, /) -> None:
     """Remove the production ``Dockerfile`` and promote the dev compose.
 
+    Supports both the current ``configs/docker/prod.Dockerfile`` and the
+    legacy root ``Dockerfile`` layout used by older release tags.
+
     Args:
         path: Root of the generated project.
     """
-    dockerfile = path / "configs" / "docker" / "prod.Dockerfile"
-    if not dockerfile.is_file():
-        raise FileNotFoundError(f"production Dockerfile missing: {dockerfile}")
-    dockerfile.unlink()
+    dockerfiles = [path / relative for relative in _PROD_DOCKERFILES]
+    present = [dockerfile for dockerfile in dockerfiles if dockerfile.is_file()]
+    if not present:
+        raise FileNotFoundError(f"production Dockerfile missing: {dockerfiles[0]}")
+    for dockerfile in present:
+        dockerfile.unlink()
 
     dev_compose = path / ".devcontainer" / "dev.docker-compose.yml"
     if not dev_compose.is_file():

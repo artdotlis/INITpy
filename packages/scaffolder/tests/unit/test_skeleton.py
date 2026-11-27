@@ -81,6 +81,16 @@ class TestRemoveProdDocker:
         assert (tmp_path / "docker-compose.yml").exists()
         assert not dev_compose.exists()
 
+    def test_removes_legacy_root_dockerfile(self, tmp_path: Path) -> None:
+        """Remove the root Dockerfile used by older release tags."""
+        self._seed(tmp_path)
+        (tmp_path / "configs" / "docker" / "prod.Dockerfile").unlink()
+        legacy = tmp_path / "Dockerfile"
+        legacy.write_text("# legacy prod\n")
+        remove_prod_docker(tmp_path)
+        assert not legacy.exists()
+        assert (tmp_path / "docker-compose.yml").exists()
+
     def test_raises_when_dockerfile_missing(self, tmp_path: Path) -> None:
         """Fail loudly when the production Dockerfile is absent."""
         self._seed(tmp_path)
