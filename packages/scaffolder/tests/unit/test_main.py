@@ -27,9 +27,8 @@ _ANSWERS = [
     "MIT",
     "",
     "",
-    "",
 ]
-NAME, DESCRIPTION, OUTPUT, AUTHOR, EMAIL, _, LICENSE, REUSE, MONOREPO, DOCS = range(10)
+NAME, DESCRIPTION, OUTPUT, AUTHOR, EMAIL, _, LICENSE, REUSE, MONOREPO = range(9)
 
 
 def _inputs(
@@ -121,7 +120,6 @@ class TestRunCli:
             pytest.param(LICENSE, ["INVALID"], id="invalid-license"),
             pytest.param(REUSE, ["maybe"], id="invalid-reuse"),
             pytest.param(MONOREPO, ["maybe"], id="invalid-monorepo"),
-            pytest.param(DOCS, ["maybe"], id="invalid-docs"),
         ],
     )
     def test_rejected_answer_is_retried(
@@ -139,22 +137,22 @@ class TestRunCli:
         assert args.license_name == "MIT"
 
     @pytest.mark.parametrize("answer", ["y", "yes", "YES"])
-    def test_explicit_yes_answers_keep_both(self, answer: str) -> None:
-        """Explicit y/yes answers keep reuse tooling and the docs subpackage."""
+    def test_explicit_yes_answers_keep_reuse_and_docs(self, answer: str) -> None:
+        """Explicit y/yes keeps reuse; monorepo keeps the docs subpackage."""
         mock = _drive(
-            _inputs(accepted={REUSE: answer, DOCS: answer}),
+            _inputs(accepted={REUSE: answer}),
             return_value=Path("/x"),
         )
         args = mock.call_args[0][0]
         assert args.use_reuse is True
         assert args.use_docs is True
 
-    def test_no_answers_drop_both(self) -> None:
-        """Explicit 'n' answers drop the reuse tooling and the docs subpackage."""
-        mock = _drive(_inputs(accepted={REUSE: "n", DOCS: "n"}), return_value=Path("/x"))
+    def test_no_reuse_answer_keeps_docs(self) -> None:
+        """Explicit 'n' drops reuse tooling but monorepo still keeps docs."""
+        mock = _drive(_inputs(accepted={REUSE: "n"}), return_value=Path("/x"))
         args = mock.call_args[0][0]
         assert args.use_reuse is False
-        assert args.use_docs is False
+        assert args.use_docs is True
 
     def test_no_monorepo_disables_docs(self) -> None:
         """A 'no monorepo' answer forces a python-only project without docs."""

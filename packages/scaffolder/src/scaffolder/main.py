@@ -81,7 +81,7 @@ def run_cli() -> None:
     license_name = _prompt_license()
     use_reuse = _prompt_yes_no("Use reuse tooling? [Y/n] ")
     use_monorepo = _prompt_yes_no("Use monorepo layout? [Y/n] ")
-    use_docs = use_monorepo and _prompt_yes_no("Keep docs subpackage? [Y/n] ")
+    use_docs = use_monorepo
     if not use_monorepo:
         print("Python-only layout: docs and node tooling dropped")
 
